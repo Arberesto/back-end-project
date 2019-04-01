@@ -7,9 +7,11 @@ import it.sevenbits.taskmanager.core.repository.TaskRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
 
 @Controller
 @RequestMapping("/tasks/{id}")
@@ -23,9 +25,28 @@ public class TaskController {
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Task> getTask(@PathVariable String id) {
-        Task task = taskRepository.getTask(id);
+    public ResponseEntity<Task> getTask(@PathVariable String id, @RequestHeader("Authorization") String accessToken ,
+                                        @CookieValue(value = "sessionId", required = false) Cookie cookieName) {
+        try {
+            if (accessToken == null || cookieName == null) {
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .build();
+            } else if (!accessToken.equals(cookieName.getValue())) {
+                    return ResponseEntity
+                            .status(HttpStatus.UNAUTHORIZED)
+                            .contentType(MediaType.APPLICATION_JSON_UTF8)
+                            .build();
+            }
 
+        } catch (Exception e) {
+            return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .build();
+        }
+        Task task = taskRepository.getTask(id);
         if (task.getStatus() == TaskStatus.empty) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
@@ -67,8 +88,35 @@ public class TaskController {
 
     @RequestMapping(method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Task> deleteTask(@PathVariable String id) {
-        System.out.println("Example log");
+    public ResponseEntity<Task> deleteTask(@PathVariable String id, @RequestHeader("Authorization") String accessToken ,
+                                           @CookieValue(value = "sessionId", required = false) Cookie cookieName) {
+        try {
+            if (accessToken == null || cookieName == null) {
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .build();
+            } else if (!accessToken.equals(cookieName.getValue())) {
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .build();
+            }
+
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .build();
+        }
+
+        Task result = taskRepository.deleteTask(id);
+        if (result.getStatus() == TaskStatus.empty) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .build();
+        }
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
