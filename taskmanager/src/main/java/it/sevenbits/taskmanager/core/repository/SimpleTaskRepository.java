@@ -44,9 +44,9 @@ public class SimpleTaskRepository implements TaskRepository {
     }
 
     /**
-     * Get list of task with some status
+     * Get list of currens tasks with some status
      * @param status which status task need to be in list
-     * @return list of tasks with chosen status
+     * @return list of current tasks with chosen status
      */
 
     public List<Task> getTaskList(final String status) {
@@ -93,7 +93,7 @@ public class SimpleTaskRepository implements TaskRepository {
 
     /**
      * Update task
-     * @param id
+     * @param id id of task to update
      * @param changedTask new version of task
      * @return task after successful change or empty task
      */
@@ -104,9 +104,20 @@ public class SimpleTaskRepository implements TaskRepository {
         return taskRepository.getOrDefault(id, emptyTask);
     }
 
-    public String getNewId() {
+    /**
+     * Get id for new Task
+     * @return id
+     */
+
+    private String getNewId() {
         return UUID.randomUUID().toString();
     }
+
+    /**
+     * Get task by its id
+     * @param id id of task
+     * @return Task object with chosen id
+     */
 
     public Task getTask(final String id) {
         return taskRepository.getOrDefault(id, emptyTask);
