@@ -10,12 +10,21 @@ import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * Simple task in taskmanager
+ */
 
 public class SimpleTask implements Task {
 
     private final String id;
     private String text;
     private TaskStatus status;
+
+    /**
+     * Public constructor
+     * @param newId id of new task
+     * @param newText text of new task
+     */
 
     @JsonCreator
     public SimpleTask(@JsonProperty("id") final String newId, @JsonProperty("text") final String newText) {
@@ -32,7 +41,12 @@ public class SimpleTask implements Task {
         return this.text;
     }
 
-    public void setText(String text) {
+    /**
+     * Set new value of text
+     * @param text new value to set
+     */
+
+    private void setText(final String text) {
         this.text = text;
     }
 
@@ -44,6 +58,12 @@ public class SimpleTask implements Task {
         this.status = newStatus;
     }
 
+    /**
+     * Update this task
+     * @param fields ObjectNode that contains JSON object with fields to change
+     * @return true if successful change, else false
+     */
+
     public boolean update(final ObjectNode fields) {
         Iterator<Map.Entry<String, JsonNode>> entryIterator = fields.fields();
         for (JsonNode jsonNode:  fields) {
@@ -53,7 +73,7 @@ public class SimpleTask implements Task {
                 Field field = this.getClass().getDeclaredField(entry.getKey());
                 switch (entry.getKey()) {
                     case "status":
-                        setStatus(TaskStatus.done);
+                        setStatus(TaskStatus.resolveString(entry.getValue().asText()));
                         break;
 
                     case "text":
@@ -61,7 +81,6 @@ public class SimpleTask implements Task {
                         break;
                     default:
                         break;
-
                 }
             } catch (NoSuchFieldException e) {
                 System.out.println(String.format("There is no field - %s", entry.getKey()));
@@ -71,6 +90,11 @@ public class SimpleTask implements Task {
         }
         return true;
     }
+
+    /**
+     * Get a clone of this object
+     * @return new SimpleTask object that equal to this
+     */
 
     public Task clone() {
         Task clone = new SimpleTask(this.id, this.text);
