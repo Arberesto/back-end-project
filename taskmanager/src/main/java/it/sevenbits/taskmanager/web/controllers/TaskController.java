@@ -42,7 +42,7 @@ public class TaskController {
      * status: OK if success, NOT_FOUND if there is no task with chosen id
      */
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public ResponseEntity<Task> getTask(final @PathVariable String id) {
         Task task = taskRepository.getTask(id);
@@ -67,7 +67,7 @@ public class TaskController {
      * status: NO_CONTENT if success, BAD_REQUEST if bad body, NOT_FOUND if there is no current task with chosen id
      */
 
-    @RequestMapping(method = RequestMethod.PATCH)
+    @RequestMapping(method = RequestMethod.PATCH, produces = "application/json", consumes = "application/json")
     @ResponseBody
     public ResponseEntity<Task> patchTask(final @PathVariable String id, final @RequestBody ObjectNode node) {
         Task task = taskRepository.getTask(id);
@@ -96,7 +96,7 @@ public class TaskController {
      * status: OK if success, NOT_FOUND if no current task with that id
      */
 
-    @RequestMapping(method = RequestMethod.DELETE)
+    @RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
     @ResponseBody
     public ResponseEntity<Task> deleteTask(final @PathVariable String id) {
 

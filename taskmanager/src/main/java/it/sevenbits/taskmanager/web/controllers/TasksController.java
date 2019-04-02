@@ -44,7 +44,7 @@ public class TasksController {
      * @return list of current tasks with chosen status
      */
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public ResponseEntity<Collection<Task>> getTaskList(final @RequestParam(name = "status", required = false)
                                                                     String status) {
@@ -68,7 +68,7 @@ public class TasksController {
      * @return JSON with new Task Object; HttpStatus: CREATED if success or BAD_REQUEST if bad body
      */
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     @ResponseBody
     public ResponseEntity<Task> createTask(final @RequestBody ObjectNode node) {
         String text = node.get("text").asText();
