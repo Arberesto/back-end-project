@@ -1,18 +1,15 @@
 package it.sevenbits.taskmanager.web.controllers;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.sevenbits.taskmanager.core.model.Task;
+import it.sevenbits.taskmanager.core.model.TaskStatus;
 import it.sevenbits.taskmanager.core.repository.TaskRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.util.Collection;
 
@@ -29,26 +26,35 @@ public class TasksController {
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Collection<Task>> getTaskList() {
-        System.out.println("Example log");
+    public ResponseEntity<Collection<Task>> getTaskList(final @RequestParam(name = "status", required = false)
+                                                                    String status) {
+
+        System.out.println("Status to get: " + status);
+        if (status == null) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .body(taskRepository.getTaskList(TaskStatus.inbox.toString()));
+        }
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .body(taskRepository.getTaskList());
+                .body(taskRepository.getTaskList(status));
     }
 
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Task> createTask(final @RequestParam("text") String text,
-                                           final HttpServletResponse response) {
+    public ResponseEntity<Task> createTask(final @RequestBody ObjectNode node) {
+        String text = node.get("text").asText();
+        if (text == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).
+                    contentType(MediaType.APPLICATION_JSON).build();
+        }
         Task createdTask = taskRepository.createTask(text);
         if (createdTask == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).
                     contentType(MediaType.APPLICATION_JSON).build();
         }
-        Cookie cookie = new Cookie("sessionId", createdTask.getId());
-        cookie.setMaxAge(3600);
-        response.addCookie(cookie);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .location(URI.create(String.format("/tasks/%s", createdTask.getId())))

@@ -8,7 +8,7 @@ public interface Task {
     String getText();
     TaskStatus getStatus();
     void setStatus(TaskStatus newStatus);
-
+    Task clone();
     boolean update(ObjectNode fields);
 
 }

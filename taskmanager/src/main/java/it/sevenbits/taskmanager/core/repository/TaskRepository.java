@@ -2,13 +2,14 @@ package it.sevenbits.taskmanager.core.repository;
 
 import it.sevenbits.taskmanager.core.model.Task;
 
-import java.util.Collection;
+import java.util.List;
 
 public interface TaskRepository {
 
     Task createTask (String text);
 
-    Collection<Task> getTaskList();
+    List<Task> getTaskList(String status);
+
 
     Task getTask(String id);
 

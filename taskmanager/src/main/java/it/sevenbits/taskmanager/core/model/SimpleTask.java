@@ -16,7 +16,6 @@ public class SimpleTask implements Task {
     private final String id;
     private String text;
     private TaskStatus status;
-    private SimpleTask simpleTask;
 
     @JsonCreator
     public SimpleTask(@JsonProperty("id") final String newId, @JsonProperty("text") final String newText) {
@@ -73,4 +72,11 @@ public class SimpleTask implements Task {
         return true;
     }
 
+    public Task clone() {
+        Task clone = new SimpleTask(this.id, this.text);
+        clone.setStatus(this.status);
+        return clone;
+
+
+    }
 }
