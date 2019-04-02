@@ -1,4 +1,3 @@
-./**/.idea/
 ./taskmanager/.idea/
-./taskmanager/.idea/*.*
-./taskmanager/target/*.*
+./target/
+./7bits-checkstyle.xml
