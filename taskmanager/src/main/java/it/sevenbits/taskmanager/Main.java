@@ -8,10 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 
 @SpringBootApplication
-public final class Main {
-
-    private Main() {}
-
+public class Main {
 
     /**
      * Start point of application

@@ -1,9 +1,0 @@
-it/sevenbits/taskmanager/web/controllers/TasksController.class
-it/sevenbits/taskmanager/config/RepositoryConfig.class
-it/sevenbits/taskmanager/web/controllers/TaskController.class
-it/sevenbits/taskmanager/core/repository/TaskRepository.class
-it/sevenbits/taskmanager/core/model/SimpleTask.class
-it/sevenbits/taskmanager/core/repository/SimpleTaskRepository.class
-it/sevenbits/taskmanager/core/model/Task.class
-it/sevenbits/taskmanager/Main.class
-it/sevenbits/taskmanager/core/model/TaskStatus.class

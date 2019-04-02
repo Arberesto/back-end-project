@@ -1,4 +1,4 @@
 ./**/.idea/
-taskmanager/.idea/
-taskmanager/.idea/*
-taskmanager/target/*
+./taskmanager/.idea/
+./taskmanager/.idea/*.*
+./taskmanager/target/*.*
