@@ -73,20 +73,25 @@ public class SimpleTask implements Task {
                 Field field = this.getClass().getDeclaredField(entry.getKey());
                 switch (entry.getKey()) {
                     case "status":
-                        setStatus(TaskStatus.resolveString(entry.getValue().asText()));
+                        TaskStatus status = TaskStatus.resolveString(entry.getValue().asText());
+                        if (status != TaskStatus.empty) {
+                            setStatus(status);
+                        }
                         break;
 
                     case "text":
+                        if ("".equals(entry.getValue().asText()) || "".equals(entry.getValue().asText().trim())) {
+                            return false;
+                        }
                         setText(entry.getValue().asText());
                         break;
                     default:
-                        break;
+                        return false;
                 }
-            } catch (NoSuchFieldException e) {
-                System.out.println(String.format("There is no field - %s", entry.getKey()));
+            } catch (NoSuchFieldException e) { //TODO add logger
+                //System.out.println(String.format("There is no field - %s", entry.getKey()));
                 return false;
             }
-            System.out.println("Done");
         }
         return true;
     }

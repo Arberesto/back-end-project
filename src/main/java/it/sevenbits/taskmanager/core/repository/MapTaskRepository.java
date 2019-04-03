@@ -15,7 +15,7 @@ import java.util.UUID;
  * Simple repository for tasks
  */
 
-public class SimpleTaskRepository implements TaskRepository {
+public class MapTaskRepository implements TaskRepository {
 
     private Map<String, Task> taskRepository;
     private final Task emptyTask;
@@ -24,8 +24,8 @@ public class SimpleTaskRepository implements TaskRepository {
      * public constructor, define empty task
      */
 
-    public SimpleTaskRepository() {
-        taskRepository = new HashMap<>();
+    public MapTaskRepository(Map map) {
+        taskRepository =  map;
         emptyTask = new SimpleTask("null", "emptyTask");
         emptyTask.setStatus(TaskStatus.empty);
     }
@@ -37,6 +37,9 @@ public class SimpleTaskRepository implements TaskRepository {
      */
 
     public Task createTask(final String text) {
+        if ("".equals(text) || "".equals(text.trim())) {
+            return emptyTask;
+        }
         String id = getNewId();
         Task task = new SimpleTask(id, text);
         taskRepository.put(id, task);
@@ -57,19 +60,15 @@ public class SimpleTaskRepository implements TaskRepository {
             tasksToGet = TaskStatus.inbox;
         } else {
             tasksToGet = TaskStatus.resolveString(status);
-            System.out.println("resolved status : " + tasksToGet);
         }
-
         if (TaskStatus.empty == tasksToGet) {
             return null;
         }
         List<Task> list = new ArrayList<>();
         Collection<Task> collection = taskRepository.values();
         for (Task item : collection) {
-            System.out.println("Task status: " + item.getStatus());
             if (item.getStatus() == tasksToGet) {
                 list.add(item);
-                System.out.println("Task added");
             }
         }
 
@@ -84,9 +83,6 @@ public class SimpleTaskRepository implements TaskRepository {
 
     public Task deleteTask(final String id) {
         Task task = taskRepository.getOrDefault(id, emptyTask).clone();
-        System.out.println("Deleted Task text: " + task.getText());
-        System.out.println("Deleted Task id: " + task.getId());
-        System.out.println("Deleted Task status: " + task.getStatus());
         taskRepository.remove(id);
         return task;
     }

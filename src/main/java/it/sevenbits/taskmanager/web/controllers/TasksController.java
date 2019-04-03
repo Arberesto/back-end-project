@@ -1,5 +1,6 @@
 package it.sevenbits.taskmanager.web.controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.sevenbits.taskmanager.core.model.Task;
 import it.sevenbits.taskmanager.core.model.TaskStatus;
@@ -9,6 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
+
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -17,13 +20,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Controller for creating tasks and get list of current tasks
  */
 
 @Controller
-@RequestMapping("/tasks")
 
 public class TasksController {
 
@@ -44,22 +47,29 @@ public class TasksController {
      * @return list of current tasks with chosen status
      */
 
-    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(path = "/tasks", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public ResponseEntity<Collection<Task>> getTaskList(final @RequestParam(name = "status", required = false)
                                                                     String status) {
 
-        System.out.println("Status to get: " + status);
         if (status == null) {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
                     .body(taskRepository.getTaskList(TaskStatus.inbox.toString()));
         }
+
+        List<Task> result = taskRepository.getTaskList(status);
+        if (result == null) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .build();
+        }
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .body(taskRepository.getTaskList(status));
+                .body(result);
     }
 
     /**
@@ -68,16 +78,17 @@ public class TasksController {
      * @return JSON with new Task Object; HttpStatus: CREATED if success or BAD_REQUEST if bad body
      */
 
-    @RequestMapping(method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @RequestMapping(path = "/tasks", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     @ResponseBody
     public ResponseEntity<Task> createTask(final @RequestBody ObjectNode node) {
-        String text = node.get("text").asText();
-        if (text == null) {
+        JsonNode textNode = node.get("text");
+        if (textNode == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).
                     contentType(MediaType.APPLICATION_JSON).build();
         }
+        String text = textNode.asText();
         Task createdTask = taskRepository.createTask(text);
-        if (createdTask == null) {
+        if (createdTask.getStatus() == TaskStatus.empty) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).
                     contentType(MediaType.APPLICATION_JSON).build();
         }
@@ -87,4 +98,83 @@ public class TasksController {
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .body(createdTask);
     }
+
+    /**
+     * Get current task
+     * @param id id of task to get
+     * @return JSON with asked task (or with empty task if error within);
+     * status: OK if success, NOT_FOUND if there is no task with chosen id
+     */
+
+    @RequestMapping(path = "/tasks/{id}", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<Task> getTask(final @PathVariable String id) {
+        Task task = taskRepository.getTask(id);
+        if (task.getStatus() == TaskStatus.empty) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .build();
+        }
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .body(task);
+    }
+
+    /**
+     * Patch some fields of task
+     * @param id id of task to patch
+     * @param node body Object that contain JSON with fields to update
+     * @return JSON with updated task (or with empty task if some errors within);
+     * status: NO_CONTENT if success, BAD_REQUEST if bad body, NOT_FOUND if there is no current task with chosen id
+     */
+
+    @RequestMapping(path = "/tasks/{id}", method = RequestMethod.PATCH, produces = "application/json", consumes = "application/json")
+    @ResponseBody
+    public ResponseEntity<Task> patchTask(final @PathVariable String id, final @RequestBody ObjectNode node) {
+        Task task = taskRepository.getTask(id);
+        if (task.getStatus() == TaskStatus.empty) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .build();
+        }
+        if (!task.update(node)) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .build();
+        }
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .body(taskRepository.updateTask(id, task));
+    }
+
+    /**
+     * Delete task
+     * @param id id of task to delete
+     * @return JSON with deleted object if deleted correctly (or with empty task if some errors within);
+     * status: OK if success, NOT_FOUND if no current task with that id
+     */
+
+    @RequestMapping(path = "/tasks/{id}", method = RequestMethod.DELETE, produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<Task> deleteTask(final @PathVariable String id) {
+
+        Task result = taskRepository.deleteTask(id);
+        if (result.getStatus() == TaskStatus.empty) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .build();
+        }
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .body(result);
+    }
+
 }
