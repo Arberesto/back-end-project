@@ -4,7 +4,6 @@ import it.sevenbits.taskmanager.core.model.SimpleTask;
 import it.sevenbits.taskmanager.core.model.Task;
 import it.sevenbits.taskmanager.core.model.TaskStatus;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ public class MapTaskRepository implements TaskRepository {
      * public constructor, define empty task
      */
 
-    public MapTaskRepository(Map map) {
+    public MapTaskRepository(final Map map) {
         taskRepository =  map;
         emptyTask = new SimpleTask("null", "emptyTask");
         emptyTask.setStatus(TaskStatus.empty);

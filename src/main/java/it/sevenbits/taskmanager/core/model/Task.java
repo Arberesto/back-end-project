@@ -37,6 +37,19 @@ public interface Task {
     void setStatus(TaskStatus newStatus);
 
     /**
+     * Get date of creation
+     * @return String with date
+     */
+
+    String getCreatedAt();
+
+    /**
+     * Set time and date of creation
+     */
+
+    void setCreatedAt(String createdAt);
+
+    /**
      * Get a clone of this object
      * @return new SimpleTask object that equal to this
      */

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -19,10 +18,12 @@ public class SimpleTask implements Task {
     private final String id;
     private String text;
     private TaskStatus status;
+    private String createdAt;
 
     /**
      * Public constructor
-     * @param newId id of new task
+     *
+     * @param newId   id of new task
      * @param newText text of new task
      */
 
@@ -31,6 +32,14 @@ public class SimpleTask implements Task {
         this.text = newText;
         this.id = newId;
         this.status = TaskStatus.inbox;
+        this.createdAt = "now";
+    }
+
+    public SimpleTask(String newId, final String newText, final TaskStatus status) {
+        this.text = newText;
+        this.id = newId;
+        this.status = status;
+        this.createdAt = "now";
     }
 
     public String getId() {
@@ -43,6 +52,7 @@ public class SimpleTask implements Task {
 
     /**
      * Set new value of text
+     *
      * @param text new value to set
      */
 
@@ -60,44 +70,57 @@ public class SimpleTask implements Task {
 
     /**
      * Update this task
+     *
      * @param fields ObjectNode that contains JSON object with fields to change
      * @return true if successful change, else false
      */
 
     public boolean update(final ObjectNode fields) {
         Iterator<Map.Entry<String, JsonNode>> entryIterator = fields.fields();
-        for (JsonNode jsonNode:  fields) {
-
+        for (JsonNode jsonNode : fields) {
             Map.Entry<String, JsonNode> entry = entryIterator.next();
-            try {
-                Field field = this.getClass().getDeclaredField(entry.getKey());
-                switch (entry.getKey()) {
-                    case "status":
-                        TaskStatus status = TaskStatus.resolveString(entry.getValue().asText());
-                        if (status != TaskStatus.empty) {
-                            setStatus(status);
-                        }
-                        break;
+            switch (entry.getKey()) {
+                case "status":
+                    TaskStatus status = TaskStatus.resolveString(entry.getValue().asText());
+                    if (status != TaskStatus.empty) {
+                        setStatus(status);
+                    }
+                    break;
 
-                    case "text":
-                        if ("".equals(entry.getValue().asText()) || "".equals(entry.getValue().asText().trim())) {
-                            return false;
-                        }
-                        setText(entry.getValue().asText());
-                        break;
-                    default:
+                case "text":
+                    if ("".equals(entry.getValue().asText()) || "".equals(entry.getValue().asText().trim())) {
                         return false;
-                }
-            } catch (NoSuchFieldException e) { //TODO add logger
-                //System.out.println(String.format("There is no field - %s", entry.getKey()));
-                return false;
+                    }
+                    setText(entry.getValue().asText());
+                    break;
+                default:
+                    return false;
             }
         }
         return true;
     }
 
     /**
+     * Get date of creation
+     *
+     * @return String with date
+     */
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    /**
+     * Set time and date of creation
+     */
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    /**
      * Get a clone of this object
+     *
      * @return new SimpleTask object that equal to this
      */
 
