@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -19,6 +21,7 @@ public class SimpleTask implements Task {
     private String text;
     private TaskStatus status;
     private String createdAt;
+    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
 
     /**
      * Public constructor
@@ -32,14 +35,21 @@ public class SimpleTask implements Task {
         this.text = newText;
         this.id = newId;
         this.status = TaskStatus.inbox;
-        this.createdAt = "now";
+        this.createdAt = simpleDateFormat.format(new Date());
     }
 
     public SimpleTask(String newId, final String newText, final TaskStatus status) {
         this.text = newText;
         this.id = newId;
         this.status = status;
-        this.createdAt = "now";
+        this.createdAt = simpleDateFormat.format(new Date());
+    }
+
+    public SimpleTask(String newId, final String newText, final TaskStatus status, final String createdAt) {
+        this.text = newText;
+        this.id = newId;
+        this.status = status;
+        this.createdAt = createdAt;
     }
 
     public String getId() {

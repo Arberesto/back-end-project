@@ -26,12 +26,14 @@ public class DatabaseTaskRepository implements TaskRepository {
     }
     public List<Task> getTaskList(final String status) {
         return jdbcOperations. query(
-                "SELECT id, name, status FROM task",
+                "SELECT id, name, status, createdAt FROM task",
                 (resultSet, i) -> {
                     String resultId = resultSet.getString(1);
                     String resultName = resultSet.getString(2);
                     String resultStatus = resultSet.getString(3);
-                    return taskFactory.getNewTask(resultId, resultName, TaskStatus.resolveString(resultStatus));
+                    String resultCreatedAt = resultSet.getString(4);
+                    return taskFactory.getNewTask(resultId, resultName, TaskStatus.resolveString(resultStatus),
+                            resultCreatedAt);
                 });
     }
 
@@ -45,8 +47,8 @@ public class DatabaseTaskRepository implements TaskRepository {
         Task result = taskFactory.getNewTask(id, text, status);
         try {
             int rows = jdbcOperations.update(
-                    "INSERT INTO task (id, name, status) VALUES (?, ?, ?)",
-                    id, text, status.toString()
+                    "INSERT INTO task (id, name, status, createdAt) VALUES (?, ?, ?, ?)",
+                    id, text, status.toString(), result.getCreatedAt()
             );
         } catch (DataAccessException e) {
             logger.error(e.getMessage());
@@ -67,15 +69,16 @@ public class DatabaseTaskRepository implements TaskRepository {
 
     public Task getTask(String id) {
         return jdbcOperations.queryForObject(
-                "SELECT id, name, status FROM task WHERE id = ?",
+                "SELECT id, name, status, createdAt FROM task WHERE id = ?",
                 (resultSet, i) -> {
                     UUID rowId = UUID.fromString(resultSet.getString(1));
                     String rowName = resultSet.getString(2);
                     TaskStatus rowStatus = TaskStatus.resolveString(resultSet.getString(3));
+                    String rowCreatedAt = resultSet.getString(4);
                     if (rowStatus == TaskStatus.empty) {
                         return emptyTask;
                     }
-                    return taskFactory.getNewTask(rowId.toString(), rowName, rowStatus);
+                    return taskFactory.getNewTask(rowId.toString(), rowName, rowStatus, rowCreatedAt);
                 },
                 id);
     }
