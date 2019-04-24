@@ -3,6 +3,8 @@ package it.sevenbits.taskmanager.core.repository;
 import it.sevenbits.taskmanager.core.model.Task;
 import it.sevenbits.taskmanager.core.model.TaskFactory;
 import it.sevenbits.taskmanager.core.model.TaskStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 
@@ -14,11 +16,13 @@ public class DatabaseTaskRepository implements TaskRepository {
     private JdbcOperations jdbcOperations;
     private TaskFactory taskFactory;
     private final Task emptyTask;
+    private final Logger logger;
 
     public DatabaseTaskRepository(JdbcOperations jdbcOperations) {
         this.jdbcOperations = jdbcOperations;
         taskFactory = new TaskFactory();
         emptyTask = taskFactory.getNewTask("null", "emptyTask", TaskStatus.empty);
+        logger = LoggerFactory.getLogger(DatabaseTaskRepository.class);
     }
     public List<Task> getTaskList(final String status) {
         return jdbcOperations. query(
@@ -33,20 +37,19 @@ public class DatabaseTaskRepository implements TaskRepository {
 
     public Task createTask(final String text) {
         if ("".equals(text) || "".equals(text.trim())) {
+            logger.warn("text of task to create is empty");
             return emptyTask;
         }
-        UUID id = getNewId();
+        String id = getNewId().toString();
         TaskStatus status = TaskStatus.inbox;
-        Task result = taskFactory.getNewTask(id.toString(), text, status);
+        Task result = taskFactory.getNewTask(id, text, status);
         try {
             int rows = jdbcOperations.update(
                     "INSERT INTO task (id, name, status) VALUES (?, ?, ?)",
-                    id, text, status
+                    id, text, status.toString()
             );
-            if (rows == 0) {
-                return emptyTask;
-            }
         } catch (DataAccessException e) {
+            logger.error(e.getMessage());
             return emptyTask;
         }
         return result;
@@ -59,15 +62,14 @@ public class DatabaseTaskRepository implements TaskRepository {
 
     private UUID getNewId()
     {
-        return jdbcOperations.queryForObject(
-                "select nextval('taskt nextval(_id_seq')", UUID.class);
+        return UUID.randomUUID();
     }
 
     public Task getTask(String id) {
         return jdbcOperations.queryForObject(
                 "SELECT id, name, status FROM task WHERE id = ?",
                 (resultSet, i) -> {
-                    UUID rowId = resultSet.getObject(1, UUID.class);
+                    UUID rowId = UUID.fromString(resultSet.getString(1));
                     String rowName = resultSet.getString(2);
                     TaskStatus rowStatus = TaskStatus.resolveString(resultSet.getString(3));
                     if (rowStatus == TaskStatus.empty) {
