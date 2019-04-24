@@ -25,7 +25,7 @@ public class RepositoryConfig {
      */
 
     @Bean
-    public TaskRepository tasksRepository(
+    public TaskRepository taskRepository(
             @Qualifier("tasksJdbcOperations") JdbcOperations jdbcOperations) {
         return new DatabaseTaskRepository(jdbcOperations);
     }

@@ -20,7 +20,6 @@ public class DatabaseTaskRepository implements TaskRepository {
         taskFactory = new TaskFactory();
         emptyTask = taskFactory.getNewTask("null", "emptyTask", TaskStatus.empty);
     }
-
     public List<Task> getTaskList(final String status) {
         return jdbcOperations. query(
                 "SELECT id, name, status FROM task",
@@ -61,7 +60,7 @@ public class DatabaseTaskRepository implements TaskRepository {
     private UUID getNewId()
     {
         return jdbcOperations.queryForObject(
-                "select nextval('task_id_seq')", UUID.class);
+                "select nextval('taskt nextval(_id_seq')", UUID.class);
     }
 
     public Task getTask(String id) {

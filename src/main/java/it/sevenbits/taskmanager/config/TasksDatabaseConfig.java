@@ -1,5 +1,5 @@
 package it.sevenbits.taskmanager.config;
-/*
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.flyway.FlywayDataSource;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -22,4 +22,3 @@ public class TasksDatabaseConfig {
     }
 
 }
-*/
