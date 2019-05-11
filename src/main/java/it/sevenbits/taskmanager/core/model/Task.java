@@ -50,11 +50,17 @@ public interface Task {
     void setCreatedAt(String createdAt);
 
     /**
-     * Get a clone of this object
-     * @return new SimpleTask object that equal to this
+     * Get date of last change
+     * @return String with date
      */
 
-    Task clone();
+    String getChangedAt();
+
+    /**
+     * Set time and date of last change
+     */
+
+    void setChangedAt(String changedAt);
 
     /**
      * Update this task

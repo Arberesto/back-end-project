@@ -21,6 +21,7 @@ public class SimpleTask implements Task {
     private String text;
     private TaskStatus status;
     private String createdAt;
+    private String changedAt;
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
 
     /**
@@ -36,20 +37,32 @@ public class SimpleTask implements Task {
         this.id = newId;
         this.status = TaskStatus.inbox;
         this.createdAt = simpleDateFormat.format(new Date());
+        this.changedAt = this.createdAt;
     }
 
-    public SimpleTask(String newId, final String newText, final TaskStatus status) {
+    SimpleTask(String newId, final String newText, final TaskStatus status) {
         this.text = newText;
         this.id = newId;
         this.status = status;
         this.createdAt = simpleDateFormat.format(new Date());
+        this.changedAt = this.createdAt;
     }
 
-    public SimpleTask(String newId, final String newText, final TaskStatus status, final String createdAt) {
+    SimpleTask(String newId, final String newText, final TaskStatus status, final String createdAt) {
         this.text = newText;
         this.id = newId;
         this.status = status;
         this.createdAt = createdAt;
+        this.changedAt = simpleDateFormat.format(new Date());
+    }
+
+    SimpleTask(String newId, final String newText, final TaskStatus status,
+               final String createdAt, final String changedAt) {
+        this.text = newText;
+        this.id = newId;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.changedAt = changedAt;
     }
 
     public String getId() {
@@ -87,7 +100,7 @@ public class SimpleTask implements Task {
 
     public boolean update(final ObjectNode fields) {
         Iterator<Map.Entry<String, JsonNode>> entryIterator = fields.fields();
-        for (JsonNode jsonNode : fields) {
+        for (JsonNode ignored : fields) {
             Map.Entry<String, JsonNode> entry = entryIterator.next();
             switch (entry.getKey()) {
                 case "status":
@@ -129,16 +142,30 @@ public class SimpleTask implements Task {
     }
 
     /**
-     * Get a clone of this object
-     *
-     * @return new SimpleTask object that equal to this
+     * Get date of last change
+     * @return String with date
      */
 
-    public Task clone() {
-        Task clone = new SimpleTask(this.id, this.text);
-        clone.setStatus(this.status);
-        return clone;
+    public String getChangedAt() { return changedAt; }
 
+    /**
+     * Set time and date of last change
+     */
 
+    public void setChangedAt(final String changedAt) { this.changedAt = changedAt; }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Task {\n id: ");
+        sb.append(id);
+        sb.append("\n");
+        sb.append("text: ");
+        sb.append(text);
+        sb.append("\n");
+        sb.append("createdAt: ");
+        sb.append(createdAt);
+        sb.append("\n}");
+        return sb.toString();
     }
 }
