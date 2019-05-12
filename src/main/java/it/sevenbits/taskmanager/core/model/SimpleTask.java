@@ -37,7 +37,7 @@ public class SimpleTask implements Task {
         this.id = newId;
         this.status = TaskStatus.inbox;
         this.createdAt = simpleDateFormat.format(new Date());
-        this.changedAt = this.createdAt;
+        this.changedAt = simpleDateFormat.format(new Date());
     }
 
     SimpleTask(String newId, final String newText, final TaskStatus status) {
@@ -45,7 +45,7 @@ public class SimpleTask implements Task {
         this.id = newId;
         this.status = status;
         this.createdAt = simpleDateFormat.format(new Date());
-        this.changedAt = this.createdAt;
+        this.changedAt = simpleDateFormat.format(new Date());
     }
 
     SimpleTask(String newId, final String newText, final TaskStatus status, final String createdAt) {

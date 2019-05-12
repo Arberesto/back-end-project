@@ -3,8 +3,8 @@ server:
 spring:
   datasource:
     tasks:
-      url: jdbc:postgresql://localhost/eisetasks
-      jdbc-url: jdbc:postgresql://localhost/eisetasks
+      url: jdbc:postgresql://localhost/taskmanagertasks
+      jdbc-url: jdbc:postgresql://localhost/taskmanagertasks
       username: someuser
       password: somepassword
       driver-class-name: org.postgresql.Driver
