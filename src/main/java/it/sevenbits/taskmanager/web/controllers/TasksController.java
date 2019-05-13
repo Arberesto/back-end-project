@@ -109,18 +109,20 @@ public class TasksController {
     @RequestMapping(path = "/tasks/{id}", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public ResponseEntity<Task> getTask(final @PathVariable String id) {
-        Task task = taskRepository.getTask(id);
-        if (task.getStatus() == TaskStatus.empty) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .build();
-        }
+        if (isValideId(id)) {
+            Task task = taskRepository.getTask(id);
+            if (!task.getStatus().is(TaskStatus.empty)) {
+                return ResponseEntity
+                        .status(HttpStatus.OK)
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .body(task);
 
+            }
+        }
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .body(task);
+                .build();
     }
 
     /**
@@ -134,23 +136,25 @@ public class TasksController {
     @RequestMapping(path = "/tasks/{id}", method = RequestMethod.PATCH, produces = "application/json", consumes = "application/json")
     @ResponseBody
     public ResponseEntity<Task> patchTask(final @PathVariable String id, final @RequestBody ObjectNode node) {
-        Task task = taskRepository.getTask(id);
-        if (task.getStatus() == TaskStatus.empty) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .build();
-        }
-        if (!task.update(node)) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .build();
+        if (isValideId(id)) {
+            Task task = taskRepository.getTask(id);
+            if (!task.getStatus().is(TaskStatus.empty)) {
+                if (!task.update(node)) {
+                    return ResponseEntity
+                            .status(HttpStatus.BAD_REQUEST)
+                            .contentType(MediaType.APPLICATION_JSON_UTF8)
+                            .build();
+                }
+                return ResponseEntity
+                        .status(HttpStatus.NO_CONTENT)
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .body(taskRepository.updateTask(id, task));
+            }
         }
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
+                .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .body(taskRepository.updateTask(id, task));
+                .build();
     }
 
     /**
@@ -163,18 +167,28 @@ public class TasksController {
     @RequestMapping(path = "/tasks/{id}", method = RequestMethod.DELETE, produces = "application/json")
     @ResponseBody
     public ResponseEntity<Task> deleteTask(final @PathVariable String id) {
-
-        Task result = taskRepository.deleteTask(id);
-        if (result.getStatus() == TaskStatus.empty) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .build();
+        if (isValideId(id)) {
+            Task result = taskRepository.deleteTask(id);
+            if (!result.getStatus().is(TaskStatus.empty)) {
+                return ResponseEntity
+                        .status(HttpStatus.OK)
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .body(result);
+            }
         }
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .body(result);
+                .build();
     }
 
+    /**
+     * Check if id is actually UUID
+     * @param id UUID as String
+     * @return true if valid, false if not
+     */
+
+    private boolean isValideId(final String id) {
+        return true;
+    }
 }

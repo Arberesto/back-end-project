@@ -10,15 +10,26 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
 
+/**
+ * Config to bind database to JDBC
+ */
+
 @Configuration
 public class TasksDatabaseJDBCConfig {
+
+    /**
+     * Bean to get jdbcOperations Object
+     * @param tasksDataSource database DataSource Object
+     * @return jdbcOperations Object
+     */
+
     @Bean
     @FlywayDataSource
     @Qualifier("tasksJdbcOperations")
     @ConfigurationProperties(prefix = "spring.datasource.tasks")
     public JdbcOperations tasksJdbcOperations(
             @Qualifier("tasksDataSource")
-                    DataSource tasksDataSource
+                    final DataSource tasksDataSource
     ) {
         return new JdbcTemplate(tasksDataSource);
     }

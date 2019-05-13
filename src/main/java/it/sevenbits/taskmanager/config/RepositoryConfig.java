@@ -20,13 +20,14 @@ public class RepositoryConfig {
 
 
     /**
-     * Get TaskRepository Object when controller need it
+     * Bean to get TaskRepository Object
+     * @param jdbcOperations JDBC object to interact with database
      * @return TaskRepository Object
      */
 
     @Bean
     public TaskRepository taskRepository(
-            @Qualifier("tasksJdbcOperations") JdbcOperations jdbcOperations) {
+            @Qualifier("tasksJdbcOperations") final JdbcOperations jdbcOperations) {
         return new DatabaseTaskRepository(jdbcOperations);
     }
 }

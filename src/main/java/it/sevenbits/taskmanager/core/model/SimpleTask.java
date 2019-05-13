@@ -40,13 +40,28 @@ public class SimpleTask implements Task {
         this.changedAt = simpleDateFormat.format(new Date());
     }
 
-    SimpleTask(String newId, final String newText, final TaskStatus status) {
+    /**
+     *
+     * @param newId
+     * @param newText
+     * @param status
+     */
+
+    SimpleTask(final String newId, final String newText, final TaskStatus status) {
         this.text = newText;
         this.id = newId;
         this.status = status;
         this.createdAt = simpleDateFormat.format(new Date());
         this.changedAt = simpleDateFormat.format(new Date());
     }
+
+    /**
+     *
+     * @param newId
+     * @param newText
+     * @param status
+     * @param createdAt
+     */
 
     SimpleTask(String newId, final String newText, final TaskStatus status, final String createdAt) {
         this.text = newText;
@@ -55,6 +70,15 @@ public class SimpleTask implements Task {
         this.createdAt = createdAt;
         this.changedAt = simpleDateFormat.format(new Date());
     }
+
+    /**
+     *
+     * @param newId
+     * @param newText
+     * @param status
+     * @param createdAt
+     * @param changedAt
+     */
 
     SimpleTask(String newId, final String newText, final TaskStatus status,
                final String createdAt, final String changedAt) {
@@ -120,6 +144,7 @@ public class SimpleTask implements Task {
                     return false;
             }
         }
+        setChangedAt(simpleDateFormat.format(new Date()));
         return true;
     }
 
@@ -134,25 +159,21 @@ public class SimpleTask implements Task {
     }
 
     /**
-     * Set time and date of creation
-     */
-
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    /**
      * Get date of last change
      * @return String with date
      */
 
-    public String getChangedAt() { return changedAt; }
+    public String getChangedAt() {
+        return changedAt;
+    }
 
     /**
      * Set time and date of last change
      */
 
-    public void setChangedAt(final String changedAt) { this.changedAt = changedAt; }
+    public void setChangedAt(final String changedAt) {
+        this.changedAt = changedAt;
+    }
 
     @Override
     public String toString() {

@@ -38,4 +38,15 @@ public enum TaskStatus {
         }
 
     }
+
+    /**
+     * Compare this TaskStatus with another
+     * @param status another TaskStatus Object
+     * @return true if equal, false if not
+     */
+
+    public boolean is(final TaskStatus status) {
+         return TaskStatus.this == status;
+    }
+
 }

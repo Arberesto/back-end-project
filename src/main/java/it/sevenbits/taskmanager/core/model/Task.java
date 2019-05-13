@@ -44,12 +44,6 @@ public interface Task {
     String getCreatedAt();
 
     /**
-     * Set time and date of creation
-     */
-
-    void setCreatedAt(String createdAt);
-
-    /**
      * Get date of last change
      * @return String with date
      */
@@ -58,6 +52,7 @@ public interface Task {
 
     /**
      * Set time and date of last change
+     * @param changedAt Date String
      */
 
     void setChangedAt(String changedAt);

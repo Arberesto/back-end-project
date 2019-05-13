@@ -10,8 +10,17 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
 
+/**
+ * Config to create connection to database
+ */
+
 @Configuration
 public class TasksDatabaseConfig {
+
+    /**
+     * Bean to get DataSource Object
+     * @return DataSource Object
+     */
 
     @Bean
     @FlywayDataSource
