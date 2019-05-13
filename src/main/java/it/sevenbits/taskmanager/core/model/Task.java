@@ -10,10 +10,17 @@ public interface Task {
 
     /**
      * Get id of task
-     * @return id
+     * @return id of task
      */
 
     String getId();
+
+    /**
+     * Set id of task
+     * @param newId id of task
+     */
+
+    void setId(String newId);
 
     /**
      * Get text of task

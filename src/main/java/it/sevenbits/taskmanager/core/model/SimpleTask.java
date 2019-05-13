@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class SimpleTask implements Task {
 
-    private final String id;
+    private String id;
     private String text;
     private TaskStatus status;
     private String createdAt;
@@ -41,13 +41,13 @@ public class SimpleTask implements Task {
     }
 
     /**
-     *
-     * @param newId
-     * @param newText
-     * @param status
+     *Contructor for creating new Task(createdAt and changedAt will be created automatically)
+     * @param newId id of Task
+     * @param newText text of Task
+     * @param status TaskStatus of Task
      */
 
-    SimpleTask(final String newId, final String newText, final TaskStatus status) {
+    public SimpleTask(final String newId, final String newText, final TaskStatus status) {
         this.text = newText;
         this.id = newId;
         this.status = status;
@@ -56,14 +56,14 @@ public class SimpleTask implements Task {
     }
 
     /**
-     *
-     * @param newId
-     * @param newText
-     * @param status
-     * @param createdAt
+     *Constructor for creating existing Task(only changedAt will be created automatically)
+     * @param newId id of Task
+     * @param newText text of Task
+     * @param status TaskStatus of Task
+     * @param createdAt Date of creating this Object
      */
 
-    SimpleTask(String newId, final String newText, final TaskStatus status, final String createdAt) {
+    public SimpleTask(final String newId, final String newText, final TaskStatus status, final String createdAt) {
         this.text = newText;
         this.id = newId;
         this.status = status;
@@ -72,15 +72,15 @@ public class SimpleTask implements Task {
     }
 
     /**
-     *
-     * @param newId
-     * @param newText
-     * @param status
-     * @param createdAt
-     * @param changedAt
+     *Constructor for creating existing Task
+     * @param newId id of Task
+     * @param newText text of Task
+     * @param status TaskStatus of Task
+     * @param createdAt Date of creating this Object
+     * @param changedAt Date of last changing this Object
      */
 
-    SimpleTask(String newId, final String newText, final TaskStatus status,
+    public SimpleTask(final String newId, final String newText, final TaskStatus status,
                final String createdAt, final String changedAt) {
         this.text = newText;
         this.id = newId;
@@ -91,6 +91,10 @@ public class SimpleTask implements Task {
 
     public String getId() {
         return this.id;
+    }
+
+    public void setId(final String newId) {
+        this.id = newId;
     }
 
     public String getText() {
@@ -169,6 +173,7 @@ public class SimpleTask implements Task {
 
     /**
      * Set time and date of last change
+     * @param changedAt new date of last change
      */
 
     public void setChangedAt(final String changedAt) {
@@ -184,9 +189,30 @@ public class SimpleTask implements Task {
         sb.append("text: ");
         sb.append(text);
         sb.append("\n");
+        sb.append("status: ");
+        sb.append(status.toString());
+        sb.append("\n");
         sb.append("createdAt: ");
         sb.append(createdAt);
         sb.append("\n}");
+        sb.append("changedAt: ");
+        sb.append(changedAt);
+        sb.append("\n}");
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (o.getClass().getSimpleName().equals("SimpleTask")) {
+            SimpleTask task = ((SimpleTask) o);
+            return ((this.id.equals(task.id)) & (this.text.equals(task.text)) & (this.status.is(task.status))
+                    & (this.createdAt.equals(task.createdAt)) & (this.changedAt.equals(task.changedAt)));
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }

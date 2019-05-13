@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.sevenbits.taskmanager.core.model.Task;
 import it.sevenbits.taskmanager.core.model.TaskStatus;
 import it.sevenbits.taskmanager.core.repository.TaskRepository;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -49,27 +50,31 @@ public class TasksController {
 
     @RequestMapping(path = "/tasks", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<Collection<Task>> getTaskList(final @RequestParam(name = "status", required = false)
+    public ResponseEntity<Collection<Task>> getTaskList(final @RequestParam(name = "status", required = false, defaultValue = "inbox")
                                                                     String status) {
-
+        List<Task> result;
+        String statusToCreate;
         if (status == null) {
+            statusToCreate = TaskStatus.inbox.toString();
+        } else {
+            statusToCreate = status;
+        }
+        try {
+            result = taskRepository.getTaskList(statusToCreate);
+        } catch (DataAccessException e) {
+            result = null;
+        }
+        if (result != null) {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .body(taskRepository.getTaskList(TaskStatus.inbox.toString()));
-        }
+                    .body(result);
 
-        List<Task> result = taskRepository.getTaskList(status);
-        if (result == null) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .build();
         }
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.BAD_REQUEST)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .body(result);
+                .build();
     }
 
     /**
