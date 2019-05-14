@@ -47,7 +47,7 @@ public class SimpleTask implements Task {
      * @param status TaskStatus of Task
      */
 
-    public SimpleTask(final String newId, final String newText, final TaskStatus status) {
+    SimpleTask(final String newId, final String newText, final TaskStatus status) {
         this.text = newText;
         this.id = newId;
         this.status = status;
@@ -63,7 +63,7 @@ public class SimpleTask implements Task {
      * @param createdAt Date of creating this Object
      */
 
-    public SimpleTask(final String newId, final String newText, final TaskStatus status, final String createdAt) {
+    SimpleTask(final String newId, final String newText, final TaskStatus status, final String createdAt) {
         this.text = newText;
         this.id = newId;
         this.status = status;
@@ -80,7 +80,7 @@ public class SimpleTask implements Task {
      * @param changedAt Date of last changing this Object
      */
 
-    public SimpleTask(final String newId, final String newText, final TaskStatus status,
+    SimpleTask(final String newId, final String newText, final TaskStatus status,
                final String createdAt, final String changedAt) {
         this.text = newText;
         this.id = newId;
@@ -133,7 +133,7 @@ public class SimpleTask implements Task {
             switch (entry.getKey()) {
                 case "status":
                     TaskStatus status = TaskStatus.resolveString(entry.getValue().asText());
-                    if (status != TaskStatus.empty) {
+                    if (!status.is(TaskStatus.empty)) {
                         setStatus(status);
                     }
                     break;
@@ -160,6 +160,15 @@ public class SimpleTask implements Task {
 
     public String getCreatedAt() {
         return createdAt;
+    }
+
+    /**
+     * Set date of creation
+     * @param createdAt Date String
+     */
+
+    public void setCreatedAt(final String createdAt) {
+        this.createdAt = createdAt;
     }
 
     /**

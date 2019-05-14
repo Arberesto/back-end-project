@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.sevenbits.taskmanager.core.model.Task;
 import it.sevenbits.taskmanager.core.model.TaskStatus;
 import it.sevenbits.taskmanager.core.repository.TaskRepository;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Controller for creating tasks and get list of current tasks
@@ -50,7 +50,7 @@ public class TasksController {
 
     @RequestMapping(path = "/tasks", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<Collection<Task>> getTaskList(final @RequestParam(name = "status", required = false, defaultValue = "inbox")
+    public ResponseEntity<Collection<Task>> getTaskList(final @RequestParam(name = "status", required = false)
                                                                     String status) {
         List<Task> result;
         String statusToCreate;
@@ -59,11 +59,7 @@ public class TasksController {
         } else {
             statusToCreate = status;
         }
-        try {
-            result = taskRepository.getTaskList(statusToCreate);
-        } catch (DataAccessException e) {
-            result = null;
-        }
+        result = taskRepository.getTaskList(statusToCreate);
         if (result != null) {
             return ResponseEntity
                     .status(HttpStatus.OK)
@@ -144,16 +140,16 @@ public class TasksController {
         if (isValideId(id)) {
             Task task = taskRepository.getTask(id);
             if (!task.getStatus().is(TaskStatus.empty)) {
-                if (!task.update(node)) {
+                if (task.update(node)) {
                     return ResponseEntity
-                            .status(HttpStatus.BAD_REQUEST)
+                            .status(HttpStatus.NO_CONTENT)
                             .contentType(MediaType.APPLICATION_JSON_UTF8)
-                            .build();
+                            .body(taskRepository.updateTask(id, task));
                 }
                 return ResponseEntity
-                        .status(HttpStatus.NO_CONTENT)
+                        .status(HttpStatus.BAD_REQUEST)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
-                        .body(taskRepository.updateTask(id, task));
+                        .build();
             }
         }
         return ResponseEntity
@@ -194,6 +190,8 @@ public class TasksController {
      */
 
     private boolean isValideId(final String id) {
-        return true;
+        String pattern = "^[\\da-fA-F]{8}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{12}$";
+        return  Pattern.matches(pattern, id);
+
     }
 }

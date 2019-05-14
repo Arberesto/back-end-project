@@ -5,8 +5,6 @@ import it.sevenbits.taskmanager.core.model.TaskFactory;
 import it.sevenbits.taskmanager.core.model.TaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 
 import java.util.List;
@@ -44,11 +42,11 @@ public class DatabaseTaskRepository implements TaskRepository {
     /**
      *Get List of Tasks from repository
      * @param status which status task need to be in list
-     * @throws DataAccessException if error from database
      * @return List of Task Objects
      */
 
-    public List<Task> getTaskList(final String status) throws DataAccessException {
+    public List<Task> getTaskList(final String status) {
+        try {
             return jdbcOperations.query(
                     "SELECT id, name, status, createdAt, changedAt FROM task WHERE status = ?",
                     (resultSet, i) -> {
@@ -61,6 +59,9 @@ public class DatabaseTaskRepository implements TaskRepository {
                                 resultCreatedAt, resultChangedAt);
                     },
                     status);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -85,7 +86,7 @@ public class DatabaseTaskRepository implements TaskRepository {
             if (rows > 0) {
                 return result;
             }
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             logger.error(e.getMessage());
             return emptyTask;
         }
@@ -124,7 +125,7 @@ public class DatabaseTaskRepository implements TaskRepository {
                                 rowCreatedAt, rowChangedAt);
                     },
                     id);
-        } catch (EmptyResultDataAccessException e) {
+        } catch (Exception e) {
             logger.error(e.getMessage());
             return emptyTask;
         }
@@ -137,15 +138,11 @@ public class DatabaseTaskRepository implements TaskRepository {
      */
 
     public Task deleteTask(final String id) {
-        Task deletedTask;
         try {
-            deletedTask = jdbcOperations.queryForObject(
-                    "SELECT id, name, status, createdAt, changedAt FROM task WHERE id = ?",
+            Task deletedTask1 = jdbcOperations.queryForObject(
+                    "DELETE FROM task WHERE id = ? RETURNING id, name, status, createdAt, changedAt",
                     (resultSet, i) -> {
                         TaskStatus rowStatus = TaskStatus.resolveString(resultSet.getString(TASK_STATUS));
-                        if (rowStatus.is(TaskStatus.empty)) {
-                            return emptyTask;
-                        }
                         String rowId = resultSet.getString(TASK_ID);
                         String rowName = resultSet.getString(TASK_TEXT);
                         String rowCreatedAt = resultSet.getString(TASK_CREATED_AT);
@@ -153,18 +150,11 @@ public class DatabaseTaskRepository implements TaskRepository {
                         return taskFactory.getNewTask(rowId, rowName, rowStatus, rowCreatedAt, rowChangedAt);
                     },
                     id);
-
-        } catch (EmptyResultDataAccessException e) {
-            logger.error(e.getMessage());
-            return emptyTask;
-        }
-        if (!deletedTask.getStatus().is(TaskStatus.empty)) {
-            int rows = jdbcOperations.update(
-                    "DELETE FROM task WHERE id = ?",
-                    id);
-            if (rows > 0) {
-                return deletedTask;
+            if (!deletedTask1.getStatus().is(TaskStatus.empty)) {
+                return deletedTask1;
             }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
         }
         return emptyTask;
     }
@@ -177,23 +167,20 @@ public class DatabaseTaskRepository implements TaskRepository {
      */
     public Task updateTask(final String id, final Task changedTask) {
         if (!changedTask.getStatus().is(TaskStatus.empty)) {
-            int rows = jdbcOperations.update(
-                    "DELETE FROM task WHERE id = ?",
-                    id);
-            if (rows > 0) {
-                try { //todo: change this so can't just delete if error occured here
-                    int rowsInsert = jdbcOperations.update(
-                            "INSERT INTO task (id, name, status, createdAt, changedAt) VALUES (?, ?, ?, ?, ?)",
-                            changedTask.getId(), changedTask.getText(), changedTask.getStatus().toString(),
-                            changedTask.getCreatedAt(), changedTask.getChangedAt()
-                    );
-                    if (rowsInsert > 0) {
-                        return changedTask;
-                    }
-                } catch (DataAccessException e) {
-                    logger.error(e.getMessage());
-                    return emptyTask;
+            try {
+                int rowsInsert = jdbcOperations.update(
+                        "INSERT INTO task (id, name, status, createdAt, changedAt) VALUES (?, ?, ?, ?, ?) " +
+                                "ON CONFLICT(id) DO UPDATE SET name = ?, status = ?, changedAt = ?",
+                        changedTask.getId(), changedTask.getText(), changedTask.getStatus().toString(),
+                        changedTask.getCreatedAt(), changedTask.getChangedAt(), changedTask.getText(),
+                        changedTask.getStatus().toString(), changedTask.getChangedAt()
+                );
+                if (rowsInsert > 0) {
+                    return changedTask;
                 }
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+                return emptyTask;
             }
         }
         return emptyTask;
