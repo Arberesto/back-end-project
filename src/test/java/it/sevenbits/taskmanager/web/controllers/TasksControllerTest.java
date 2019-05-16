@@ -12,6 +12,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import static junit.framework.TestCase.assertEquals;
@@ -34,12 +38,75 @@ public class TasksControllerTest {
 
     @Test
     public void getTaskListTest() {
+        String id = UUID.randomUUID().toString();
+        ObjectNode node = mapper.createObjectNode();
+        node.put("text","firstTask");
+        List<Task> emptyList = new ArrayList<>();
+        List<Task> inboxList =  new ArrayList<>();
+        List<Task> doneList =  new ArrayList<>();
+        Task newTask = factory.getNewTask(id, "firstTask",TaskStatus.inbox);
+        Task newTask1 = factory.getNewTask(id, "secondTask",TaskStatus.done);
+        Task newTask2 = factory.getNewTask(id, "thirdTask",TaskStatus.done);
+        inboxList.add(newTask);
+        doneList.add(newTask1);
+        doneList.add(newTask2);
+        TaskRepository repository = mock(TaskRepository.class);
+
+        when(repository.getTaskList(anyString())).
+                thenReturn(inboxList, inboxList, emptyList, doneList, null);
+
+        tasksController = new TasksController(repository);
+
+        ResponseEntity<Collection<Task>> responseBadRequest = ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .build();
+
+        ResponseEntity<Collection<Task>> responseOkInbox = ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .body(inboxList);
+
+        ResponseEntity<Collection<Task>> responseOkDone = ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .body(doneList);
+
+        ResponseEntity<Collection<Task>> responseOkEmpty = ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .body(emptyList);
+        assertEquals(responseOkInbox, tasksController.getTaskList(null));
+        assertEquals(responseOkInbox, tasksController.getTaskList("inbox"));
+        assertEquals(responseOkEmpty,tasksController.getTaskList("cool"));
+        assertEquals(responseOkDone,tasksController.getTaskList("done"));
+        assertEquals(responseBadRequest,tasksController.getTaskList("done"));
 
     }
 
     @Test
     public void createTaskTest() {
+        String id = UUID.randomUUID().toString();
+        ObjectNode node = mapper.createObjectNode();
+        node.put("text","firstTask");
+        Task newTask = factory.getNewTask(id, "firstTask",TaskStatus.inbox);
+        TaskRepository repository = mock(TaskRepository.class);
+        when(repository.createTask(anyString())).thenReturn(newTask, emptyTask);
 
+        tasksController = new TasksController(repository);
+
+        ResponseEntity<Task> responseBadRequest = ResponseEntity.status(HttpStatus.BAD_REQUEST).
+                contentType(MediaType.APPLICATION_JSON).build();
+
+        ResponseEntity<Task> responseCreated = ResponseEntity
+                .status(HttpStatus.CREATED)
+                .location(URI.create(String.format("/tasks/%s", newTask.getId())))
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .body(newTask);
+
+        assertEquals(responseCreated, tasksController.createTask(node));
+        assertEquals(responseBadRequest,tasksController.createTask(node));
+        assertEquals(responseBadRequest,tasksController.createTask(null));
     }
 
     @Test
@@ -132,8 +199,8 @@ public class TasksControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .build();
 
-        assertEquals(responseOk,repository.deleteTask(id));
-        assertEquals(responseNotFound,repository.deleteTask(id));
-        assertEquals(responseNotFound,repository.deleteTask(id1));
+        assertEquals(responseOk,tasksController.deleteTask(id));
+        assertEquals(responseNotFound,tasksController.deleteTask(id));
+        assertEquals(responseNotFound,tasksController.deleteTask(id1));
     }
 }

@@ -127,28 +127,32 @@ public class SimpleTask implements Task {
      */
 
     public boolean update(final ObjectNode fields) {
-        Iterator<Map.Entry<String, JsonNode>> entryIterator = fields.fields();
-        for (JsonNode ignored : fields) {
-            Map.Entry<String, JsonNode> entry = entryIterator.next();
-            switch (entry.getKey()) {
-                case "status":
-                    TaskStatus status = TaskStatus.resolveString(entry.getValue().asText());
-                    if (!status.is(TaskStatus.empty)) {
-                        setStatus(status);
-                    }
-                    break;
+        try {
+            Iterator<Map.Entry<String, JsonNode>> entryIterator = fields.fields();
+            for (JsonNode ignored : fields) {
+                Map.Entry<String, JsonNode> entry = entryIterator.next();
+                switch (entry.getKey()) {
+                    case "status":
+                        TaskStatus status = TaskStatus.resolveString(entry.getValue().asText());
+                        if (!status.is(TaskStatus.empty)) {
+                            setStatus(status);
+                        }
+                        break;
 
-                case "text":
-                    if ("".equals(entry.getValue().asText()) || "".equals(entry.getValue().asText().trim())) {
+                    case "text":
+                        if ("".equals(entry.getValue().asText()) || "".equals(entry.getValue().asText().trim())) {
+                            return false;
+                        }
+                        setText(entry.getValue().asText());
+                        break;
+                    default:
                         return false;
-                    }
-                    setText(entry.getValue().asText());
-                    break;
-                default:
-                    return false;
+                }
             }
+            setChangedAt(simpleDateFormat.format(new Date()));
+        } catch (Exception e) {
+            return false;
         }
-        setChangedAt(simpleDateFormat.format(new Date()));
         return true;
     }
 

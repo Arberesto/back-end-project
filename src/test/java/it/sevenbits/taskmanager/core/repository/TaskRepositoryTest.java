@@ -93,6 +93,8 @@ public class TaskRepositoryTest {
 
         resultReal = taskRepository.createTask(text);
         resultExpected.setId(resultReal.getId()); // id generated in repository,so i need them to be equal, obviously
+        resultExpected.setCreatedAt(resultReal.getCreatedAt());
+        resultExpected.setChangedAt(resultReal.getChangedAt());
         assertEquals(resultExpected, resultReal);
 
         resultReal = taskRepository.createTask(text);
@@ -138,8 +140,15 @@ public class TaskRepositoryTest {
                 thenReturn(resultExpected1, resultExpected2);
 
         TaskRepository taskRepository = new DatabaseTaskRepository(jdbcOperations);
+
         Task resultReal1 = taskRepository.getTask(id1);
+        resultExpected1.setCreatedAt(resultReal1.getCreatedAt());
+        resultExpected1.setChangedAt(resultReal1.getChangedAt());
+
         Task resultReal2 = taskRepository.getTask(id2);
+        resultExpected2.setCreatedAt(resultReal1.getCreatedAt());
+        resultExpected2.setChangedAt(resultReal1.getChangedAt());
+
         assertEquals(resultExpected1,resultReal1);
         assertEquals(resultExpected2,resultReal2);
     }
@@ -177,6 +186,12 @@ public class TaskRepositoryTest {
         TaskRepository taskRepository = new DatabaseTaskRepository(jdbcOperations);
         Task resultReal1 = taskRepository.deleteTask(id1);
         Task resultReal2 = taskRepository.deleteTask(id2);
+
+        resultExpected1.setCreatedAt(resultReal1.getCreatedAt());
+        resultExpected1.setChangedAt(resultReal1.getChangedAt());
+        resultExpected2.setCreatedAt(resultReal1.getCreatedAt());
+        resultExpected2.setChangedAt(resultReal1.getChangedAt());
+
         assertEquals(resultExpected1,resultReal1);
         assertEquals(resultExpected2,resultReal2);
     }
@@ -196,6 +211,8 @@ public class TaskRepositoryTest {
         Task resultReal = taskRepository.updateTask(id,resultExpected);
 
         resultExpected.setId(resultReal.getId());
+        resultExpected.setCreatedAt(resultReal.getCreatedAt());
+        resultExpected.setChangedAt(resultReal.getChangedAt());
 
         assertEquals(resultExpected,resultReal);
     }

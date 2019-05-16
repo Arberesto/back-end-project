@@ -35,6 +35,7 @@ public class TasksController {
 
     /**
      * Public constructor
+     *
      * @param taskRepository repository for tasks to use
      */
 
@@ -44,6 +45,7 @@ public class TasksController {
 
     /**
      * Get list of current tasks with some status
+     *
      * @param status which status task need to be in list
      * @return list of current tasks with chosen status
      */
@@ -51,7 +53,7 @@ public class TasksController {
     @RequestMapping(path = "/tasks", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public ResponseEntity<Collection<Task>> getTaskList(final @RequestParam(name = "status", required = false)
-                                                                    String status) {
+                                                                String status) {
         List<Task> result;
         String statusToCreate;
         if (status == null) {
@@ -75,6 +77,7 @@ public class TasksController {
 
     /**
      * Create new task with inbox status
+     *
      * @param node body Object that contain JSON with text of new task
      * @return JSON with new Task Object; HttpStatus: CREATED if success or BAD_REQUEST if bad body
      */
@@ -82,26 +85,30 @@ public class TasksController {
     @RequestMapping(path = "/tasks", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     @ResponseBody
     public ResponseEntity<Task> createTask(final @RequestBody ObjectNode node) {
-        JsonNode textNode = node.get("text");
-        if (textNode == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).
-                    contentType(MediaType.APPLICATION_JSON).build();
+        try {
+            JsonNode textNode = node.get("text");
+            if (textNode != null) {
+                String text = textNode.asText();
+                Task createdTask = taskRepository.createTask(text);
+                if (!createdTask.getStatus().is(TaskStatus.empty)) {
+                    return ResponseEntity
+                            .status(HttpStatus.CREATED)
+                            .location(URI.create(String.format("/tasks/%s", createdTask.getId())))
+                            .contentType(MediaType.APPLICATION_JSON_UTF8)
+                            .body(createdTask);
+
+                }
+            }
+        } catch (Exception e) {
+
         }
-        String text = textNode.asText();
-        Task createdTask = taskRepository.createTask(text);
-        if (createdTask.getStatus() == TaskStatus.empty) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).
-                    contentType(MediaType.APPLICATION_JSON).build();
-        }
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .location(URI.create(String.format("/tasks/%s", createdTask.getId())))
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .body(createdTask);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).
+                contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
      * Get current task
+     *
      * @param id id of task to get
      * @return JSON with asked task (or with empty task if error within);
      * status: OK if success, NOT_FOUND if there is no task with chosen id
@@ -128,7 +135,8 @@ public class TasksController {
 
     /**
      * Patch some fields of task
-     * @param id id of task to patch
+     *
+     * @param id   id of task to patch
      * @param node body Object that contain JSON with fields to update
      * @return JSON with updated task (or with empty task if some errors within);
      * status: NO_CONTENT if success, BAD_REQUEST if bad body, NOT_FOUND if there is no current task with chosen id
@@ -160,6 +168,7 @@ public class TasksController {
 
     /**
      * Delete task
+     *
      * @param id id of task to delete
      * @return JSON with deleted object if deleted correctly (or with empty task if some errors within);
      * status: OK if success, NOT_FOUND if no current task with that id
@@ -185,13 +194,14 @@ public class TasksController {
 
     /**
      * Check if id is actually UUID
+     *
      * @param id UUID as String
      * @return true if valid, false if not
      */
 
     private boolean isValideId(final String id) {
         String pattern = "^[\\da-fA-F]{8}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{12}$";
-        return  Pattern.matches(pattern, id);
+        return Pattern.matches(pattern, id);
 
     }
 }
