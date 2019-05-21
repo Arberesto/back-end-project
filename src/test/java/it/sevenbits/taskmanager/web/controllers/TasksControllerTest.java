@@ -76,11 +76,11 @@ public class TasksControllerTest {
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .body(emptyList);
-        assertEquals(responseOkInbox, tasksController.getTaskList(null));
-        assertEquals(responseOkInbox, tasksController.getTaskList("inbox"));
-        assertEquals(responseOkEmpty,tasksController.getTaskList("cool"));
-        assertEquals(responseOkDone,tasksController.getTaskList("done"));
-        assertEquals(responseBadRequest,tasksController.getTaskList("done"));
+        assertEquals(responseOkInbox, tasksController.getTaskList(null,null,null,25));
+        assertEquals(responseOkInbox, tasksController.getTaskList("inbox",null,null,25));
+        assertEquals(responseOkEmpty,tasksController.getTaskList("cool",null,null,25));
+        assertEquals(responseOkDone,tasksController.getTaskList("done",null,null,25));
+        assertEquals(responseBadRequest,tasksController.getTaskList("done",null,null,25));
 
     }
 

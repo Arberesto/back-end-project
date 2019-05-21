@@ -47,21 +47,31 @@ public class TasksController {
      * Get list of current tasks with some status
      *
      * @param status which status task need to be in list
+     * @param order  Sorting order by creation date
+     * @param page Pagination page number
+     * @param size   max number of elements on page
      * @return list of current tasks with chosen status
      */
 
     @RequestMapping(path = "/tasks", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public ResponseEntity<Collection<Task>> getTaskList(final @RequestParam(name = "status", required = false)
-                                                                String status) {
+                                                                    String status,
+                                                        final @RequestParam(name = "order", required = false)
+                                                                String order,
+                                                        final @RequestParam(name = "page", required = false)
+                                                                    String page,
+                                                        final @RequestParam(name = "size", required = false)
+                                                                    int size) {
         List<Task> result;
         String statusToCreate;
+        String resultOrder;
         if (status == null) {
             statusToCreate = TaskStatus.inbox.toString();
         } else {
             statusToCreate = status;
         }
-        result = taskRepository.getTaskList(statusToCreate);
+        result = taskRepository.getTaskList(statusToCreate,resultOrder);
         if (result != null) {
             return ResponseEntity
                     .status(HttpStatus.OK)
@@ -73,6 +83,30 @@ public class TasksController {
                 .status(HttpStatus.BAD_REQUEST)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .build();
+
+        /*
+
+        {
+  "_meta": {
+    "total": 121,
+    "page": 3,
+    "size": 25,
+    "next": "/tasks?status=done&order=desc&page=4&size=25",
+    "prev": "/tasks?status=done&order=desc&page=2&size=25",
+    "first": "/tasks?status=done&order=desc&page=1&size=25",
+    "last": "/tasks?status=done&order=desc&page=5&size=25"
+  },
+  "tasks": [
+    {
+      "id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+      "text": "Do practice",
+      "status": "inbox",
+      "createdAt": "2019-03-13T18:31:42+00:00",
+      "updatedAt": "2019-03-14T19:33:01+00:00"
+    }
+  ]
+}
+         */
     }
 
     /**

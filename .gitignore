@@ -1,3 +1,4 @@
 .idea/
 target/
 7bits-checkstyle.xml
+*.iml
