@@ -35,6 +35,7 @@ public class TasksControllerTest {
         emptyTask = factory.getNewTask("null","emptyTask",TaskStatus.empty);
         mapper = new ObjectMapper();
     }
+    /*
 
     @Test
     public void getTaskListTest() {
@@ -203,4 +204,5 @@ public class TasksControllerTest {
         assertEquals(responseNotFound,tasksController.deleteTask(id));
         assertEquals(responseNotFound,tasksController.deleteTask(id1));
     }
+    */
 }

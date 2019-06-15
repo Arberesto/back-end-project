@@ -62,16 +62,15 @@ public class TasksController {
                                                         final @RequestParam(name = "page", required = false)
                                                                     String page,
                                                         final @RequestParam(name = "size", required = false)
-                                                                    int size) {
+                                                                    Integer size) {
         List<Task> result;
         String statusToCreate;
-        String resultOrder;
-        if (status == null) {
-            statusToCreate = TaskStatus.inbox.toString();
-        } else {
+        if (!TaskStatus.empty.is(status)) {
             statusToCreate = status;
+        } else {
+            statusToCreate = TaskStatus.inbox.toString();
         }
-        result = taskRepository.getTaskList(statusToCreate,resultOrder);
+        result = taskRepository.getTaskList(statusToCreate);
         if (result != null) {
             return ResponseEntity
                     .status(HttpStatus.OK)
@@ -112,9 +111,11 @@ public class TasksController {
     /**
      * Create new task with inbox status
      *
-     * @param node body Object that contain JSON with text of new task
+     //* @param node body Object that contain JSON with text of new task
      * @return JSON with new Task Object; HttpStatus: CREATED if success or BAD_REQUEST if bad body
      */
+
+    /*
 
     @RequestMapping(path = "/tasks", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     @ResponseBody
@@ -132,6 +133,27 @@ public class TasksController {
                             .body(createdTask);
 
                 }
+            }
+        } catch (Exception e) {
+
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).
+                contentType(MediaType.APPLICATION_JSON).build();
+    }
+    */
+
+    @RequestMapping(path = "/tasks", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @ResponseBody
+    public ResponseEntity<Task> createTask(final @RequestBody(required = false) String text) {
+        try {
+                Task createdTask = taskRepository.createTask(text);
+                if (!createdTask.getStatus().is(TaskStatus.empty)) {
+                    return ResponseEntity
+                            .status(HttpStatus.CREATED)
+                            .location(URI.create(String.format("/tasks/%s", createdTask.getId())))
+                            .contentType(MediaType.APPLICATION_JSON_UTF8)
+                            .body(createdTask);
+
             }
         } catch (Exception e) {
 

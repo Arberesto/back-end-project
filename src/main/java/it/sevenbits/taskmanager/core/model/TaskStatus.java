@@ -28,6 +28,10 @@ public enum TaskStatus {
      */
 
      public static TaskStatus resolveString(final String status) {
+        if (status == null) {
+            return TaskStatus.empty;
+        }
+
         switch (status) {
             case "inbox":
                 return TaskStatus.inbox;
@@ -47,6 +51,17 @@ public enum TaskStatus {
 
     public boolean is(final TaskStatus status) {
          return TaskStatus.this == status;
+    }
+
+    /**
+     * Compare String TaskStatus with some TaskStatus
+     * @param stringStatus some TaskStatus in String form
+     * @param status another TaskStatus Object
+     * @return true if equal, false if not
+     */
+
+    public boolean is(final String stringStatus) {
+        return TaskStatus.this == TaskStatus.resolveString(stringStatus);
     }
 
 }

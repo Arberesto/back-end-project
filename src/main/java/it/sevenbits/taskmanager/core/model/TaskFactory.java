@@ -14,7 +14,7 @@ public class TaskFactory {
      * @return Task Object
      */
     public Task getNewTask(final String newId, final String newText, final TaskStatus newStatus) {
-        return new SimpleTask(newId, newText, newStatus);
+        return new DatabaseTask(newId, newText, newStatus);
     }
 
     /**
@@ -27,7 +27,7 @@ public class TaskFactory {
      */
     public Task getNewTask(final String newId, final String newText,
                            final TaskStatus newStatus, final String createdAt) {
-        return new SimpleTask(newId, newText, newStatus, createdAt);
+        return new DatabaseTask(newId, newText, newStatus, createdAt);
     }
 
 
@@ -42,6 +42,6 @@ public class TaskFactory {
      */
     public Task getNewTask(final String newId, final String newText, final TaskStatus newStatus,
                            final String createdAt, final String changedAt) {
-        return new SimpleTask(newId, newText, newStatus, createdAt, changedAt);
+        return new DatabaseTask(newId, newText, newStatus, createdAt, changedAt);
     }
 }

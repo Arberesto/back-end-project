@@ -21,11 +21,11 @@ public class DatabaseTaskRepository implements TaskRepository {
     private final Task emptyTask;
     private final Logger logger;
 
-    private static final int TASK_ID = 1;
-    private static final int TASK_TEXT = 2;
-    private static final int TASK_STATUS = 3;
-    private static final int TASK_CREATED_AT = 4;
-    private static final int TASK_CHANGED_AT = 5;
+    private final String taskId = "id";
+    private final String taskText = "name";
+    private final String taskStatus = "status";
+    private final String taskCreatedAt = "createdAt";
+    private final String taskChangedAt = "changedAt";
 
     /**
      * Constructor for class
@@ -50,11 +50,11 @@ public class DatabaseTaskRepository implements TaskRepository {
             return jdbcOperations.query(
                     "SELECT id, name, status, createdAt, changedAt FROM task WHERE status = ?",
                     (resultSet, i) -> {
-                        String resultId = resultSet.getString(TASK_ID);
-                        String resultName = resultSet.getString(TASK_TEXT);
-                        String resultStatus = resultSet.getString(TASK_STATUS);
-                        String resultCreatedAt = resultSet.getString(TASK_CREATED_AT);
-                        String resultChangedAt = resultSet.getString(TASK_CHANGED_AT);
+                        String resultId = resultSet.getString(taskId);
+                        String resultName = resultSet.getString(taskText);
+                        String resultStatus = resultSet.getString(taskStatus);
+                        String resultCreatedAt = resultSet.getString(taskCreatedAt);
+                        String resultChangedAt = resultSet.getString(taskChangedAt);
                         return taskFactory.getNewTask(resultId, resultName, TaskStatus.resolveString(resultStatus),
                                 resultCreatedAt, resultChangedAt);
                     },
@@ -113,11 +113,11 @@ public class DatabaseTaskRepository implements TaskRepository {
             return jdbcOperations.queryForObject(
                     "SELECT id, name, status, createdAt, changedAt FROM task WHERE id = ?",
                     (resultSet, i) -> {
-                        String rowId = resultSet.getString(TASK_ID);
-                        String rowName = resultSet.getString(TASK_TEXT);
-                        TaskStatus rowStatus = TaskStatus.resolveString(resultSet.getString(TASK_STATUS));
-                        String rowCreatedAt = resultSet.getString(TASK_CREATED_AT);
-                        String rowChangedAt = resultSet.getString(TASK_CHANGED_AT);
+                        String rowId = resultSet.getString(taskId);
+                        String rowName = resultSet.getString(taskText);
+                        TaskStatus rowStatus = TaskStatus.resolveString(resultSet.getString(taskStatus));
+                        String rowCreatedAt = resultSet.getString(taskCreatedAt);
+                        String rowChangedAt = resultSet.getString(taskChangedAt);
                         if (rowStatus.is(TaskStatus.empty)) {
                             return emptyTask;
                         }
@@ -142,11 +142,11 @@ public class DatabaseTaskRepository implements TaskRepository {
             Task deletedTask1 = jdbcOperations.queryForObject(
                     "DELETE FROM task WHERE id = ? RETURNING id, name, status, createdAt, changedAt",
                     (resultSet, i) -> {
-                        TaskStatus rowStatus = TaskStatus.resolveString(resultSet.getString(TASK_STATUS));
-                        String rowId = resultSet.getString(TASK_ID);
-                        String rowName = resultSet.getString(TASK_TEXT);
-                        String rowCreatedAt = resultSet.getString(TASK_CREATED_AT);
-                        String rowChangedAt = resultSet.getString(TASK_CHANGED_AT);
+                        TaskStatus rowStatus = TaskStatus.resolveString(resultSet.getString(taskStatus));
+                        String rowId = resultSet.getString(taskId);
+                        String rowName = resultSet.getString(taskText);
+                        String rowCreatedAt = resultSet.getString(taskCreatedAt);
+                        String rowChangedAt = resultSet.getString(taskChangedAt);
                         return taskFactory.getNewTask(rowId, rowName, rowStatus, rowCreatedAt, rowChangedAt);
                     },
                     id);

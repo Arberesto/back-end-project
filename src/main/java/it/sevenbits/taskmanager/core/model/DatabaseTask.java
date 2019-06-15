@@ -15,7 +15,7 @@ import java.util.Map;
  * Simple task in taskmanager
  */
 
-public class SimpleTask implements Task {
+public class DatabaseTask implements Task {
 
     private String id;
     private String text;
@@ -32,7 +32,7 @@ public class SimpleTask implements Task {
      */
 
     @JsonCreator
-    public SimpleTask(@JsonProperty("id") final String newId, @JsonProperty("text") final String newText) {
+    public DatabaseTask(@JsonProperty("id") final String newId, @JsonProperty("text") final String newText) {
         this.text = newText;
         this.id = newId;
         this.status = TaskStatus.inbox;
@@ -47,7 +47,7 @@ public class SimpleTask implements Task {
      * @param status TaskStatus of Task
      */
 
-    SimpleTask(final String newId, final String newText, final TaskStatus status) {
+    DatabaseTask(final String newId, final String newText, final TaskStatus status) {
         this.text = newText;
         this.id = newId;
         this.status = status;
@@ -63,7 +63,7 @@ public class SimpleTask implements Task {
      * @param createdAt Date of creating this Object
      */
 
-    SimpleTask(final String newId, final String newText, final TaskStatus status, final String createdAt) {
+    DatabaseTask(final String newId, final String newText, final TaskStatus status, final String createdAt) {
         this.text = newText;
         this.id = newId;
         this.status = status;
@@ -80,8 +80,8 @@ public class SimpleTask implements Task {
      * @param changedAt Date of last changing this Object
      */
 
-    SimpleTask(final String newId, final String newText, final TaskStatus status,
-               final String createdAt, final String changedAt) {
+    DatabaseTask(final String newId, final String newText, final TaskStatus status,
+                 final String createdAt, final String changedAt) {
         this.text = newText;
         this.id = newId;
         this.status = status;
@@ -216,8 +216,8 @@ public class SimpleTask implements Task {
 
     @Override
     public boolean equals(final Object o) {
-        if (o.getClass().getSimpleName().equals("SimpleTask")) {
-            SimpleTask task = ((SimpleTask) o);
+        if (o.getClass().getSimpleName().equals("DatabaseTask")) {
+            DatabaseTask task = ((DatabaseTask) o);
             return ((this.id.equals(task.id)) & (this.text.equals(task.text)) & (this.status.is(task.status))
                     & (this.createdAt.equals(task.createdAt)) & (this.changedAt.equals(task.changedAt)));
         }
