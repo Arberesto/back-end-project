@@ -7,6 +7,11 @@ public class PatchTaskRequest {
     private String text;
     private String status;
 
+    public PatchTaskRequest(final String text, final String status) {
+        this.text = text;
+        this.status = status;
+    }
+
     public String getText() {
         return text;
     }

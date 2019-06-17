@@ -1,7 +1,7 @@
 package it.sevenbits.taskmanager.config;
 
 
-import it.sevenbits.taskmanager.core.model.TaskFactory.TaskFactory;
+import it.sevenbits.taskmanager.core.model.Task.TaskFactory;
 import it.sevenbits.taskmanager.core.repository.DatabaseTaskRepository;
 import it.sevenbits.taskmanager.core.repository.TaskRepository;
 

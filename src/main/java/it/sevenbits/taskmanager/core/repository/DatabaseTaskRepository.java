@@ -1,7 +1,7 @@
 package it.sevenbits.taskmanager.core.repository;
 
-import it.sevenbits.taskmanager.core.model.TaskFactory.Task;
-import it.sevenbits.taskmanager.core.model.TaskFactory.TaskFactory;
+import it.sevenbits.taskmanager.core.model.Task.Task;
+import it.sevenbits.taskmanager.core.model.Task.TaskFactory;
 import it.sevenbits.taskmanager.core.model.TaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

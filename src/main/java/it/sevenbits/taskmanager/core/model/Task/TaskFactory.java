@@ -1,4 +1,4 @@
-package it.sevenbits.taskmanager.core.model.TaskFactory;
+package it.sevenbits.taskmanager.core.model.Task;
 
 import it.sevenbits.taskmanager.core.model.TaskStatus;
 

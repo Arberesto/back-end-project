@@ -1,33 +1,45 @@
 package it.sevenbits.taskmanager.web.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.sevenbits.taskmanager.core.model.TaskFactory.Task;
-import it.sevenbits.taskmanager.core.model.TaskFactory.TaskFactory;
+import it.sevenbits.taskmanager.core.model.Task.Task;
+import it.sevenbits.taskmanager.core.model.Task.TaskFactory;
 import it.sevenbits.taskmanager.core.model.TaskStatus;
+import it.sevenbits.taskmanager.core.repository.TaskRepository;
+import it.sevenbits.taskmanager.core.service.SimpleTaskService;
+import it.sevenbits.taskmanager.web.model.AddTaskRequest;
+import it.sevenbits.taskmanager.web.model.PatchTaskRequest;
 import org.junit.Before;
+import org.junit.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TasksControllerTest {
     private TasksController tasksController;
     private TaskFactory factory;
-    private Task emptyTask;
     private ObjectMapper mapper;
     @Before
     public void SetUp() {
         factory = new TaskFactory();
-        emptyTask = factory.getNewTask("null","emptyTask",TaskStatus.empty);
         mapper = new ObjectMapper();
     }
-    /*
+
 
     @Test
     public void getTaskListTest() {
         String id = UUID.randomUUID().toString();
-        ObjectNode node = mapper.createObjectNode();
-        node.put("text","firstTask");
         List<Task> emptyList = new ArrayList<>();
         List<Task> inboxList =  new ArrayList<>();
         List<Task> doneList =  new ArrayList<>();
@@ -42,7 +54,7 @@ public class TasksControllerTest {
         when(repository.getTaskList(anyString())).
                 thenReturn(inboxList, inboxList, emptyList, doneList, null);
 
-        tasksController = new TasksController(repository);
+        tasksController = new TasksController(repository,null);
 
         ResponseEntity<Collection<Task>> responseBadRequest = ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
@@ -74,13 +86,12 @@ public class TasksControllerTest {
     @Test
     public void createTaskTest() {
         String id = UUID.randomUUID().toString();
-        ObjectNode node = mapper.createObjectNode();
-        node.put("text","firstTask");
+        AddTaskRequest request = new AddTaskRequest("firstTask");
         Task newTask = factory.getNewTask(id, "firstTask",TaskStatus.inbox);
         TaskRepository repository = mock(TaskRepository.class);
-        when(repository.createTask(anyString())).thenReturn(newTask, emptyTask);
+        when(repository.createTask(anyString())).thenReturn(newTask, null);
 
-        tasksController = new TasksController(repository);
+        tasksController = new TasksController(repository, null);
 
         ResponseEntity<Task> responseBadRequest = ResponseEntity.status(HttpStatus.BAD_REQUEST).
                 contentType(MediaType.APPLICATION_JSON).build();
@@ -91,8 +102,8 @@ public class TasksControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .body(newTask);
 
-        assertEquals(responseCreated, tasksController.createTask(node));
-        assertEquals(responseBadRequest,tasksController.createTask(node));
+        assertEquals(responseCreated, tasksController.createTask(request));
+        assertEquals(responseBadRequest,tasksController.createTask(request));
         assertEquals(responseBadRequest,tasksController.createTask(null));
     }
 
@@ -103,9 +114,9 @@ public class TasksControllerTest {
         Task newTask = factory.getNewTask(id, "someTask",TaskStatus.inbox);
 
         TaskRepository repository = mock(TaskRepository.class);
-        when(repository.getTask(anyString())).thenReturn(newTask, emptyTask);
+        when(repository.getTask(anyString())).thenReturn(newTask, null);
 
-        tasksController = new TasksController(repository);
+        tasksController = new TasksController(repository, null);
 
         ResponseEntity<Task> responseOk  = ResponseEntity
                         .status(HttpStatus.OK)
@@ -129,19 +140,14 @@ public class TasksControllerTest {
         Task startTask = factory.getNewTask(id, "startTask", TaskStatus.inbox);
         Task updatedTask = factory.getNewTask(id, "updatedTask", TaskStatus.done);
 
+        PatchTaskRequest request = new PatchTaskRequest("updatedTask","done");
+        PatchTaskRequest requestBad = new PatchTaskRequest("updatedTask","dnoe");
+
         TaskRepository repository = mock(TaskRepository.class);
-        when(repository.getTask(anyString())).thenReturn(startTask, emptyTask,startTask);
+        when(repository.getTask(anyString())).thenReturn(startTask, null, startTask);
         when(repository.updateTask(anyString(),any(Task.class))).thenReturn(updatedTask);
 
-        tasksController = new TasksController(repository);
-
-        ObjectNode node = mapper.createObjectNode();
-        node.put("text","updatedTask");
-        node.put("status","done");
-        ObjectNode badNode = mapper.createObjectNode();
-        badNode.put("text","updatedTask");
-        badNode.put("status","done");
-        badNode.put("id","1234568-1234-1234-1234-123456789012");
+        tasksController = new TasksController(repository,new SimpleTaskService(new TaskFactory()));
 
         ResponseEntity<Task> responseOk  = ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
@@ -157,10 +163,9 @@ public class TasksControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .build();
 
-        assertEquals(responseNotFound,tasksController.patchTask(id1,node));
-        assertEquals(responseOk,tasksController.patchTask(id,node));
-        assertEquals(responseNotFound,tasksController.patchTask(id,node));
-        assertEquals(responseBadRequest,tasksController.patchTask(id,badNode));
+        assertEquals(responseOk,tasksController.patchTask(id, request));
+        assertEquals(responseNotFound,tasksController.patchTask(id, request));
+        assertEquals(responseBadRequest,tasksController.patchTask(id,requestBad));
     }
 
     @Test
@@ -172,9 +177,9 @@ public class TasksControllerTest {
         Task deletedTask = factory.getNewTask(id, text, TaskStatus.inbox);
 
         TaskRepository repository = mock(TaskRepository.class);
-        when(repository.deleteTask(anyString())).thenReturn(deletedTask, emptyTask);
+        when(repository.deleteTask(anyString())).thenReturn(deletedTask, null);
 
-        tasksController = new TasksController(repository);
+        tasksController = new TasksController(repository, null);
 
         ResponseEntity<Task> responseOk = ResponseEntity
                 .status(HttpStatus.OK)
@@ -190,5 +195,4 @@ public class TasksControllerTest {
         assertEquals(responseNotFound,tasksController.deleteTask(id));
         assertEquals(responseNotFound,tasksController.deleteTask(id1));
     }
-    */
 }

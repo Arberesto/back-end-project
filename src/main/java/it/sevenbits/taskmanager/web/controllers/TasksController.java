@@ -1,6 +1,6 @@
 package it.sevenbits.taskmanager.web.controllers;
 
-import it.sevenbits.taskmanager.core.model.TaskFactory.Task;
+import it.sevenbits.taskmanager.core.model.Task.Task;
 import it.sevenbits.taskmanager.core.model.TaskStatus;
 import it.sevenbits.taskmanager.core.repository.TaskRepository;
 import it.sevenbits.taskmanager.core.service.TaskService;
@@ -37,7 +37,7 @@ public class TasksController {
      * Public constructor
      *
      * @param taskRepository repository for tasks to use
-     * @param taskService service that work with Task Objects
+     * @param taskService    service that work with Task Objects
      */
 
     public TasksController(final TaskRepository taskRepository, final TaskService taskService) {
@@ -114,8 +114,8 @@ public class TasksController {
     /**
      * Create new task with inbox status
      * <p>
-     * @param request Model that contains parameters for updating task
      *
+     * @param request Model that contains parameters for updating task
      * @return JSON with new Task Object; HttpStatus: CREATED if success or BAD_REQUEST if bad body
      */
 
@@ -173,7 +173,7 @@ public class TasksController {
     /**
      * Patch some fields of task
      *
-     * @param id   id of task to patch
+     * @param id      id of task to patch
      * @param request body Object that contain JSON with fields to update
      * @return JSON with updated task (or with empty task if some errors within);
      * status: NO_CONTENT if success, BAD_REQUEST if bad body, NOT_FOUND if there is no current task with chosen id
@@ -185,13 +185,13 @@ public class TasksController {
         if (isValideId(id)) {
             Task task = taskRepository.getTask(id);
             if (task != null) {
-                    Task result = taskRepository.updateTask(id, taskService.update(task, request));
-                    if (result != null) {
-                        return ResponseEntity
-                                .status(HttpStatus.NO_CONTENT)
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                                .body(result);
-                    }
+                Task result = taskRepository.updateTask(id, taskService.update(task, request));
+                if (result != null) {
+                    return ResponseEntity
+                            .status(HttpStatus.NO_CONTENT)
+                            .contentType(MediaType.APPLICATION_JSON_UTF8)
+                            .body(result);
+                }
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
