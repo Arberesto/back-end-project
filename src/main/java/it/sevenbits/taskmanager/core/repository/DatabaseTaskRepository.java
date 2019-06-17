@@ -1,7 +1,7 @@
 package it.sevenbits.taskmanager.core.repository;
 
-import it.sevenbits.taskmanager.core.model.Task;
-import it.sevenbits.taskmanager.core.model.TaskFactory;
+import it.sevenbits.taskmanager.core.model.TaskFactory.Task;
+import it.sevenbits.taskmanager.core.model.TaskFactory.TaskFactory;
 import it.sevenbits.taskmanager.core.model.TaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,6 @@ public class DatabaseTaskRepository implements TaskRepository {
 
     private JdbcOperations jdbcOperations;
     private TaskFactory taskFactory;
-    private final Task emptyTask;
     private final Logger logger;
 
     private final String taskId = "id";
@@ -30,12 +29,12 @@ public class DatabaseTaskRepository implements TaskRepository {
     /**
      * Constructor for class
      * @param jdbcOperations JDBC object to interact with database
+     * @param factory Taskfactory to create new Task objects
      */
 
-    public DatabaseTaskRepository(final JdbcOperations jdbcOperations) {
+    public DatabaseTaskRepository(final JdbcOperations jdbcOperations, final TaskFactory factory) {
         this.jdbcOperations = jdbcOperations;
-        taskFactory = new TaskFactory();
-        emptyTask = taskFactory.getNewTask("null", "emptyTask", TaskStatus.empty);
+        taskFactory = factory;
         logger = LoggerFactory.getLogger(DatabaseTaskRepository.class);
     }
 
@@ -71,9 +70,9 @@ public class DatabaseTaskRepository implements TaskRepository {
      */
 
     public Task createTask(final String text) {
-        if ("".equals(text) || "".equals(text.trim())) {
+        if (text == null || "".equals(text.trim())) {
             logger.warn("text of task to create is empty");
-            return emptyTask;
+            return null;
         }
         String id = getNewId().toString();
         TaskStatus status = TaskStatus.inbox;
@@ -88,9 +87,9 @@ public class DatabaseTaskRepository implements TaskRepository {
             }
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return emptyTask;
+            return null;
         }
-        return emptyTask;
+        return null;
     }
 
     /**
@@ -119,7 +118,7 @@ public class DatabaseTaskRepository implements TaskRepository {
                         String rowCreatedAt = resultSet.getString(taskCreatedAt);
                         String rowChangedAt = resultSet.getString(taskChangedAt);
                         if (rowStatus.is(TaskStatus.empty)) {
-                            return emptyTask;
+                            return null;
                         }
                         return taskFactory.getNewTask(rowId, rowName, rowStatus,
                                 rowCreatedAt, rowChangedAt);
@@ -127,7 +126,7 @@ public class DatabaseTaskRepository implements TaskRepository {
                     id);
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return emptyTask;
+            return null;
         }
     }
 
@@ -139,7 +138,7 @@ public class DatabaseTaskRepository implements TaskRepository {
 
     public Task deleteTask(final String id) {
         try {
-            Task deletedTask1 = jdbcOperations.queryForObject(
+            Task deletedTask = jdbcOperations.queryForObject(
                     "DELETE FROM task WHERE id = ? RETURNING id, name, status, createdAt, changedAt",
                     (resultSet, i) -> {
                         TaskStatus rowStatus = TaskStatus.resolveString(resultSet.getString(taskStatus));
@@ -150,13 +149,13 @@ public class DatabaseTaskRepository implements TaskRepository {
                         return taskFactory.getNewTask(rowId, rowName, rowStatus, rowCreatedAt, rowChangedAt);
                     },
                     id);
-            if (!deletedTask1.getStatus().is(TaskStatus.empty)) {
-                return deletedTask1;
+            if (deletedTask != null) {
+                return deletedTask;
             }
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
-        return emptyTask;
+        return null;
     }
 
     /**
@@ -180,9 +179,10 @@ public class DatabaseTaskRepository implements TaskRepository {
                 }
             } catch (Exception e) {
                 logger.error(e.getMessage());
-                return emptyTask;
+                return null;
             }
         }
-        return emptyTask;
+        return null;
     }
+
 }

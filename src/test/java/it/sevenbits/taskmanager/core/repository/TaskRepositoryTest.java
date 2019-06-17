@@ -1,23 +1,13 @@
 package it.sevenbits.taskmanager.core.repository;
-import it.sevenbits.taskmanager.core.model.Task;
-import it.sevenbits.taskmanager.core.model.TaskFactory;
+import it.sevenbits.taskmanager.core.model.TaskFactory.Task;
+import it.sevenbits.taskmanager.core.model.TaskFactory.TaskFactory;
 import it.sevenbits.taskmanager.core.model.TaskStatus;
 import org.junit.Before;
-import org.junit.Test;
-import org.springframework.dao.RecoverableDataAccessException;
-import org.springframework.jdbc.core.JdbcOperations;
-import org.springframework.jdbc.core.RowMapper;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class TaskRepositoryTest {
 
