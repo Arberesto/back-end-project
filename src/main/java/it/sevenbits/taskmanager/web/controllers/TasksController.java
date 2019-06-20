@@ -64,14 +64,14 @@ public class TasksController {
 
     @RequestMapping(path = "/tasks", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<Collection<Task>> getTaskList(final @RequestParam(name = "status", required = false)
-                                                                String status,
-                                                        final @RequestParam(name = "order", required = false)
-                                                                String order,
-                                                        final @RequestParam(name = "page", required = false)
-                                                                String page,
-                                                        final @RequestParam(name = "size", required = false)
-                                                                Integer size) {
+    public ResponseEntity<Collection<Task>> getTaskList(@RequestParam(name = "status", required = false)
+                                                                final String status,
+                                                        @RequestParam(name = "order", required = false)
+                                                        final String order,
+                                                        @RequestParam(name = "page", required = false)
+                                                            final String page,
+                                                        @RequestParam(name = "size", required = false)
+                                                            final Integer size) {
         List<Task> result;
         String statusToCreate;
         if (TaskStatus.resolveString(status) == null) {
@@ -126,7 +126,7 @@ public class TasksController {
 
     @RequestMapping(path = "/tasks", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     @ResponseBody
-    public ResponseEntity<Task> createTask(final @RequestBody AddTaskRequest request) {
+    public ResponseEntity<Task> createTask(@RequestBody final AddTaskRequest request) {
         try {
                 Task createdTask = taskRepository.createTask(request.getText());
                 if (createdTask != null) {
@@ -154,8 +154,8 @@ public class TasksController {
 
     @RequestMapping(path = "/tasks/{id}", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<Task> getTask(final @Valid @Pattern(
-            regexp = idValidationPattern) @PathVariable String id) {
+    public ResponseEntity<Task> getTask(@Valid @Pattern(
+            regexp = idValidationPattern) @PathVariable final String id) {
             Task task = taskRepository.getTask(id);
             if (task != null) {
                 return ResponseEntity
@@ -181,9 +181,9 @@ public class TasksController {
 
     @RequestMapping(path = "/tasks/{id}", method = RequestMethod.PATCH, produces = "application/json", consumes = "application/json")
     @ResponseBody
-    public ResponseEntity<Task> patchTask(final @Valid @Pattern(
-            regexp = idValidationPattern) @PathVariable String id,
-                                          final @RequestBody PatchTaskRequest request) {
+    public ResponseEntity<Task> patchTask(@Valid @Pattern(
+            regexp = idValidationPattern) @PathVariable final String id,
+                                          @RequestBody final PatchTaskRequest request) {
             Task task = taskRepository.getTask(id);
             if (task != null) {
                 Task result = taskRepository.updateTask(id, taskService.update(task, request));
@@ -214,8 +214,8 @@ public class TasksController {
 
     @RequestMapping(path = "/tasks/{id}", method = RequestMethod.DELETE, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<Task> deleteTask(final @Valid @Pattern(
-            regexp = idValidationPattern) @PathVariable String id) {
+    public ResponseEntity<Task> deleteTask(@Valid @Pattern(
+            regexp = idValidationPattern) @PathVariable final String id) {
         Task result = taskRepository.deleteTask(id);
         if (result != null) {
             return ResponseEntity

@@ -8,17 +8,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service class for serving DataRepositoryTask
+ */
+
 @Service
 public class SimpleTaskService implements TaskService {
 
     private TaskFactory factory;
     private Logger logger;
 
+    /**
+     * Public constructor
+     * @param factory TaskFactory to create new Task Objects
+     */
+
     public SimpleTaskService(final TaskFactory factory) {
 
         this.factory = factory;
         logger = LoggerFactory.getLogger(this.getClass());
     }
+
+    /**
+     * Update some task fields using PatchTaskRequest model
+     * @param task task to update
+     * @param request Model that contain text and status
+     * @return updated Task
+     */
 
     public Task update(final Task task, final PatchTaskRequest request) {
         try {

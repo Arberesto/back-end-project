@@ -6,11 +6,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- *
+ *Config to get TaskFactory Singleton
  */
 
 @Configuration
 public class TaskFactoryConfig {
+
+    /**
+     * Bean to get TaskFactory
+     * @return new TaskFactory Object
+     */
 
     @Bean
     @Qualifier("taskFactory")
