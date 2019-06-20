@@ -29,16 +29,14 @@ import static org.mockito.Mockito.when;
 public class TasksControllerTest {
     private TasksController tasksController;
     private TaskFactory factory;
-    private ObjectMapper mapper;
     @Before
     public void SetUp() {
         factory = new TaskFactory();
-        mapper = new ObjectMapper();
     }
 
 
     @Test
-    public void getTaskListTest() {
+    public void getTaskList_Normal() {
         String id = UUID.randomUUID().toString();
         List<Task> emptyList = new ArrayList<>();
         List<Task> inboxList =  new ArrayList<>();
@@ -84,7 +82,7 @@ public class TasksControllerTest {
     }
 
     @Test
-    public void createTaskTest() {
+    public void createTask_Normal() {
         String id = UUID.randomUUID().toString();
         AddTaskRequest request = new AddTaskRequest("firstTask");
         Task newTask = factory.getNewTask(id, "firstTask",TaskStatus.inbox);
@@ -108,7 +106,22 @@ public class TasksControllerTest {
     }
 
     @Test
-    public void getTaskTest() {
+    public void createTask_FromNull() {
+        String id = UUID.randomUUID().toString();
+        Task newTask = factory.getNewTask(id, "firstTask",TaskStatus.inbox);
+        TaskRepository repository = mock(TaskRepository.class);
+        when(repository.createTask(anyString())).thenReturn(null);
+
+        tasksController = new TasksController(repository, null);
+
+        ResponseEntity<Task> responseBadRequest = ResponseEntity.status(HttpStatus.BAD_REQUEST).
+                contentType(MediaType.APPLICATION_JSON).build();
+
+        assertEquals(responseBadRequest,tasksController.createTask(null));
+    }
+
+    @Test
+    public void getTask_Normal() {
         String id = UUID.randomUUID().toString();
         String id1 = "1234568-1234-1234-1234-123456789012";
         Task newTask = factory.getNewTask(id, "someTask",TaskStatus.inbox);
@@ -127,13 +140,13 @@ public class TasksControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .build();
 
-        assertEquals(responseNotFound,tasksController.getTask(id1));
+        //assertEquals(responseNotFound,tasksController.getTask(id1));
         assertEquals(responseOk,tasksController.getTask(id));
         assertEquals(responseNotFound,tasksController.getTask(id));
     }
 
     @Test
-    public void patchTaskTest() {
+    public void patchTask_Normal() {
         String id = UUID.randomUUID().toString();
         String id1 = "1234568-1234-1234-1234-123456789012";
 
@@ -163,21 +176,22 @@ public class TasksControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .build();
 
+        //assertEquals(responseNotFound,tasksController.patchTask(id1, request));
+
         assertEquals(responseOk,tasksController.patchTask(id, request));
         assertEquals(responseNotFound,tasksController.patchTask(id, request));
         assertEquals(responseBadRequest,tasksController.patchTask(id,requestBad));
     }
 
     @Test
-    public void deleteTaskTest() {
+    public void deleteTask_Normal() {
 
         String id = UUID.randomUUID().toString();
-        String id1 = "1234568-1234-1234-1234-123456789012";
         String text = "deleted task";
         Task deletedTask = factory.getNewTask(id, text, TaskStatus.inbox);
 
         TaskRepository repository = mock(TaskRepository.class);
-        when(repository.deleteTask(anyString())).thenReturn(deletedTask, null);
+        when(repository.deleteTask(anyString())).thenReturn(deletedTask);
 
         tasksController = new TasksController(repository, null);
 
@@ -186,12 +200,25 @@ public class TasksControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .body(deletedTask);
 
+        assertEquals(responseOk,tasksController.deleteTask(id));
+    }
+
+    @Test
+    public void deleteTask_NotFound() {
+
+        String id = UUID.randomUUID().toString();
+        String id1 = "1234568-1234-1234-1234-123456789012";
+
+        TaskRepository repository = mock(TaskRepository.class);
+        when(repository.deleteTask(anyString())).thenReturn(null);
+
+        tasksController = new TasksController(repository, null);
+
         ResponseEntity<Task> responseNotFound =  ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .build();
 
-        assertEquals(responseOk,tasksController.deleteTask(id));
         assertEquals(responseNotFound,tasksController.deleteTask(id));
         assertEquals(responseNotFound,tasksController.deleteTask(id1));
     }

@@ -13,13 +13,18 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
 
-import org.springframework.web.bind.annotation.*;
-
+import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * Controller for creating tasks and get list of current tasks
@@ -32,6 +37,7 @@ public class TasksController {
     private TaskRepository taskRepository;
     private Logger logger;
     private TaskService taskService;
+    private final String idValidationPattern = "^[\\da-fA-F]{8}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{12}$";
 
     /**
      * Public constructor
@@ -68,7 +74,7 @@ public class TasksController {
                                                                 Integer size) {
         List<Task> result;
         String statusToCreate;
-        if (!TaskStatus.empty.is(status)) {
+        if (TaskStatus.resolveString(status) == null) {
             statusToCreate = status;
         } else {
             statusToCreate = TaskStatus.inbox.toString();
@@ -113,7 +119,6 @@ public class TasksController {
 
     /**
      * Create new task with inbox status
-     * <p>
      *
      * @param request Model that contains parameters for updating task
      * @return JSON with new Task Object; HttpStatus: CREATED if success or BAD_REQUEST if bad body
@@ -123,9 +128,6 @@ public class TasksController {
     @ResponseBody
     public ResponseEntity<Task> createTask(final @RequestBody AddTaskRequest request) {
         try {
-            if (request == null) {
-                logger.warn("text for creating task is null");
-            } else {
                 Task createdTask = taskRepository.createTask(request.getText());
                 if (createdTask != null) {
                     return ResponseEntity
@@ -135,7 +137,6 @@ public class TasksController {
                             .body(createdTask);
 
                 }
-            }
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
@@ -148,13 +149,13 @@ public class TasksController {
      *
      * @param id id of task to get
      * @return JSON with asked task (or with empty task if error within);
-     * status: OK if success, NOT_FOUND if there is no task with chosen id
+     * HttpStatus: OK if success, NOT_FOUND if there is no task with chosen id
      */
 
     @RequestMapping(path = "/tasks/{id}", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<Task> getTask(final @PathVariable String id) {
-        if (isValideId(id)) {
+    public ResponseEntity<Task> getTask(final @Valid @Pattern(
+            regexp = idValidationPattern) @PathVariable String id) {
             Task task = taskRepository.getTask(id);
             if (task != null) {
                 return ResponseEntity
@@ -163,7 +164,6 @@ public class TasksController {
                         .body(task);
 
             }
-        }
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -176,13 +176,15 @@ public class TasksController {
      * @param id      id of task to patch
      * @param request body Object that contain JSON with fields to update
      * @return JSON with updated task (or with empty task if some errors within);
-     * status: NO_CONTENT if success, BAD_REQUEST if bad body, NOT_FOUND if there is no current task with chosen id
+     * HttpStatus: NO_CONTENT if success, BAD_REQUEST if bad body,
+     * NOT_FOUND if there is no current task with chosen id
      */
 
     @RequestMapping(path = "/tasks/{id}", method = RequestMethod.PATCH, produces = "application/json", consumes = "application/json")
     @ResponseBody
-    public ResponseEntity<Task> patchTask(final @PathVariable String id, final @RequestBody PatchTaskRequest request) {
-        if (isValideId(id)) {
+    public ResponseEntity<Task> patchTask(final @Valid @Pattern(
+            regexp = idValidationPattern) @PathVariable String id,
+                                          final @RequestBody PatchTaskRequest request) {
             Task task = taskRepository.getTask(id);
             if (task != null) {
                 Task result = taskRepository.updateTask(id, taskService.update(task, request));
@@ -197,7 +199,6 @@ public class TasksController {
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .build();
             }
-        }
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -209,20 +210,19 @@ public class TasksController {
      *
      * @param id id of task to delete
      * @return JSON with deleted object if deleted correctly (or with empty task if some errors within);
-     * status: OK if success, NOT_FOUND if no current task with that id
+     * HttpStatus: OK if success, NOT_FOUND if no current task with that id
      */
 
     @RequestMapping(path = "/tasks/{id}", method = RequestMethod.DELETE, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<Task> deleteTask(final @PathVariable String id) {
-        if (isValideId(id)) {
-            Task result = taskRepository.deleteTask(id);
-            if (result != null) {
-                return ResponseEntity
-                        .status(HttpStatus.OK)
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
-                        .body(result);
-            }
+    public ResponseEntity<Task> deleteTask(final @Valid @Pattern(
+            regexp = idValidationPattern) @PathVariable String id) {
+        Task result = taskRepository.deleteTask(id);
+        if (result != null) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .body(result);
         }
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
@@ -230,16 +230,4 @@ public class TasksController {
                 .build();
     }
 
-    /**
-     * Check if id is actually UUID
-     *
-     * @param id UUID as String
-     * @return true if valid, false if not
-     */
-
-    private boolean isValideId(final String id) {
-        String pattern = "^[\\da-fA-F]{8}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{12}$";
-        return Pattern.matches(pattern, id);
-
-    }
 }

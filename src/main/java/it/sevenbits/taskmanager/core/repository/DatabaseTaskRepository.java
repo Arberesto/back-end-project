@@ -165,7 +165,7 @@ public class DatabaseTaskRepository implements TaskRepository {
      * @return updated Task or empty task if error
      */
     public Task updateTask(final String id, final Task changedTask) {
-        if (!changedTask.getStatus().is(TaskStatus.empty)) {
+        if (changedTask != null) {
             try {
                 int rowsInsert = jdbcOperations.update(
                         "INSERT INTO task (id, name, status, createdAt, changedAt) VALUES (?, ?, ?, ?, ?) " +

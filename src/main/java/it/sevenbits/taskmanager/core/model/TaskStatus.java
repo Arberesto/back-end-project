@@ -14,12 +14,7 @@ public enum TaskStatus {
     /**
      * Task is complete
      */
-    done,
-
-    /**
-     * Empty task
-     */
-    empty;
+    done;
 
     /**
      * Get TaskStatus status by its String version
@@ -29,7 +24,7 @@ public enum TaskStatus {
 
      public static TaskStatus resolveString(final String status) {
         if (status == null) {
-            return TaskStatus.empty;
+            return null;
         }
 
         switch (status) {
@@ -38,7 +33,7 @@ public enum TaskStatus {
             case "done" :
                 return TaskStatus.done;
             default:
-                return TaskStatus.empty;
+                return null;
         }
 
     }
@@ -56,7 +51,6 @@ public enum TaskStatus {
     /**
      * Compare String TaskStatus with some TaskStatus
      * @param stringStatus some TaskStatus in String form
-     * @param status another TaskStatus Object
      * @return true if equal, false if not
      */
 
