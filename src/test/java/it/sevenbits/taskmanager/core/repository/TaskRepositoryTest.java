@@ -176,7 +176,7 @@ public class TaskRepositoryTest {
 
         JdbcOperations jdbcOperations = mock(JdbcOperations.class);
         when(jdbcOperations.queryForObject(anyString(), any(RowMapper.class), any())).
-                thenThrow(new RecoverableDataAccessException("Error!There is no 'dummy' row"));
+                thenThrow(new RecoverableDataAccessException("Expected error!There is no 'dummy' row"));
 
         TaskRepository taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
         Task resultReal = taskRepository.getTask(id);

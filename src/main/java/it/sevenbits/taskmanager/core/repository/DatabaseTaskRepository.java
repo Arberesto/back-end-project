@@ -117,7 +117,7 @@ public class DatabaseTaskRepository implements TaskRepository {
                         TaskStatus rowStatus = TaskStatus.resolveString(resultSet.getString(taskStatus));
                         String rowCreatedAt = resultSet.getString(taskCreatedAt);
                         String rowChangedAt = resultSet.getString(taskChangedAt);
-                        if (rowStatus.is(TaskStatus.empty)) {
+                        if (rowStatus == null) {
                             return null;
                         }
                         return taskFactory.getNewTask(rowId, rowName, rowStatus,

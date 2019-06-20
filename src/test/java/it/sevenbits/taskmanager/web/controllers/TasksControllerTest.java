@@ -1,6 +1,5 @@
 package it.sevenbits.taskmanager.web.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import it.sevenbits.taskmanager.core.model.Task.Task;
 import it.sevenbits.taskmanager.core.model.Task.TaskFactory;
 import it.sevenbits.taskmanager.core.model.TaskStatus;
@@ -36,21 +35,82 @@ public class TasksControllerTest {
 
 
     @Test
-    public void getTaskList_Normal() {
+    public void getTaskList_Inbox() {
         String id = UUID.randomUUID().toString();
-        List<Task> emptyList = new ArrayList<>();
+        String id1 = UUID.randomUUID().toString();
         List<Task> inboxList =  new ArrayList<>();
+        Task newTask1 = factory.getNewTask(id, "firstTask",TaskStatus.inbox);
+        Task newTask2 = factory.getNewTask(id1, "firstTask1",TaskStatus.inbox);
+        inboxList.add(newTask1);
+        inboxList.add(newTask2);
+        TaskRepository repository = mock(TaskRepository.class);
+
+        when(repository.getTaskList(anyString())).
+                thenReturn(inboxList);
+
+        tasksController = new TasksController(repository,null);
+
+        ResponseEntity<Collection<Task>> responseOkInbox = ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .body(inboxList);
+
+        assertEquals(responseOkInbox,
+                tasksController.getTaskList("inbox",null,null,25));
+
+    }
+
+    @Test
+    public void getTaskList_Done() {
+        String id = UUID.randomUUID().toString();
+        String id1 = UUID.randomUUID().toString();
         List<Task> doneList =  new ArrayList<>();
-        Task newTask = factory.getNewTask(id, "firstTask",TaskStatus.inbox);
         Task newTask1 = factory.getNewTask(id, "secondTask",TaskStatus.done);
-        Task newTask2 = factory.getNewTask(id, "thirdTask",TaskStatus.done);
-        inboxList.add(newTask);
+        Task newTask2 = factory.getNewTask(id1, "thirdTask",TaskStatus.done);
         doneList.add(newTask1);
         doneList.add(newTask2);
         TaskRepository repository = mock(TaskRepository.class);
 
         when(repository.getTaskList(anyString())).
-                thenReturn(inboxList, inboxList, emptyList, doneList, null);
+                thenReturn(doneList);
+
+        tasksController = new TasksController(repository,null);
+
+        ResponseEntity<Collection<Task>> responseOkDone = ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .body(doneList);
+
+        assertEquals(responseOkDone,
+                tasksController.getTaskList("done",null,null,25));
+    }
+
+    @Test
+    public void getTaskList_EmptyList() {
+        String id = UUID.randomUUID().toString();
+        List<Task> emptyList = new ArrayList<>();
+
+        TaskRepository repository = mock(TaskRepository.class);
+
+        when(repository.getTaskList(anyString())).
+                thenReturn(emptyList);
+
+        tasksController = new TasksController(repository,null);
+
+        ResponseEntity<Collection<Task>> responseOkEmpty = ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .body(emptyList);
+        assertEquals(responseOkEmpty,
+                tasksController.getTaskList("cool",null,null,25));
+    }
+
+    @Test
+    public void getTaskList_BadRequest() {
+        TaskRepository repository = mock(TaskRepository.class);
+
+        when(repository.getTaskList(anyString())).
+                thenReturn(null);
 
         tasksController = new TasksController(repository,null);
 
@@ -59,26 +119,8 @@ public class TasksControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .build();
 
-        ResponseEntity<Collection<Task>> responseOkInbox = ResponseEntity
-                .status(HttpStatus.OK)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .body(inboxList);
-
-        ResponseEntity<Collection<Task>> responseOkDone = ResponseEntity
-                .status(HttpStatus.OK)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .body(doneList);
-
-        ResponseEntity<Collection<Task>> responseOkEmpty = ResponseEntity
-                .status(HttpStatus.OK)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .body(emptyList);
-        assertEquals(responseOkInbox, tasksController.getTaskList(null,null,null,25));
-        assertEquals(responseOkInbox, tasksController.getTaskList("inbox",null,null,25));
-        assertEquals(responseOkEmpty,tasksController.getTaskList("cool",null,null,25));
-        assertEquals(responseOkDone,tasksController.getTaskList("done",null,null,25));
-        assertEquals(responseBadRequest,tasksController.getTaskList("done",null,null,25));
-
+        assertEquals(responseBadRequest,
+                tasksController.getTaskList("dnoe",null,null,25));
     }
 
     @Test
@@ -87,12 +129,9 @@ public class TasksControllerTest {
         AddTaskRequest request = new AddTaskRequest("firstTask");
         Task newTask = factory.getNewTask(id, "firstTask",TaskStatus.inbox);
         TaskRepository repository = mock(TaskRepository.class);
-        when(repository.createTask(anyString())).thenReturn(newTask, null);
+        when(repository.createTask(anyString())).thenReturn(newTask);
 
         tasksController = new TasksController(repository, null);
-
-        ResponseEntity<Task> responseBadRequest = ResponseEntity.status(HttpStatus.BAD_REQUEST).
-                contentType(MediaType.APPLICATION_JSON).build();
 
         ResponseEntity<Task> responseCreated = ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -101,14 +140,10 @@ public class TasksControllerTest {
                 .body(newTask);
 
         assertEquals(responseCreated, tasksController.createTask(request));
-        assertEquals(responseBadRequest,tasksController.createTask(request));
-        assertEquals(responseBadRequest,tasksController.createTask(null));
     }
 
     @Test
     public void createTask_FromNull() {
-        String id = UUID.randomUUID().toString();
-        Task newTask = factory.getNewTask(id, "firstTask",TaskStatus.inbox);
         TaskRepository repository = mock(TaskRepository.class);
         when(repository.createTask(anyString())).thenReturn(null);
 
@@ -121,13 +156,26 @@ public class TasksControllerTest {
     }
 
     @Test
+    public void createTask_FromEmptyString() {
+        AddTaskRequest request = new AddTaskRequest("");
+        TaskRepository repository = mock(TaskRepository.class);
+        when(repository.createTask(anyString())).thenReturn(null);
+
+        tasksController = new TasksController(repository, null);
+
+        ResponseEntity<Task> responseBadRequest = ResponseEntity.status(HttpStatus.BAD_REQUEST).
+                contentType(MediaType.APPLICATION_JSON).build();
+
+        assertEquals(responseBadRequest,tasksController.createTask(request));
+    }
+
+    @Test
     public void getTask_Normal() {
         String id = UUID.randomUUID().toString();
-        String id1 = "1234568-1234-1234-1234-123456789012";
         Task newTask = factory.getNewTask(id, "someTask",TaskStatus.inbox);
 
         TaskRepository repository = mock(TaskRepository.class);
-        when(repository.getTask(anyString())).thenReturn(newTask, null);
+        when(repository.getTask(anyString())).thenReturn(newTask);
 
         tasksController = new TasksController(repository, null);
 
@@ -135,51 +183,130 @@ public class TasksControllerTest {
                         .status(HttpStatus.OK)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .body(newTask);
+        assertEquals(responseOk, tasksController.getTask(id));
+    }
+
+    @Test
+    public void getTask_NotFound() {
+        String id = UUID.randomUUID().toString();
+
+        TaskRepository repository = mock(TaskRepository.class);
+        when(repository.getTask(anyString())).thenReturn(null);
+
+        tasksController = new TasksController(repository, null);
+
+        ResponseEntity<Task> responseNotFound = ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .build();
+        assertEquals(responseNotFound,tasksController.getTask(id));
+    }
+
+    @Test
+    public void getTask_InvalidId() {
+        String id1 = "1234568-1234-1234-1234-123456789012";
+
+        TaskRepository repository = mock(TaskRepository.class);
+        when(repository.getTask(anyString())).thenReturn(null);
+
+        tasksController = new TasksController(repository, null);
+
         ResponseEntity<Task> responseNotFound = ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .build();
 
-        //assertEquals(responseNotFound,tasksController.getTask(id1));
-        assertEquals(responseOk,tasksController.getTask(id));
-        assertEquals(responseNotFound,tasksController.getTask(id));
+        assertEquals(responseNotFound,tasksController.getTask(id1));
     }
 
     @Test
     public void patchTask_Normal() {
         String id = UUID.randomUUID().toString();
-        String id1 = "1234568-1234-1234-1234-123456789012";
 
         Task startTask = factory.getNewTask(id, "startTask", TaskStatus.inbox);
-        Task updatedTask = factory.getNewTask(id, "updatedTask", TaskStatus.done);
+        Task updatedTask = factory.getNewTask(id, "updatedTask", TaskStatus.done,
+                startTask.getCreatedAt());
 
         PatchTaskRequest request = new PatchTaskRequest("updatedTask","done");
-        PatchTaskRequest requestBad = new PatchTaskRequest("updatedTask","dnoe");
 
         TaskRepository repository = mock(TaskRepository.class);
-        when(repository.getTask(anyString())).thenReturn(startTask, null, startTask);
+        SimpleTaskService service = mock(SimpleTaskService.class);
+
+        when(service.update(any(Task.class), any())).thenReturn(updatedTask);
+        when(repository.getTask(anyString())).thenReturn(startTask);
         when(repository.updateTask(anyString(),any(Task.class))).thenReturn(updatedTask);
 
-        tasksController = new TasksController(repository,new SimpleTaskService(new TaskFactory()));
+        tasksController = new TasksController(repository, service);
 
         ResponseEntity<Task> responseOk  = ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .body(updatedTask);
+
+        assertEquals(responseOk,tasksController.patchTask(id, request));
+    }
+
+    @Test
+    public void patchTask_NotFound() {
+        String id = UUID.randomUUID().toString();
+
+        PatchTaskRequest request = new PatchTaskRequest("updatedTask","done");
+
+        TaskRepository repository = mock(TaskRepository.class);
+        SimpleTaskService service = mock(SimpleTaskService.class);
+
+        when(repository.getTask(anyString())).thenReturn(null);
+
+        tasksController = new TasksController(repository, service);
+
         ResponseEntity<Task> responseNotFound = ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .build();
+
+        assertEquals(responseNotFound,tasksController.patchTask(id, request));
+    }
+
+    @Test
+    public void patchTask_InvalidId() {
+        String id1 = "1234568-1234-1234-1234-123456789012";
+
+        PatchTaskRequest request = new PatchTaskRequest("updatedTask","done");
+
+        TaskRepository repository = mock(TaskRepository.class);
+        SimpleTaskService service = mock(SimpleTaskService.class);
+
+        tasksController = new TasksController(repository, service);
+
+        ResponseEntity<Task> responseNotFound = ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .build();
+
+        assertEquals(responseNotFound, tasksController.patchTask(id1, request));
+    }
+
+    @Test
+    public void patchTask_BadRequest() {
+        String id = UUID.randomUUID().toString();
+
+        Task startTask = factory.getNewTask(id, "startTask", TaskStatus.inbox);
+        PatchTaskRequest requestBad = new PatchTaskRequest("updatedTask","dnoe");
+
+        TaskRepository repository = mock(TaskRepository.class);
+        SimpleTaskService service = mock(SimpleTaskService.class);
+
+        when(service.update(any(Task.class), any())).thenReturn(null);
+        when(repository.getTask(anyString())).thenReturn(startTask);
+        when(repository.updateTask(anyString(),any(Task.class))).thenReturn(null);
+
+        tasksController = new TasksController(repository, service);
 
         ResponseEntity<Task> responseBadRequest = ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .build();
 
-        //assertEquals(responseNotFound,tasksController.patchTask(id1, request));
-
-        assertEquals(responseOk,tasksController.patchTask(id, request));
-        assertEquals(responseNotFound,tasksController.patchTask(id, request));
         assertEquals(responseBadRequest,tasksController.patchTask(id,requestBad));
     }
 

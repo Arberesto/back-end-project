@@ -162,7 +162,6 @@ public class TasksController {
                         .status(HttpStatus.OK)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .body(task);
-
             }
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
