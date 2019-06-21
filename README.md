@@ -4,7 +4,7 @@ Database setting:
 2. Open console and type "sudo -u postgres psql" to get into Postgres admin console.
 3. Use command "CREATE DATABASE taskmanagertasks;" to create Postgres database "taskmanagertasks" on your machine
 4. Use command "Create user someuser with password 'somepassword';" to create user "someuser" 
-5. Use command "Grant all privileges for taskmanagertasks to someuser;" 
+5. Use command "Grant all privileges on database taskmanagertasks to someuser;" 
    to get user someuser full access to database taskmanagertasks
 6. Use command "\q" to exit admin console.
 
