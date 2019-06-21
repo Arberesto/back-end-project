@@ -1,7 +1,5 @@
 package it.sevenbits.taskmanager.core.model.Task;
 
-import it.sevenbits.taskmanager.core.model.TaskStatus;
-
 /**
  * Factory to create Task Objects
  */
@@ -42,12 +40,12 @@ public class TaskFactory {
      * @param newText   Text of task
      * @param newStatus Status of task
      * @param createdAt Date of creating task
-     * @param changedAt Last date of creating task
+     * @param updatedAt Last date of creating task
      * @return Task Object
      */
     public Task getNewTask(final String newId, final String newText, final TaskStatus newStatus,
-                           final String createdAt, final String changedAt) {
-        return new DatabaseTask(newId, newText, newStatus, createdAt, changedAt);
+                           final String createdAt, final String updatedAt) {
+        return new DatabaseTask(newId, newText, newStatus, createdAt, updatedAt);
     }
 
     /**
@@ -58,6 +56,6 @@ public class TaskFactory {
 
     public Task getNewTask(final Task task) {
         return new DatabaseTask(task.getId(), task.getText(),
-                task.getStatus(), task.getCreatedAt(), task.getChangedAt());
+                task.getStatus(), task.getCreatedAt(), task.getUpdatedAt());
     }
 }

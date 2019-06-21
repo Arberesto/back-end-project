@@ -1,7 +1,5 @@
 package it.sevenbits.taskmanager.core.model.Task;
 
-import it.sevenbits.taskmanager.core.model.TaskStatus;
-
 /**
  * Interface for task in taskmanager
  */
@@ -41,7 +39,7 @@ public interface Task {
      * @return String with date
      */
 
-    String getChangedAt();
+    String getUpdatedAt();
 
 
 }

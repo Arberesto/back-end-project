@@ -1,4 +1,4 @@
-package it.sevenbits.taskmanager.core.model;
+package it.sevenbits.taskmanager.core.model.Task;
 
 /**
  * Enum for status of task
@@ -34,6 +34,29 @@ public enum TaskStatus {
                 return TaskStatus.done;
             default:
                 return null;
+        }
+
+    }
+
+    /**
+     * Get TaskStatus status by its String version or get default status
+     * @param status status to convert into TaskStatus
+     * @param defaultStatus default status
+     * @return TaskStatus Object
+     */
+
+    public static TaskStatus resolveStringOrDefault(final String status, final TaskStatus defaultStatus) {
+        if (status == null) {
+            return defaultStatus;
+        }
+
+        switch (status) {
+            case "inbox":
+                return TaskStatus.inbox;
+            case "done" :
+                return TaskStatus.done;
+            default:
+                return defaultStatus;
         }
 
     }

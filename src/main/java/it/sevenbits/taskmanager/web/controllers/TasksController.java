@@ -1,8 +1,9 @@
 package it.sevenbits.taskmanager.web.controllers;
 
 import it.sevenbits.taskmanager.core.model.Task.Task;
-import it.sevenbits.taskmanager.core.model.TaskStatus;
-import it.sevenbits.taskmanager.core.repository.TaskRepository;
+import it.sevenbits.taskmanager.core.model.Task.TaskStatus;
+import it.sevenbits.taskmanager.core.repository.PaginationSort;
+import it.sevenbits.taskmanager.core.repository.PaginationTaskRepository;
 import it.sevenbits.taskmanager.core.service.TaskService;
 import it.sevenbits.taskmanager.web.model.AddTaskRequest;
 import it.sevenbits.taskmanager.web.model.PatchTaskRequest;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import java.net.URI;
 import java.util.Collection;
@@ -34,7 +37,7 @@ import java.util.List;
 
 public class TasksController {
 
-    private TaskRepository taskRepository;
+    private PaginationTaskRepository taskRepository;
     private Logger logger;
     private TaskService taskService;
     private final String idValidationPattern = "^[\\da-fA-F]{8}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{12}$";
@@ -46,7 +49,7 @@ public class TasksController {
      * @param taskService    service that work with Task Objects
      */
 
-    public TasksController(final TaskRepository taskRepository, final TaskService taskService) {
+    public TasksController(final PaginationTaskRepository taskRepository, final TaskService taskService) {
         this.taskRepository = taskRepository;
         this.taskService = taskService;
         logger = LoggerFactory.getLogger(this.getClass());
@@ -64,28 +67,34 @@ public class TasksController {
 
     @RequestMapping(path = "/tasks", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<Collection<Task>> getTaskList(@RequestParam(name = "status", required = false)
-                                                                final String status,
-                                                        @RequestParam(name = "order", required = false)
-                                                        final String order,
-                                                        @RequestParam(name = "page", required = false)
-                                                            final String page,
-                                                        @RequestParam(name = "size", required = false)
-                                                            final Integer size) {
-        List<Task> result;
-        String statusToCreate;
-        if (TaskStatus.resolveString(status) == null) {
-            statusToCreate = status;
-        } else {
-            statusToCreate = TaskStatus.inbox.toString();
-        }
-        result = taskRepository.getTaskList(statusToCreate);
-        if (result != null) {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .body(result);
+    public ResponseEntity<Collection<Task>> getTaskList(
+            @RequestParam(name = "status", required = false,
+                    defaultValue = "inbox") final String status,
+            @RequestParam(name = "order", required = false,
+                    defaultValue = "desc") final String order,
+            @Min(1) @RequestParam(name = "page", required = false,
+                    defaultValue = "1") final Integer page,
+            @Min(10) @Max(50) @RequestParam(name = "size", required = false,
+                    defaultValue = "25") final Integer size) {
+        try {
+            List<Task> result;
 
+            if (TaskStatus.resolveString(status) != null &&
+                    PaginationSort.resolveString(order) != null) {
+
+                String statusToGet = TaskStatus.resolveString(status).toString();
+                String orderToGet = PaginationSort.resolveString(order).toString();
+                result = taskRepository.getTaskList(statusToGet, orderToGet, page, size);
+                if (result != null) {
+                    return ResponseEntity
+                            .status(HttpStatus.OK)
+                            .contentType(MediaType.APPLICATION_JSON_UTF8)
+                            .body(result);
+
+                }
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
         }
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
@@ -128,15 +137,15 @@ public class TasksController {
     @ResponseBody
     public ResponseEntity<Task> createTask(@RequestBody final AddTaskRequest request) {
         try {
-                Task createdTask = taskRepository.createTask(request.getText());
-                if (createdTask != null) {
-                    return ResponseEntity
-                            .status(HttpStatus.CREATED)
-                            .location(URI.create(String.format("/tasks/%s", createdTask.getId())))
-                            .contentType(MediaType.APPLICATION_JSON_UTF8)
-                            .body(createdTask);
+            Task createdTask = taskRepository.createTask(request.getText());
+            if (createdTask != null) {
+                return ResponseEntity
+                        .status(HttpStatus.CREATED)
+                        .location(URI.create(String.format("/tasks/%s", createdTask.getId())))
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .body(createdTask);
 
-                }
+            }
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
@@ -156,13 +165,13 @@ public class TasksController {
     @ResponseBody
     public ResponseEntity<Task> getTask(@Valid @Pattern(
             regexp = idValidationPattern) @PathVariable final String id) {
-            Task task = taskRepository.getTask(id);
-            if (task != null) {
-                return ResponseEntity
-                        .status(HttpStatus.OK)
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
-                        .body(task);
-            }
+        Task task = taskRepository.getTask(id);
+        if (task != null) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .body(task);
+        }
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -184,20 +193,20 @@ public class TasksController {
     public ResponseEntity<Task> patchTask(@Valid @Pattern(
             regexp = idValidationPattern) @PathVariable final String id,
                                           @RequestBody final PatchTaskRequest request) {
-            Task task = taskRepository.getTask(id);
-            if (task != null) {
-                Task result = taskRepository.updateTask(id, taskService.update(task, request));
-                if (result != null) {
-                    return ResponseEntity
-                            .status(HttpStatus.NO_CONTENT)
-                            .contentType(MediaType.APPLICATION_JSON_UTF8)
-                            .body(result);
-                }
+        Task task = taskRepository.getTask(id);
+        if (task != null) {
+            Task result = taskRepository.updateTask(id, taskService.update(task, request));
+            if (result != null) {
                 return ResponseEntity
-                        .status(HttpStatus.BAD_REQUEST)
+                        .status(HttpStatus.NO_CONTENT)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
-                        .build();
+                        .body(result);
             }
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .build();
+        }
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)

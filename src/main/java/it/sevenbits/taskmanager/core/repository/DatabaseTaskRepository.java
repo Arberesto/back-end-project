@@ -2,7 +2,7 @@ package it.sevenbits.taskmanager.core.repository;
 
 import it.sevenbits.taskmanager.core.model.Task.Task;
 import it.sevenbits.taskmanager.core.model.Task.TaskFactory;
-import it.sevenbits.taskmanager.core.model.TaskStatus;
+import it.sevenbits.taskmanager.core.model.Task.TaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcOperations;
@@ -14,7 +14,7 @@ import java.util.UUID;
  *Realisation of TaskRepository to work with database
  */
 
-public class DatabaseTaskRepository implements TaskRepository {
+public class DatabaseTaskRepository implements PaginationTaskRepository {
 
     private JdbcOperations jdbcOperations;
     private TaskFactory taskFactory;
@@ -54,10 +54,39 @@ public class DatabaseTaskRepository implements TaskRepository {
                         String resultStatus = resultSet.getString(taskStatus);
                         String resultCreatedAt = resultSet.getString(taskCreatedAt);
                         String resultChangedAt = resultSet.getString(taskChangedAt);
-                        return taskFactory.getNewTask(resultId, resultName, TaskStatus.resolveString(resultStatus),
+                        return taskFactory.getNewTask(
+                                resultId, resultName, TaskStatus.resolveString(resultStatus),
                                 resultCreatedAt, resultChangedAt);
                     },
                     status);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     *Get List of Tasks from repository with pagination
+     * @param status which status task need to be in list
+     * @return List of Task Objects
+     */
+
+    public List<Task> getTaskList(final String status, final String order, final Integer page,
+                                  final Integer size) {
+        try {
+            return jdbcOperations.query(
+                    "SELECT (id, name, status, createdAt, changedAt) " +
+                            "FROM task ORDER by createdAt ? LIMIT ? OFFSET ? WHERE status = ?",
+                    (resultSet, i) -> {
+                        String resultId = resultSet.getString(taskId);
+                        String resultName = resultSet.getString(taskText);
+                        String resultStatus = resultSet.getString(taskStatus);
+                        String resultCreatedAt = resultSet.getString(taskCreatedAt);
+                        String resultChangedAt = resultSet.getString(taskChangedAt);
+                        return taskFactory.getNewTask(
+                                resultId, resultName, TaskStatus.resolveString(resultStatus),
+                                        resultCreatedAt, resultChangedAt);
+                    },
+                    order, size, size * (page - 1), status);
         } catch (Exception e) {
             return null;
         }
@@ -80,7 +109,7 @@ public class DatabaseTaskRepository implements TaskRepository {
         try {
             int rows = jdbcOperations.update(
                     "INSERT INTO task (id, name, status, createdAt, changedAt) VALUES (?, ?, ?, ?, ?)",
-                    id, text, status.toString(), result.getCreatedAt(), result.getChangedAt()
+                    id, text, status.toString(), result.getCreatedAt(), result.getUpdatedAt()
             );
             if (rows > 0) {
                 return result;
@@ -146,7 +175,8 @@ public class DatabaseTaskRepository implements TaskRepository {
                         String rowName = resultSet.getString(taskText);
                         String rowCreatedAt = resultSet.getString(taskCreatedAt);
                         String rowChangedAt = resultSet.getString(taskChangedAt);
-                        return taskFactory.getNewTask(rowId, rowName, rowStatus, rowCreatedAt, rowChangedAt);
+                        return taskFactory.getNewTask(
+                                rowId, rowName, rowStatus, rowCreatedAt, rowChangedAt);
                     },
                     id);
             if (deletedTask != null) {
@@ -171,8 +201,8 @@ public class DatabaseTaskRepository implements TaskRepository {
                         "INSERT INTO task (id, name, status, createdAt, changedAt) VALUES (?, ?, ?, ?, ?) " +
                                 "ON CONFLICT(id) DO UPDATE SET name = ?, status = ?, changedAt = ?",
                         changedTask.getId(), changedTask.getText(), changedTask.getStatus().toString(),
-                        changedTask.getCreatedAt(), changedTask.getChangedAt(), changedTask.getText(),
-                        changedTask.getStatus().toString(), changedTask.getChangedAt()
+                        changedTask.getCreatedAt(), changedTask.getUpdatedAt(), changedTask.getText(),
+                        changedTask.getStatus().toString(), changedTask.getUpdatedAt()
                 );
                 if (rowsInsert > 0) {
                     return changedTask;

@@ -1,7 +1,7 @@
 package it.sevenbits.taskmanager.core.repository;
 import it.sevenbits.taskmanager.core.model.Task.Task;
 import it.sevenbits.taskmanager.core.model.Task.TaskFactory;
-import it.sevenbits.taskmanager.core.model.TaskStatus;
+import it.sevenbits.taskmanager.core.model.Task.TaskStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.dao.RecoverableDataAccessException;
@@ -23,6 +23,8 @@ import static org.mockito.Mockito.when;
 public class TaskRepositoryTest {
 
     private TaskFactory factory;
+    private PaginationTaskRepository taskRepository;
+
     @Before
     public void SetUp(){
         factory = new TaskFactory();
@@ -61,7 +63,7 @@ public class TaskRepositoryTest {
         when(jdbcOperations.query(anyString(), any(RowMapper.class), any())).
                 thenReturn(result1);
 
-        TaskRepository taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
+        taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
 
         assertEquals(result1,taskRepository.getTaskList(TaskStatus.done.toString()));
     }
@@ -70,11 +72,11 @@ public class TaskRepositoryTest {
     public void getTaskList_JDBCError() {
         JdbcOperations jdbcOperations = mock(JdbcOperations.class);
         when(jdbcOperations.query(anyString(), any(RowMapper.class), any())).
-                thenThrow(new RecoverableDataAccessException("Error!There is no 'dummy' row"));
+                thenThrow(new RecoverableDataAccessException("Expected error!There is no 'dummy' row"));
 
         // there should be DataAccessException, but it's abstract, so I use it's subclass
 
-        TaskRepository taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
+        taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
             List result = taskRepository.getTaskList(TaskStatus.inbox.toString());
             assertNull(result);
     }
@@ -87,14 +89,14 @@ public class TaskRepositoryTest {
         String text = "Hello";
 
 
-        TaskRepository taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
+        taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
 
         Task resultReal = taskRepository.createTask(text);
 
         // id generated in repository,so i need them to be equal, obviously
 
         Task resultExpected = factory.getNewTask(resultReal.getId(),
-                text,TaskStatus.inbox, resultReal.getCreatedAt(),resultReal.getChangedAt());
+                text,TaskStatus.inbox, resultReal.getCreatedAt(),resultReal.getUpdatedAt());
 
         assertEquals(resultExpected, resultReal);
     }
@@ -107,7 +109,7 @@ public class TaskRepositoryTest {
         String text = "Hello";
 
 
-        TaskRepository taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
+        taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
 
         Task resultReal = taskRepository.createTask(text);
         assertNull(resultReal);
@@ -118,7 +120,7 @@ public class TaskRepositoryTest {
         JdbcOperations jdbcOperations = mock(JdbcOperations.class);
         when(jdbcOperations.update(anyString(),any(Object.class))).thenReturn(1, 0);
 
-        TaskRepository taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
+        taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
 
         Task resultReal = taskRepository.createTask("   ");
         assertNull(resultReal);
@@ -129,11 +131,11 @@ public class TaskRepositoryTest {
     public void createTask_JDBCError() {
         JdbcOperations jdbcOperations = mock(JdbcOperations.class);
         when(jdbcOperations.update(anyString(),any(Object.class))).
-                thenThrow(new RecoverableDataAccessException("Error!There is no 'dummy' row"));
+                thenThrow(new RecoverableDataAccessException("Expected error!There is no 'dummy' row"));
 
         String text = "Hello";
 
-        TaskRepository taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
+        taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
 
         Task resultReal = taskRepository.createTask(text);
 
@@ -154,17 +156,17 @@ public class TaskRepositoryTest {
         when(jdbcOperations.queryForObject(anyString(), any(RowMapper.class), any())).
                 thenReturn(resultExpected1, resultExpected2);
 
-        TaskRepository taskRepository = new DatabaseTaskRepository(jdbcOperations,factory);
+        taskRepository = new DatabaseTaskRepository(jdbcOperations,factory);
 
         Task resultReal1 = taskRepository.getTask(id1);
 
         Task resultReal2 = taskRepository.getTask(id2);
 
         resultExpected1 = factory.getNewTask(id1, text1, TaskStatus.inbox,
-                resultExpected1.getCreatedAt(), resultReal1.getChangedAt());
+                resultExpected1.getCreatedAt(), resultReal1.getUpdatedAt());
 
         resultExpected2 = factory.getNewTask(id2, text2, TaskStatus.done,
-                resultExpected2.getCreatedAt(), resultReal2.getChangedAt());
+                resultExpected2.getCreatedAt(), resultReal2.getUpdatedAt());
 
         assertEquals(resultExpected1,resultReal1);
         assertEquals(resultExpected2,resultReal2);
@@ -178,7 +180,7 @@ public class TaskRepositoryTest {
         when(jdbcOperations.queryForObject(anyString(), any(RowMapper.class), any())).
                 thenThrow(new RecoverableDataAccessException("Expected error!There is no 'dummy' row"));
 
-        TaskRepository taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
+        taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
         Task resultReal = taskRepository.getTask(id);
 
         assertNull(resultReal);
@@ -198,15 +200,15 @@ public class TaskRepositoryTest {
         when(jdbcOperations.queryForObject(anyString(), any(RowMapper.class), any())).
                 thenReturn(resultExpected1, resultExpected2);
 
-        TaskRepository taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
+        taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
         Task resultReal1 = taskRepository.deleteTask(id1);
         Task resultReal2 = taskRepository.deleteTask(id2);
 
         resultExpected1 = factory.getNewTask(id1, text1, TaskStatus.inbox,
-                resultExpected1.getCreatedAt(), resultReal1.getChangedAt());
+                resultExpected1.getCreatedAt(), resultReal1.getUpdatedAt());
 
         resultExpected2 = factory.getNewTask(id2, text2, TaskStatus.done,
-                resultExpected2.getCreatedAt(), resultReal2.getChangedAt());
+                resultExpected2.getCreatedAt(), resultReal2.getUpdatedAt());
 
         assertEquals(resultExpected1, resultReal1);
         assertEquals(resultExpected2, resultReal2);
@@ -220,7 +222,7 @@ public class TaskRepositoryTest {
         String text = "Hello";
         String text1 = "Hello, world!";
 
-        TaskRepository taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
+        taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
 
         Task originalTask = taskRepository.createTask(text);
 
@@ -240,13 +242,13 @@ public class TaskRepositoryTest {
     public void updateTask_JDBCError() {
         JdbcOperations jdbcOperations = mock(JdbcOperations.class);
         when(jdbcOperations.update(anyString(),any(Object.class))).
-                thenThrow(new RecoverableDataAccessException("Error!There is no 'dummy' row"));
+                thenThrow(new RecoverableDataAccessException("Expected error!There is no 'dummy' row"));
 
         String id = UUID.randomUUID().toString();
         String text = "someTask";
 
         Task resultExpected = factory.getNewTask(id, text, TaskStatus.done);
-        TaskRepository taskRepository = new DatabaseTaskRepository(jdbcOperations,  factory);
+        taskRepository = new DatabaseTaskRepository(jdbcOperations,  factory);
         assertNull(taskRepository.updateTask(id,resultExpected));
     }
 

@@ -11,6 +11,12 @@ public class AddTaskRequest {
     private String text;
 
     /**
+     * Default constructor for deserialisation
+     */
+
+    public AddTaskRequest(){}
+
+    /**
      * Public constructor
      * @param text text for new Task
      */

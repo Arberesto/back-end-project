@@ -12,6 +12,12 @@ public class PatchTaskRequest {
     private String status;
 
     /**
+     * Default constructor for deserialisation
+     */
+
+    public PatchTaskRequest(){}
+
+    /**
      *
      * @param text new text for Task
      * @param status new status for Task

@@ -2,8 +2,8 @@ package it.sevenbits.taskmanager.web.controllers;
 
 import it.sevenbits.taskmanager.core.model.Task.Task;
 import it.sevenbits.taskmanager.core.model.Task.TaskFactory;
-import it.sevenbits.taskmanager.core.model.TaskStatus;
-import it.sevenbits.taskmanager.core.repository.TaskRepository;
+import it.sevenbits.taskmanager.core.model.Task.TaskStatus;
+import it.sevenbits.taskmanager.core.repository.PaginationTaskRepository;
 import it.sevenbits.taskmanager.core.service.SimpleTaskService;
 import it.sevenbits.taskmanager.web.model.AddTaskRequest;
 import it.sevenbits.taskmanager.web.model.PatchTaskRequest;
@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -28,6 +29,8 @@ import static org.mockito.Mockito.when;
 public class TasksControllerTest {
     private TasksController tasksController;
     private TaskFactory factory;
+    private PaginationTaskRepository repository;
+
     @Before
     public void SetUp() {
         factory = new TaskFactory();
@@ -43,9 +46,9 @@ public class TasksControllerTest {
         Task newTask2 = factory.getNewTask(id1, "firstTask1",TaskStatus.inbox);
         inboxList.add(newTask1);
         inboxList.add(newTask2);
-        TaskRepository repository = mock(TaskRepository.class);
+        repository = mock(PaginationTaskRepository.class);
 
-        when(repository.getTaskList(anyString())).
+        when(repository.getTaskList(anyString(), anyString(), anyInt(), anyInt())).
                 thenReturn(inboxList);
 
         tasksController = new TasksController(repository,null);
@@ -56,7 +59,7 @@ public class TasksControllerTest {
                 .body(inboxList);
 
         assertEquals(responseOkInbox,
-                tasksController.getTaskList("inbox",null,null,25));
+                tasksController.getTaskList("inbox","desc",1,25));
 
     }
 
@@ -69,9 +72,9 @@ public class TasksControllerTest {
         Task newTask2 = factory.getNewTask(id1, "thirdTask",TaskStatus.done);
         doneList.add(newTask1);
         doneList.add(newTask2);
-        TaskRepository repository = mock(TaskRepository.class);
+        repository = mock(PaginationTaskRepository.class);
 
-        when(repository.getTaskList(anyString())).
+        when(repository.getTaskList(anyString(), anyString(), anyInt(), anyInt())).
                 thenReturn(doneList);
 
         tasksController = new TasksController(repository,null);
@@ -82,7 +85,7 @@ public class TasksControllerTest {
                 .body(doneList);
 
         assertEquals(responseOkDone,
-                tasksController.getTaskList("done",null,null,25));
+                tasksController.getTaskList("done","desc",1,25));
     }
 
     @Test
@@ -90,9 +93,9 @@ public class TasksControllerTest {
         String id = UUID.randomUUID().toString();
         List<Task> emptyList = new ArrayList<>();
 
-        TaskRepository repository = mock(TaskRepository.class);
+        repository = mock(PaginationTaskRepository.class);
 
-        when(repository.getTaskList(anyString())).
+        when(repository.getTaskList(anyString(), anyString(), anyInt(), anyInt())).
                 thenReturn(emptyList);
 
         tasksController = new TasksController(repository,null);
@@ -102,14 +105,14 @@ public class TasksControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .body(emptyList);
         assertEquals(responseOkEmpty,
-                tasksController.getTaskList("cool",null,null,25));
+                tasksController.getTaskList("inbox","desc",1,25));
     }
 
     @Test
     public void getTaskList_BadRequest() {
-        TaskRepository repository = mock(TaskRepository.class);
+        repository = mock(PaginationTaskRepository.class);
 
-        when(repository.getTaskList(anyString())).
+        when(repository.getTaskList(anyString(), anyString(), anyInt(), anyInt())).
                 thenReturn(null);
 
         tasksController = new TasksController(repository,null);
@@ -120,7 +123,7 @@ public class TasksControllerTest {
                 .build();
 
         assertEquals(responseBadRequest,
-                tasksController.getTaskList("dnoe",null,null,25));
+                tasksController.getTaskList("dnoe","desc",1,25));
     }
 
     @Test
@@ -128,7 +131,7 @@ public class TasksControllerTest {
         String id = UUID.randomUUID().toString();
         AddTaskRequest request = new AddTaskRequest("firstTask");
         Task newTask = factory.getNewTask(id, "firstTask",TaskStatus.inbox);
-        TaskRepository repository = mock(TaskRepository.class);
+        repository = mock(PaginationTaskRepository.class);
         when(repository.createTask(anyString())).thenReturn(newTask);
 
         tasksController = new TasksController(repository, null);
@@ -144,7 +147,7 @@ public class TasksControllerTest {
 
     @Test
     public void createTask_FromNull() {
-        TaskRepository repository = mock(TaskRepository.class);
+        repository = mock(PaginationTaskRepository.class);
         when(repository.createTask(anyString())).thenReturn(null);
 
         tasksController = new TasksController(repository, null);
@@ -158,7 +161,7 @@ public class TasksControllerTest {
     @Test
     public void createTask_FromEmptyString() {
         AddTaskRequest request = new AddTaskRequest("");
-        TaskRepository repository = mock(TaskRepository.class);
+        repository = mock(PaginationTaskRepository.class);
         when(repository.createTask(anyString())).thenReturn(null);
 
         tasksController = new TasksController(repository, null);
@@ -174,7 +177,7 @@ public class TasksControllerTest {
         String id = UUID.randomUUID().toString();
         Task newTask = factory.getNewTask(id, "someTask",TaskStatus.inbox);
 
-        TaskRepository repository = mock(TaskRepository.class);
+        repository = mock(PaginationTaskRepository.class);
         when(repository.getTask(anyString())).thenReturn(newTask);
 
         tasksController = new TasksController(repository, null);
@@ -190,7 +193,7 @@ public class TasksControllerTest {
     public void getTask_NotFound() {
         String id = UUID.randomUUID().toString();
 
-        TaskRepository repository = mock(TaskRepository.class);
+        repository = mock(PaginationTaskRepository.class);
         when(repository.getTask(anyString())).thenReturn(null);
 
         tasksController = new TasksController(repository, null);
@@ -206,7 +209,7 @@ public class TasksControllerTest {
     public void getTask_InvalidId() {
         String id1 = "1234568-1234-1234-1234-123456789012";
 
-        TaskRepository repository = mock(TaskRepository.class);
+        repository = mock(PaginationTaskRepository.class);
         when(repository.getTask(anyString())).thenReturn(null);
 
         tasksController = new TasksController(repository, null);
@@ -229,7 +232,7 @@ public class TasksControllerTest {
 
         PatchTaskRequest request = new PatchTaskRequest("updatedTask","done");
 
-        TaskRepository repository = mock(TaskRepository.class);
+        repository = mock(PaginationTaskRepository.class);
         SimpleTaskService service = mock(SimpleTaskService.class);
 
         when(service.update(any(Task.class), any())).thenReturn(updatedTask);
@@ -252,7 +255,7 @@ public class TasksControllerTest {
 
         PatchTaskRequest request = new PatchTaskRequest("updatedTask","done");
 
-        TaskRepository repository = mock(TaskRepository.class);
+        repository = mock(PaginationTaskRepository.class);
         SimpleTaskService service = mock(SimpleTaskService.class);
 
         when(repository.getTask(anyString())).thenReturn(null);
@@ -273,7 +276,7 @@ public class TasksControllerTest {
 
         PatchTaskRequest request = new PatchTaskRequest("updatedTask","done");
 
-        TaskRepository repository = mock(TaskRepository.class);
+        repository = mock(PaginationTaskRepository.class);
         SimpleTaskService service = mock(SimpleTaskService.class);
 
         tasksController = new TasksController(repository, service);
@@ -293,7 +296,7 @@ public class TasksControllerTest {
         Task startTask = factory.getNewTask(id, "startTask", TaskStatus.inbox);
         PatchTaskRequest requestBad = new PatchTaskRequest("updatedTask","dnoe");
 
-        TaskRepository repository = mock(TaskRepository.class);
+        repository = mock(PaginationTaskRepository.class);
         SimpleTaskService service = mock(SimpleTaskService.class);
 
         when(service.update(any(Task.class), any())).thenReturn(null);
@@ -317,7 +320,7 @@ public class TasksControllerTest {
         String text = "deleted task";
         Task deletedTask = factory.getNewTask(id, text, TaskStatus.inbox);
 
-        TaskRepository repository = mock(TaskRepository.class);
+        repository = mock(PaginationTaskRepository.class);
         when(repository.deleteTask(anyString())).thenReturn(deletedTask);
 
         tasksController = new TasksController(repository, null);
@@ -336,7 +339,7 @@ public class TasksControllerTest {
         String id = UUID.randomUUID().toString();
         String id1 = "1234568-1234-1234-1234-123456789012";
 
-        TaskRepository repository = mock(TaskRepository.class);
+        repository = mock(PaginationTaskRepository.class);
         when(repository.deleteTask(anyString())).thenReturn(null);
 
         tasksController = new TasksController(repository, null);

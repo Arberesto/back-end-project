@@ -1,7 +1,5 @@
 package it.sevenbits.taskmanager.core.model.Task;
 
-import it.sevenbits.taskmanager.core.model.TaskStatus;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -15,11 +13,11 @@ public class DatabaseTask implements Task {
     private String text;
     private TaskStatus status;
     private String createdAt;
-    private String changedAt;
+    private String updatedAt;
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
 
     /**
-     *Contructor for creating new Task(createdAt and changedAt will be created automatically)
+     *Contructor for creating new Task(createdAt and updatedAt will be created automatically)
      * @param newId id of Task
      * @param newText text of Task
      * @param status TaskStatus of Task
@@ -30,11 +28,11 @@ public class DatabaseTask implements Task {
         this.id = newId;
         this.status = status;
         this.createdAt = simpleDateFormat.format(new Date());
-        this.changedAt = simpleDateFormat.format(new Date());
+        this.updatedAt = simpleDateFormat.format(new Date());
     }
 
     /**
-     *Constructor for creating existing Task(only changedAt will be created automatically)
+     *Constructor for creating existing Task(only updatedAt will be created automatically)
      * @param newId id of Task
      * @param newText text of Task
      * @param status TaskStatus of Task
@@ -46,7 +44,7 @@ public class DatabaseTask implements Task {
         this.id = newId;
         this.status = status;
         this.createdAt = createdAt;
-        this.changedAt = simpleDateFormat.format(new Date());
+        this.updatedAt = simpleDateFormat.format(new Date());
     }
 
     /**
@@ -55,16 +53,16 @@ public class DatabaseTask implements Task {
      * @param newText text of Task
      * @param status TaskStatus of Task
      * @param createdAt Date of creating this Object
-     * @param changedAt Date of last changing this Object
+     * @param updatedAt Date of last changing this Object
      */
 
     DatabaseTask(final String newId, final String newText, final TaskStatus status,
-                 final String createdAt, final String changedAt) {
+                 final String createdAt, final String updatedAt) {
         this.text = newText;
         this.id = newId;
         this.status = status;
         this.createdAt = createdAt;
-        this.changedAt = changedAt;
+        this.updatedAt = updatedAt;
     }
 
     public String getId() {
@@ -96,8 +94,8 @@ public class DatabaseTask implements Task {
      * @return String with date
      */
 
-    public String getChangedAt() {
-        return changedAt;
+    public String getUpdatedAt() {
+        return updatedAt;
     }
 
 
@@ -116,8 +114,8 @@ public class DatabaseTask implements Task {
         sb.append("createdAt: ");
         sb.append(createdAt);
         sb.append("\n}");
-        sb.append("changedAt: ");
-        sb.append(changedAt);
+        sb.append("updatedAt: ");
+        sb.append(updatedAt);
         sb.append("\n}");
         return sb.toString();
     }
@@ -127,7 +125,7 @@ public class DatabaseTask implements Task {
         if (o.getClass().getSimpleName().equals("DatabaseTask")) {
             DatabaseTask task = ((DatabaseTask) o);
             return ((this.id.equals(task.id)) & (this.text.equals(task.text)) & (this.status.is(task.status))
-                    & (this.createdAt.equals(task.createdAt)) & (this.changedAt.equals(task.changedAt)));
+                    & (this.createdAt.equals(task.createdAt)) & (this.updatedAt.equals(task.updatedAt)));
         }
         return false;
     }

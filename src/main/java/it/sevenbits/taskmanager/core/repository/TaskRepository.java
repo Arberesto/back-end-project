@@ -32,7 +32,6 @@ public interface TaskRepository {
      * @return Task object with chosen id or empty task if not found
      */
 
-
     Task getTask(String id);
 
     /**
