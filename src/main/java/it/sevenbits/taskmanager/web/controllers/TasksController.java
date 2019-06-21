@@ -91,7 +91,11 @@ public class TasksController {
                             .contentType(MediaType.APPLICATION_JSON_UTF8)
                             .body(result);
 
+                } else {
+                    logger.warn("result of getList is null!");
                 }
+            } else {
+                logger.warn("status or order are invalid");
             }
         } catch (Exception e) {
             logger.error(e.getMessage());

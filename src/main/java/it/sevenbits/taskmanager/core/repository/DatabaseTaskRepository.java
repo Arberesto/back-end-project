@@ -74,8 +74,8 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
                                   final Integer size) {
         try {
             return jdbcOperations.query(
-                    "SELECT (id, name, status, createdAt, changedAt) " +
-                            "FROM task ORDER by createdAt ? LIMIT ? OFFSET ? WHERE status = ?",
+                    "SELECT id, name, status, createdAt, changedAt " +
+                            "FROM task WHERE status = ? ORDER by createdAt DESC LIMIT ? OFFSET ?",
                     (resultSet, i) -> {
                         String resultId = resultSet.getString(taskId);
                         String resultName = resultSet.getString(taskText);
@@ -86,8 +86,9 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
                                 resultId, resultName, TaskStatus.resolveString(resultStatus),
                                         resultCreatedAt, resultChangedAt);
                     },
-                    order, size, size * (page - 1), status);
+                    status, size, size * (page - 1));
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return null;
         }
     }
