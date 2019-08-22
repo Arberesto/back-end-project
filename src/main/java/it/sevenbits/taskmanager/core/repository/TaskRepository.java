@@ -1,6 +1,6 @@
 package it.sevenbits.taskmanager.core.repository;
 
-import it.sevenbits.taskmanager.core.model.Task;
+import it.sevenbits.taskmanager.core.model.Task.Task;
 
 import java.util.List;
 
@@ -31,7 +31,6 @@ public interface TaskRepository {
      * @param id id of task
      * @return Task object with chosen id or empty task if not found
      */
-
 
     Task getTask(String id);
 

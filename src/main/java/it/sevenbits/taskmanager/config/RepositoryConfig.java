@@ -1,8 +1,9 @@
 package it.sevenbits.taskmanager.config;
 
 
+import it.sevenbits.taskmanager.core.model.Task.TaskFactory;
 import it.sevenbits.taskmanager.core.repository.DatabaseTaskRepository;
-import it.sevenbits.taskmanager.core.repository.TaskRepository;
+import it.sevenbits.taskmanager.core.repository.PaginationTaskRepository;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -22,12 +23,15 @@ public class RepositoryConfig {
     /**
      * Bean to get TaskRepository Object
      * @param jdbcOperations JDBC object to interact with database
+     * @param taskFactory Taskfactory to create new Task objects
      * @return TaskRepository Object
      */
 
     @Bean
-    public TaskRepository taskRepository(
-            @Qualifier("tasksJdbcOperations") final JdbcOperations jdbcOperations) {
-        return new DatabaseTaskRepository(jdbcOperations);
+    @Qualifier("taskRepository")
+    public PaginationTaskRepository taskRepository(
+            @Qualifier("tasksJdbcOperations") final JdbcOperations jdbcOperations,
+            @Qualifier("taskFactory") final TaskFactory taskFactory) {
+        return new DatabaseTaskRepository(jdbcOperations, taskFactory);
     }
 }

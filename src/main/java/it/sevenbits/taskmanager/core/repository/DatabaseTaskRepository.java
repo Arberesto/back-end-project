@@ -1,8 +1,8 @@
 package it.sevenbits.taskmanager.core.repository;
 
-import it.sevenbits.taskmanager.core.model.Task;
-import it.sevenbits.taskmanager.core.model.TaskFactory;
-import it.sevenbits.taskmanager.core.model.TaskStatus;
+import it.sevenbits.taskmanager.core.model.Task.Task;
+import it.sevenbits.taskmanager.core.model.Task.TaskFactory;
+import it.sevenbits.taskmanager.core.model.Task.TaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcOperations;
@@ -14,28 +14,27 @@ import java.util.UUID;
  *Realisation of TaskRepository to work with database
  */
 
-public class DatabaseTaskRepository implements TaskRepository {
+public class DatabaseTaskRepository implements PaginationTaskRepository {
 
     private JdbcOperations jdbcOperations;
     private TaskFactory taskFactory;
-    private final Task emptyTask;
     private final Logger logger;
 
-    private static final int TASK_ID = 1;
-    private static final int TASK_TEXT = 2;
-    private static final int TASK_STATUS = 3;
-    private static final int TASK_CREATED_AT = 4;
-    private static final int TASK_CHANGED_AT = 5;
+    private final String taskId = "id";
+    private final String taskText = "name";
+    private final String taskStatus = "status";
+    private final String taskCreatedAt = "createdAt";
+    private final String taskChangedAt = "changedAt";
 
     /**
      * Constructor for class
      * @param jdbcOperations JDBC object to interact with database
+     * @param factory Taskfactory to create new Task objects
      */
 
-    public DatabaseTaskRepository(final JdbcOperations jdbcOperations) {
+    public DatabaseTaskRepository(final JdbcOperations jdbcOperations, final TaskFactory factory) {
         this.jdbcOperations = jdbcOperations;
-        taskFactory = new TaskFactory();
-        emptyTask = taskFactory.getNewTask("null", "emptyTask", TaskStatus.empty);
+        taskFactory = factory;
         logger = LoggerFactory.getLogger(DatabaseTaskRepository.class);
     }
 
@@ -50,16 +49,46 @@ public class DatabaseTaskRepository implements TaskRepository {
             return jdbcOperations.query(
                     "SELECT id, name, status, createdAt, changedAt FROM task WHERE status = ?",
                     (resultSet, i) -> {
-                        String resultId = resultSet.getString(TASK_ID);
-                        String resultName = resultSet.getString(TASK_TEXT);
-                        String resultStatus = resultSet.getString(TASK_STATUS);
-                        String resultCreatedAt = resultSet.getString(TASK_CREATED_AT);
-                        String resultChangedAt = resultSet.getString(TASK_CHANGED_AT);
-                        return taskFactory.getNewTask(resultId, resultName, TaskStatus.resolveString(resultStatus),
+                        String resultId = resultSet.getString(taskId);
+                        String resultName = resultSet.getString(taskText);
+                        String resultStatus = resultSet.getString(taskStatus);
+                        String resultCreatedAt = resultSet.getString(taskCreatedAt);
+                        String resultChangedAt = resultSet.getString(taskChangedAt);
+                        return taskFactory.getNewTask(
+                                resultId, resultName, TaskStatus.resolveString(resultStatus),
                                 resultCreatedAt, resultChangedAt);
                     },
                     status);
         } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     *Get List of Tasks from repository with pagination
+     * @param status which status task need to be in list
+     * @return List of Task Objects
+     */
+
+    public List<Task> getTaskList(final String status, final String order, final Integer page,
+                                  final Integer size) {
+        try {
+            return jdbcOperations.query(
+                    "SELECT id, name, status, createdAt, changedAt " +
+                            "FROM task WHERE status = ? ORDER by createdAt DESC LIMIT ? OFFSET ?",
+                    (resultSet, i) -> {
+                        String resultId = resultSet.getString(taskId);
+                        String resultName = resultSet.getString(taskText);
+                        String resultStatus = resultSet.getString(taskStatus);
+                        String resultCreatedAt = resultSet.getString(taskCreatedAt);
+                        String resultChangedAt = resultSet.getString(taskChangedAt);
+                        return taskFactory.getNewTask(
+                                resultId, resultName, TaskStatus.resolveString(resultStatus),
+                                        resultCreatedAt, resultChangedAt);
+                    },
+                    status, size, size * (page - 1));
+        } catch (Exception e) {
+            logger.error(e.getMessage());
             return null;
         }
     }
@@ -71,9 +100,9 @@ public class DatabaseTaskRepository implements TaskRepository {
      */
 
     public Task createTask(final String text) {
-        if ("".equals(text) || "".equals(text.trim())) {
+        if (text == null || "".equals(text.trim())) {
             logger.warn("text of task to create is empty");
-            return emptyTask;
+            return null;
         }
         String id = getNewId().toString();
         TaskStatus status = TaskStatus.inbox;
@@ -81,16 +110,16 @@ public class DatabaseTaskRepository implements TaskRepository {
         try {
             int rows = jdbcOperations.update(
                     "INSERT INTO task (id, name, status, createdAt, changedAt) VALUES (?, ?, ?, ?, ?)",
-                    id, text, status.toString(), result.getCreatedAt(), result.getChangedAt()
+                    id, text, status.toString(), result.getCreatedAt(), result.getUpdatedAt()
             );
             if (rows > 0) {
                 return result;
             }
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return emptyTask;
+            return null;
         }
-        return emptyTask;
+        return null;
     }
 
     /**
@@ -113,13 +142,13 @@ public class DatabaseTaskRepository implements TaskRepository {
             return jdbcOperations.queryForObject(
                     "SELECT id, name, status, createdAt, changedAt FROM task WHERE id = ?",
                     (resultSet, i) -> {
-                        String rowId = resultSet.getString(TASK_ID);
-                        String rowName = resultSet.getString(TASK_TEXT);
-                        TaskStatus rowStatus = TaskStatus.resolveString(resultSet.getString(TASK_STATUS));
-                        String rowCreatedAt = resultSet.getString(TASK_CREATED_AT);
-                        String rowChangedAt = resultSet.getString(TASK_CHANGED_AT);
-                        if (rowStatus.is(TaskStatus.empty)) {
-                            return emptyTask;
+                        String rowId = resultSet.getString(taskId);
+                        String rowName = resultSet.getString(taskText);
+                        TaskStatus rowStatus = TaskStatus.resolveString(resultSet.getString(taskStatus));
+                        String rowCreatedAt = resultSet.getString(taskCreatedAt);
+                        String rowChangedAt = resultSet.getString(taskChangedAt);
+                        if (rowStatus == null) {
+                            return null;
                         }
                         return taskFactory.getNewTask(rowId, rowName, rowStatus,
                                 rowCreatedAt, rowChangedAt);
@@ -127,7 +156,7 @@ public class DatabaseTaskRepository implements TaskRepository {
                     id);
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return emptyTask;
+            return null;
         }
     }
 
@@ -139,24 +168,25 @@ public class DatabaseTaskRepository implements TaskRepository {
 
     public Task deleteTask(final String id) {
         try {
-            Task deletedTask1 = jdbcOperations.queryForObject(
+            Task deletedTask = jdbcOperations.queryForObject(
                     "DELETE FROM task WHERE id = ? RETURNING id, name, status, createdAt, changedAt",
                     (resultSet, i) -> {
-                        TaskStatus rowStatus = TaskStatus.resolveString(resultSet.getString(TASK_STATUS));
-                        String rowId = resultSet.getString(TASK_ID);
-                        String rowName = resultSet.getString(TASK_TEXT);
-                        String rowCreatedAt = resultSet.getString(TASK_CREATED_AT);
-                        String rowChangedAt = resultSet.getString(TASK_CHANGED_AT);
-                        return taskFactory.getNewTask(rowId, rowName, rowStatus, rowCreatedAt, rowChangedAt);
+                        TaskStatus rowStatus = TaskStatus.resolveString(resultSet.getString(taskStatus));
+                        String rowId = resultSet.getString(taskId);
+                        String rowName = resultSet.getString(taskText);
+                        String rowCreatedAt = resultSet.getString(taskCreatedAt);
+                        String rowChangedAt = resultSet.getString(taskChangedAt);
+                        return taskFactory.getNewTask(
+                                rowId, rowName, rowStatus, rowCreatedAt, rowChangedAt);
                     },
                     id);
-            if (!deletedTask1.getStatus().is(TaskStatus.empty)) {
-                return deletedTask1;
+            if (deletedTask != null) {
+                return deletedTask;
             }
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
-        return emptyTask;
+        return null;
     }
 
     /**
@@ -166,23 +196,24 @@ public class DatabaseTaskRepository implements TaskRepository {
      * @return updated Task or empty task if error
      */
     public Task updateTask(final String id, final Task changedTask) {
-        if (!changedTask.getStatus().is(TaskStatus.empty)) {
+        if (changedTask != null) {
             try {
                 int rowsInsert = jdbcOperations.update(
                         "INSERT INTO task (id, name, status, createdAt, changedAt) VALUES (?, ?, ?, ?, ?) " +
                                 "ON CONFLICT(id) DO UPDATE SET name = ?, status = ?, changedAt = ?",
                         changedTask.getId(), changedTask.getText(), changedTask.getStatus().toString(),
-                        changedTask.getCreatedAt(), changedTask.getChangedAt(), changedTask.getText(),
-                        changedTask.getStatus().toString(), changedTask.getChangedAt()
+                        changedTask.getCreatedAt(), changedTask.getUpdatedAt(), changedTask.getText(),
+                        changedTask.getStatus().toString(), changedTask.getUpdatedAt()
                 );
                 if (rowsInsert > 0) {
                     return changedTask;
                 }
             } catch (Exception e) {
                 logger.error(e.getMessage());
-                return emptyTask;
+                return null;
             }
         }
-        return emptyTask;
+        return null;
     }
+
 }
