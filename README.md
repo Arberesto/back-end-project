@@ -1,6 +1,44 @@
+frontend:
+
+add your React App's "build" folder in /var/www/taskmanager/frontend
+
+Nginx:
+
+sudo apt-get install nginx
+// nginx have user 'www-data' to interact witn system, so we give him access to frontend
+sudo chown -R www-data:www-data /var/www/taskmanager/frontend
+
+//create config file(taskmanager.dev) in /etc/nginx/sites-available
+server {
+	listen 80;
+	server_name taskmanager.dev;
+	root /var/www/taskmanager/frontend;
+	index index.html;
+
+	access_log /var/logs/nginx/taskmanager.dev/access.log;
+	error_log /var/logs/nginx/taskmanager.dev/error.log;
+
+	location ~* ^/api/(.*) {
+	 proxy_pass http://127.0.0.1:8080/$1$is_args$args;
+	}
+}
+
+
+//create link for config file
+sudo ln -s /etc/nginx/sites-available/taskmanager.dev /etc/nginx/sites-enabled/taskmanager.dev
+
+
+//check nginx
+
+sudo service nginx status
+//restart service
+sudo service nginx reload
+
+//to work correctly in local network, write 127.0.0.1 and server_name in etc/hosts
+
 
 Database setting:
-1. Download postgresql if don't have it on your machine (I used postgres 9.6)
+1. Download postgresql if don't have it on your machine (use postgres 9.6+)
 
 sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" >> /etc/apt/sources.list.d/pgdg.list'
 wget -q https://www.postgresql.org/media/keys/ACCC4CF8.asc -O - | sudo apt-key add -

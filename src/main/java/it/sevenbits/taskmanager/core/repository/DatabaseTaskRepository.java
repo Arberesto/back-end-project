@@ -24,7 +24,7 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
     private final String taskText = "name";
     private final String taskStatus = "status";
     private final String taskCreatedAt = "createdAt";
-    private final String taskChangedAt = "changedAt";
+    private final String taskUpdatedAt = "changedAt";
 
     /**
      * Constructor for class
@@ -53,7 +53,7 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
                         String resultName = resultSet.getString(taskText);
                         String resultStatus = resultSet.getString(taskStatus);
                         String resultCreatedAt = resultSet.getString(taskCreatedAt);
-                        String resultChangedAt = resultSet.getString(taskChangedAt);
+                        String resultChangedAt = resultSet.getString(taskUpdatedAt);
                         return taskFactory.getNewTask(
                                 resultId, resultName, TaskStatus.resolveString(resultStatus),
                                 resultCreatedAt, resultChangedAt);
@@ -81,10 +81,10 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
                         String resultName = resultSet.getString(taskText);
                         String resultStatus = resultSet.getString(taskStatus);
                         String resultCreatedAt = resultSet.getString(taskCreatedAt);
-                        String resultChangedAt = resultSet.getString(taskChangedAt);
+                        String resultUpdatedAt = resultSet.getString(taskUpdatedAt);
                         return taskFactory.getNewTask(
                                 resultId, resultName, TaskStatus.resolveString(resultStatus),
-                                        resultCreatedAt, resultChangedAt);
+                                        resultCreatedAt, resultUpdatedAt);
                     },
                     status, size, size * (page - 1));
         } catch (Exception e) {
@@ -101,7 +101,7 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
 
     public Task createTask(final String text) {
         if (text == null || "".equals(text.trim())) {
-            logger.warn("text of task to create is empty");
+            logger.warn("text of task to create shouldn't be empty");
             return null;
         }
         String id = getNewId().toString();
@@ -146,7 +146,7 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
                         String rowName = resultSet.getString(taskText);
                         TaskStatus rowStatus = TaskStatus.resolveString(resultSet.getString(taskStatus));
                         String rowCreatedAt = resultSet.getString(taskCreatedAt);
-                        String rowChangedAt = resultSet.getString(taskChangedAt);
+                        String rowChangedAt = resultSet.getString(taskUpdatedAt);
                         if (rowStatus == null) {
                             return null;
                         }
@@ -175,7 +175,7 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
                         String rowId = resultSet.getString(taskId);
                         String rowName = resultSet.getString(taskText);
                         String rowCreatedAt = resultSet.getString(taskCreatedAt);
-                        String rowChangedAt = resultSet.getString(taskChangedAt);
+                        String rowChangedAt = resultSet.getString(taskUpdatedAt);
                         return taskFactory.getNewTask(
                                 rowId, rowName, rowStatus, rowCreatedAt, rowChangedAt);
                     },

@@ -38,14 +38,21 @@ public class SimpleTaskService implements TaskService {
 
     public Task update(final Task task, final PatchTaskRequest request) {
         try {
-            if (request.getText() != null &&
+            if (request.getText() != null ||
                     (TaskStatus.resolveString(request.getStatus()) != null)) {
-                return factory.getNewTask(task.getId(), request.getText(),
-                        TaskStatus.resolveString(request.getStatus()), task.getCreatedAt());
+                return factory.getNewTask(task.getId(), notNullOrDefault(request.getText(),task.getText()),
+                        notNullOrDefault(TaskStatus.resolveString(request.getStatus()),task.getStatus()), task.getCreatedAt());
             }
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
         return null;
+    }
+
+    public <T> T notNullOrDefault(final T isNull,final T ifNull) {
+        if (isNull == null) {
+            return ifNull;
+        }
+        return isNull;
     }
 }
