@@ -1,4 +1,4 @@
-package it.sevenbits.taskmanager.core.repository;
+package it.sevenbits.taskmanager.core.repository.tasks;
 
 public enum PaginationSort {
 

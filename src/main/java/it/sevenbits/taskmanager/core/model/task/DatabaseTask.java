@@ -1,4 +1,4 @@
-package it.sevenbits.taskmanager.core.model.Task;
+package it.sevenbits.taskmanager.core.model.task;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -101,6 +101,9 @@ public class DatabaseTask implements Task {
 
     @Override
     public String toString() {
+        return String.format("Task {\n id: %s\ntext: %s\nstatus %s\ncreatedAt %s\nupdatedAt %s\n", id,text,
+                status.toString(),createdAt,updatedAt);
+        /*
         StringBuilder sb = new StringBuilder();
         sb.append("Task {\n id: ");
         sb.append(id);
@@ -118,6 +121,7 @@ public class DatabaseTask implements Task {
         sb.append(updatedAt);
         sb.append("\n}");
         return sb.toString();
+         */
     }
 
     @Override

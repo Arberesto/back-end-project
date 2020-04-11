@@ -1,4 +1,4 @@
-package it.sevenbits.taskmanager.core.model.Task;
+package it.sevenbits.taskmanager.core.model.task;
 
 /**
  * Enum for status of task
@@ -37,13 +37,13 @@ public enum TaskStatus {
         }
 
     }
-
+/*
     /**
      * Get TaskStatus status by its String version or get default status
      * @param status status to convert into TaskStatus
      * @param defaultStatus default status
      * @return TaskStatus Object
-     */
+
 
     public static TaskStatus resolveStringOrDefault(final String status, final TaskStatus defaultStatus) {
         if (status == null) {
@@ -60,6 +60,7 @@ public enum TaskStatus {
         }
 
     }
+    */
 
     /**
      * Compare this TaskStatus with another
@@ -70,15 +71,4 @@ public enum TaskStatus {
     public boolean is(final TaskStatus status) {
          return TaskStatus.this == status;
     }
-
-    /**
-     * Compare String TaskStatus with some TaskStatus
-     * @param stringStatus some TaskStatus in String form
-     * @return true if equal, false if not
-     */
-
-    public boolean is(final String stringStatus) {
-        return TaskStatus.this == TaskStatus.resolveString(stringStatus);
-    }
-
 }

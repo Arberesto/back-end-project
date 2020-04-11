@@ -1,0 +1,96 @@
+package it.sevenbits.taskmanager.web.controllers;
+
+import it.sevenbits.taskmanager.core.model.user.User;
+import it.sevenbits.taskmanager.core.service.login.LoginFailedException;
+import it.sevenbits.taskmanager.core.service.login.LoginService;
+import it.sevenbits.taskmanager.core.service.login.UserAlreadyExistsException;
+import it.sevenbits.taskmanager.web.model.requests.SignInRequest;
+import it.sevenbits.taskmanager.web.model.requests.SignInResponse;
+import it.sevenbits.taskmanager.web.model.requests.SignUpRequest;
+import it.sevenbits.taskmanager.web.security.JwtTokenService;
+import it.sevenbits.taskmanager.web.security.Token;
+
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ *  Performs login action.
+ */
+
+
+@Controller
+public class CookieLoginController implements LoginController {
+    private final LoginService loginService;
+    private final JwtTokenService tokenService;
+
+    /**
+     * Controller default constructor
+     * @param loginService service for signin/signup operations
+     * @param tokenService service for token creation
+     */
+
+    public CookieLoginController(final LoginService loginService,
+                                 @Qualifier("jwtTokenService") final JwtTokenService tokenService) {
+        this.loginService = loginService;
+        this.tokenService = tokenService;
+    }
+
+    /**
+     * Response for /signin POST request
+     * @param request SignInRequest object contains username and password
+     * @param response HttpServletResponse object used to set Cookie
+     * @return 200 - Token object inside SignInResponse; exception if things goes wrong
+     */
+
+    @PostMapping(path = "/signin")
+    @ResponseBody
+    public ResponseEntity<SignInResponse> signin(@RequestBody final SignInRequest request,
+                                                 final HttpServletResponse response) {
+        try {
+            User user = loginService.login(request);
+            Token token = new Token(tokenService.createToken(user));
+            Cookie cookie = new Cookie("accessToken", token.getToken());
+            cookie.setHttpOnly(true);
+            cookie.setMaxAge((int) (tokenService.getTokenExpiredIn().toMillis() / 1000)); //because we need seconds
+            response.addCookie(cookie);
+
+            return ResponseEntity.ok(new SignInResponse(token));
+        } catch (LoginFailedException e) {
+            throw new LoginFailedException("Invalid login or password");
+        }
+
+    }
+
+    /**
+     * Response for /signup POST request
+     * @param request SignUpRequest object contains username and password
+     * @return 204 if created, 209 if user already exist
+     */
+
+    @RequestMapping(path = "/signup", method = RequestMethod.POST, consumes = "application/json")
+    @ResponseBody
+    public ResponseEntity signup(@RequestBody final SignUpRequest request) {
+        try {
+            loginService.signup(request);
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    .build();
+        } catch (UserAlreadyExistsException e) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .build();
+        }
+
+
+    }
+}
+

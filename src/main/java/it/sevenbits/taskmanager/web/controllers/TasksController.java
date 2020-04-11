@@ -1,26 +1,27 @@
 package it.sevenbits.taskmanager.web.controllers;
 
-import it.sevenbits.taskmanager.core.model.Task.Task;
-import it.sevenbits.taskmanager.core.model.Task.TaskStatus;
-import it.sevenbits.taskmanager.core.repository.PaginationSort;
-import it.sevenbits.taskmanager.core.repository.PaginationTaskRepository;
-import it.sevenbits.taskmanager.core.service.TaskService;
-import it.sevenbits.taskmanager.web.model.AddTaskRequest;
-import it.sevenbits.taskmanager.web.model.PatchTaskRequest;
+import it.sevenbits.taskmanager.core.model.task.Task;
+import it.sevenbits.taskmanager.core.model.task.TaskStatus;
+import it.sevenbits.taskmanager.core.repository.tasks.PaginationSort;
+import it.sevenbits.taskmanager.core.repository.tasks.PaginationTaskRepository;
+import it.sevenbits.taskmanager.core.service.task.TaskService;
+import it.sevenbits.taskmanager.web.model.requests.AddTaskRequest;
+import it.sevenbits.taskmanager.web.model.requests.PatchTaskRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
-
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMethod;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -34,7 +35,7 @@ import java.util.List;
  */
 
 @Controller
-
+@RequestMapping(path = "/tasks")
 public class TasksController {
 
     private PaginationTaskRepository taskRepository;
@@ -65,7 +66,8 @@ public class TasksController {
      * @return list of current tasks with chosen status
      */
 
-    @RequestMapping(path = "/tasks", method = RequestMethod.GET, produces = "application/json")
+    @GetMapping(produces = "application/json")
+    //@RequestMapping(path = "/tasks", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public ResponseEntity<Collection<Task>> getTaskList(
             @RequestParam(name = "status", required = false,
@@ -104,30 +106,6 @@ public class TasksController {
                 .status(HttpStatus.BAD_REQUEST)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .build();
-
-        /*
-
-        {
-  "_meta": {
-    "total": 121,
-    "page": 3,
-    "size": 25,
-    "next": "/tasks?status=done&order=desc&page=4&size=25",
-    "prev": "/tasks?status=done&order=desc&page=2&size=25",
-    "first": "/tasks?status=done&order=desc&page=1&size=25",
-    "last": "/tasks?status=done&order=desc&page=5&size=25"
-  },
-  "tasks": [
-    {
-      "id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
-      "text": "Do practice",
-      "status": "inbox",
-      "createdAt": "2019-03-13T18:31:42+00:00",
-      "updatedAt": "2019-03-14T19:33:01+00:00"
-    }
-  ]
-}
-         */
     }
 
     /**
@@ -137,7 +115,8 @@ public class TasksController {
      * @return JSON with new Task Object; HttpStatus: CREATED if success or BAD_REQUEST if bad body
      */
 
-    @RequestMapping(path = "/tasks", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @PostMapping(produces = "application/json", consumes = "application/json")
+    //@RequestMapping(path = "/tasks", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     @ResponseBody
     public ResponseEntity<Task> createTask(@RequestBody final AddTaskRequest request) {
         try {
@@ -165,7 +144,8 @@ public class TasksController {
      * HttpStatus: OK if success, NOT_FOUND if there is no task with chosen id
      */
 
-    @RequestMapping(path = "/tasks/{id}", method = RequestMethod.GET, produces = "application/json")
+    //@RequestMapping(path = "/tasks/{id}", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(path = "/{id}", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public ResponseEntity<Task> getTask(@Valid @Pattern(
             regexp = idValidationPattern) @PathVariable final String id) {
@@ -191,8 +171,8 @@ public class TasksController {
      * HttpStatus: NO_CONTENT if success, BAD_REQUEST if bad body,
      * NOT_FOUND if there is no current task with chosen id
      */
-
-    @RequestMapping(path = "/tasks/{id}", method = RequestMethod.PATCH, produces = "application/json", consumes = "application/json")
+    //@RequestMapping(path = "/tasks/{id}", method = RequestMethod.PATCH, produces = "application/json", consumes = "application/json")
+    @RequestMapping(path = "/{id}", method = RequestMethod.PATCH, produces = "application/json", consumes = "application/json")
     @ResponseBody
     public ResponseEntity<Task> patchTask(@Valid @Pattern(
             regexp = idValidationPattern) @PathVariable final String id,
@@ -224,8 +204,8 @@ public class TasksController {
      * @return JSON with deleted object if deleted correctly (or with empty task if some errors within);
      * HttpStatus: OK if success, NOT_FOUND if no current task with that id
      */
-
-    @RequestMapping(path = "/tasks/{id}", method = RequestMethod.DELETE, produces = "application/json")
+    //@RequestMapping(path = "/tasks/{id}", method = RequestMethod.DELETE, produces = "application/json")
+    @RequestMapping(path = "/{id}", method = RequestMethod.DELETE, produces = "application/json")
     @ResponseBody
     public ResponseEntity<Task> deleteTask(@Valid @Pattern(
             regexp = idValidationPattern) @PathVariable final String id) {

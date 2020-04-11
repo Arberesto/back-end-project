@@ -1,4 +1,4 @@
-package it.sevenbits.taskmanager.core.model.Task;
+package it.sevenbits.taskmanager.core.model.task;
 
 /**
  * Interface for task in taskmanager

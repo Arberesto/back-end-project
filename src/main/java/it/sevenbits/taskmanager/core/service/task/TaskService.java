@@ -1,7 +1,7 @@
-package it.sevenbits.taskmanager.core.service;
+package it.sevenbits.taskmanager.core.service.task;
 
-import it.sevenbits.taskmanager.core.model.Task.Task;
-import it.sevenbits.taskmanager.web.model.PatchTaskRequest;
+import it.sevenbits.taskmanager.core.model.task.Task;
+import it.sevenbits.taskmanager.web.model.requests.PatchTaskRequest;
 
 /**
  * Service class for serving Task

@@ -1,4 +1,4 @@
-package it.sevenbits.taskmanager.core.model.Task;
+package it.sevenbits.taskmanager.core.model.task;
 
 /**
  * Factory to create Task Objects
@@ -46,16 +46,5 @@ public class TaskFactory {
     public Task getNewTask(final String newId, final String newText, final TaskStatus newStatus,
                            final String createdAt, final String updatedAt) {
         return new DatabaseTask(newId, newText, newStatus, createdAt, updatedAt);
-    }
-
-    /**
-     * Clone existing Task with no changes
-     * @param task Task Object to clone
-     * @return Task Object
-     */
-
-    public Task getNewTask(final Task task) {
-        return new DatabaseTask(task.getId(), task.getText(),
-                task.getStatus(), task.getCreatedAt(), task.getUpdatedAt());
     }
 }

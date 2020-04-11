@@ -1,12 +1,12 @@
 package it.sevenbits.taskmanager.web.controllers;
 
-import it.sevenbits.taskmanager.core.model.Task.Task;
-import it.sevenbits.taskmanager.core.model.Task.TaskFactory;
-import it.sevenbits.taskmanager.core.model.Task.TaskStatus;
-import it.sevenbits.taskmanager.core.repository.PaginationTaskRepository;
-import it.sevenbits.taskmanager.core.service.SimpleTaskService;
-import it.sevenbits.taskmanager.web.model.AddTaskRequest;
-import it.sevenbits.taskmanager.web.model.PatchTaskRequest;
+import it.sevenbits.taskmanager.core.model.task.Task;
+import it.sevenbits.taskmanager.core.model.task.TaskFactory;
+import it.sevenbits.taskmanager.core.model.task.TaskStatus;
+import it.sevenbits.taskmanager.core.repository.tasks.PaginationTaskRepository;
+import it.sevenbits.taskmanager.core.service.task.SimpleTaskService;
+import it.sevenbits.taskmanager.web.model.requests.AddTaskRequest;
+import it.sevenbits.taskmanager.web.model.requests.PatchTaskRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;

@@ -1,7 +1,10 @@
 package it.sevenbits.taskmanager.core.repository;
-import it.sevenbits.taskmanager.core.model.Task.Task;
-import it.sevenbits.taskmanager.core.model.Task.TaskFactory;
-import it.sevenbits.taskmanager.core.model.Task.TaskStatus;
+import it.sevenbits.taskmanager.core.model.task.Task;
+import it.sevenbits.taskmanager.core.model.task.TaskFactory;
+import it.sevenbits.taskmanager.core.model.task.TaskStatus;
+import it.sevenbits.taskmanager.core.repository.tasks.DatabaseTaskRepository;
+import it.sevenbits.taskmanager.core.repository.tasks.PaginationTaskRepository;
+import it.sevenbits.taskmanager.core.repository.tasks.TaskRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.dao.RecoverableDataAccessException;

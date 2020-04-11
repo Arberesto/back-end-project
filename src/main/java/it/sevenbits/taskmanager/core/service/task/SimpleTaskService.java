@@ -1,9 +1,9 @@
-package it.sevenbits.taskmanager.core.service;
+package it.sevenbits.taskmanager.core.service.task;
 
-import it.sevenbits.taskmanager.core.model.Task.Task;
-import it.sevenbits.taskmanager.core.model.Task.TaskFactory;
-import it.sevenbits.taskmanager.core.model.Task.TaskStatus;
-import it.sevenbits.taskmanager.web.model.PatchTaskRequest;
+import it.sevenbits.taskmanager.core.model.task.Task;
+import it.sevenbits.taskmanager.core.model.task.TaskFactory;
+import it.sevenbits.taskmanager.core.model.task.TaskStatus;
+import it.sevenbits.taskmanager.web.model.requests.PatchTaskRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -49,7 +49,7 @@ public class SimpleTaskService implements TaskService {
         return null;
     }
 
-    public <T> T notNullOrDefault(final T isNull,final T ifNull) {
+    private <T> T notNullOrDefault(final T isNull,final T ifNull) {
         if (isNull == null) {
             return ifNull;
         }

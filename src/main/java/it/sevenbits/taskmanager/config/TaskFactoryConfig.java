@@ -1,6 +1,6 @@
 package it.sevenbits.taskmanager.config;
 
-import it.sevenbits.taskmanager.core.model.Task.TaskFactory;
+import it.sevenbits.taskmanager.core.model.task.TaskFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

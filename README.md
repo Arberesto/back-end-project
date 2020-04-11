@@ -63,3 +63,4 @@ Start working:
 3. After you see in that terminal "Started Main in ...sec", open browser and use API:
  
 https://app.swaggerhub.com/apis-docs/pawlaz/base-web-development-restfull-task-manager/3.0.0
+(https://app.swaggerhub.com/apis-docs/pawlaz/base-web-development-restfull-task-manager/5.0.0)

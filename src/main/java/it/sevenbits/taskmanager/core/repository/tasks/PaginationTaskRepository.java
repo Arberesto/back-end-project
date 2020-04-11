@@ -1,6 +1,6 @@
-package it.sevenbits.taskmanager.core.repository;
+package it.sevenbits.taskmanager.core.repository.tasks;
 
-import it.sevenbits.taskmanager.core.model.Task.Task;
+import it.sevenbits.taskmanager.core.model.task.Task;
 
 import java.util.List;
 

@@ -1,8 +1,8 @@
-package it.sevenbits.taskmanager.core.repository;
+package it.sevenbits.taskmanager.core.repository.tasks;
 
-import it.sevenbits.taskmanager.core.model.Task.Task;
-import it.sevenbits.taskmanager.core.model.Task.TaskFactory;
-import it.sevenbits.taskmanager.core.model.Task.TaskStatus;
+import it.sevenbits.taskmanager.core.model.task.Task;
+import it.sevenbits.taskmanager.core.model.task.TaskFactory;
+import it.sevenbits.taskmanager.core.model.task.TaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcOperations;

@@ -1,8 +1,10 @@
 package it.sevenbits.taskmanager.config;
 
-import it.sevenbits.taskmanager.core.model.Task.TaskFactory;
-import it.sevenbits.taskmanager.core.service.SimpleTaskService;
-import it.sevenbits.taskmanager.core.service.TaskService;
+import it.sevenbits.taskmanager.core.model.task.TaskFactory;
+import it.sevenbits.taskmanager.core.repository.users.UsersRepository;
+import it.sevenbits.taskmanager.core.service.task.SimpleTaskService;
+import it.sevenbits.taskmanager.core.service.task.TaskService;
+import it.sevenbits.taskmanager.core.service.user.UserService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,5 +26,17 @@ public class ServiceConfig {
     @Qualifier("taskService")
     public TaskService taskService(@Qualifier("taskFactory") final TaskFactory factory) {
         return new SimpleTaskService(factory);
+    }
+
+    /**
+     * Bean to get UserService
+     * @param usersRepository usersRepository Object
+     * @return new UserService Object
+     */
+
+    @Bean
+    @Qualifier("userService")
+    public UserService userService(@Qualifier("usersRepository") final UsersRepository usersRepository) {
+        return new UserService(usersRepository);
     }
 }

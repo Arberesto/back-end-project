@@ -1,4 +1,4 @@
-package it.sevenbits.taskmanager.web.model;
+package it.sevenbits.taskmanager.web.model.requests;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

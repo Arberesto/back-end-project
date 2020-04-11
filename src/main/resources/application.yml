@@ -8,3 +8,14 @@ spring:
       username: someuser
       password: somepassword
       driver-class-name: org.postgresql.Driver
+
+jwt:
+  issuer: 'devilprime5@gmail.com'
+  signingKey: 'talspoc120nxjsapqke1d77'
+  aTokenDuration: 30
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    it.sevenbits.taskmanager.web.security.JsonWebTokenService: DEBUG
