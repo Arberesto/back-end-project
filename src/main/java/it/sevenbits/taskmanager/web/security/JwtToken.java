@@ -9,6 +9,11 @@ public class JwtToken extends AbstractAuthenticationToken {
 
     private final String token;
 
+    /**
+     * Default constructor
+     * @param token String that contains token
+     */
+
     JwtToken(final String token) {
         super(null);
         this.token = token;
@@ -16,7 +21,7 @@ public class JwtToken extends AbstractAuthenticationToken {
     }
 
     @Override
-    public void setAuthenticated(boolean authenticated) {
+    public void setAuthenticated(final boolean authenticated) {
         if (authenticated) {
             throw new IllegalArgumentException(
                     "Cannot set this token to trusted");

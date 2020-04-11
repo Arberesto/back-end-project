@@ -25,11 +25,24 @@ public class User {
     @JsonIgnore
     private final String password;
 
+    /**
+     * Default constructor
+     * @param username username of user
+     * @param password password of user
+     * @param authorities authorities of user
+     */
+
     public User(final String username, final String password, final List<String> authorities) {
         this.username = username;
         this.password = password;
         this.authorities = authorities;
     }
+
+    /**
+     * Constructor with no password
+     * @param username username of user
+     * @param authorities authorities of user
+     */
 
     @JsonCreator
     public User(final String username, final List<String> authorities) {
@@ -38,10 +51,15 @@ public class User {
         this.authorities = authorities;
     }
 
-    public User(Authentication authentication) {
+    /**
+     * Constructor from Authentication
+     * @param authentication Authentication object from Spring Security that contain all information about user
+     */
+
+    public User(final Authentication authentication) {
         Object principal = authentication.getPrincipal();
         if (principal instanceof UserDetails) {
-            username = ((UserDetails)principal).getUsername();
+            username = ((UserDetails) principal).getUsername();
         } else {
             username = principal.toString();
         }

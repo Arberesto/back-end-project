@@ -14,12 +14,18 @@ public enum PaginationSort {
 
     ASC;
 
-    public static PaginationSort resolveString(final String order) {
-        if (order == null) {
+    /**
+     * Get sort order from string
+     * @param value string value
+     * @return correct PaginationSort or null if uncorrect;
+     */
+
+    public static PaginationSort resolveString(final String value) {
+        if (value == null) {
             return null;
         }
 
-        switch (order.toUpperCase()) {
+        switch (value.toUpperCase()) {
             case "DESC":
                 return PaginationSort.DESC;
             case "ASC" :

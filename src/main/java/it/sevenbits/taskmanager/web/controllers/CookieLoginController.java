@@ -1,9 +1,9 @@
 package it.sevenbits.taskmanager.web.controllers;
 
 import it.sevenbits.taskmanager.core.model.user.User;
-import it.sevenbits.taskmanager.core.service.login.LoginFailedException;
+import it.sevenbits.taskmanager.core.service.login.exceptions.LoginFailedException;
 import it.sevenbits.taskmanager.core.service.login.LoginService;
-import it.sevenbits.taskmanager.core.service.login.UserAlreadyExistsException;
+import it.sevenbits.taskmanager.core.service.login.exceptions.UserAlreadyExistsException;
 import it.sevenbits.taskmanager.web.model.requests.SignInRequest;
 import it.sevenbits.taskmanager.web.model.requests.SignInResponse;
 import it.sevenbits.taskmanager.web.model.requests.SignUpRequest;
@@ -56,11 +56,11 @@ public class CookieLoginController implements LoginController {
     public ResponseEntity<SignInResponse> signin(@RequestBody final SignInRequest request,
                                                  final HttpServletResponse response) {
         try {
-            User user = loginService.login(request);
+            User user = loginService.signin(request);
             Token token = new Token(tokenService.createToken(user));
             Cookie cookie = new Cookie("accessToken", token.getToken());
             cookie.setHttpOnly(true);
-            cookie.setMaxAge((int) (tokenService.getTokenExpiredIn().toMillis() / 1000)); //because we need seconds
+            cookie.setMaxAge(tokenService.getTokenExpiredIn());
             response.addCookie(cookie);
 
             return ResponseEntity.ok(new SignInResponse(token));

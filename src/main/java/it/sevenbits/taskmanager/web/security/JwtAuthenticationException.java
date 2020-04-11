@@ -7,11 +7,22 @@ import org.springframework.security.core.AuthenticationException;
  */
 class JwtAuthenticationException extends AuthenticationException {
 
-    JwtAuthenticationException(String message) {
+    /**
+     * Default constructor
+     * @param message message of exception
+     */
+
+    JwtAuthenticationException(final String message) {
         super(message);
     }
 
-    JwtAuthenticationException(String message, Throwable cause) {
+    /**
+     * Constructor if something else caused this exception
+     * @param message message of exception
+     * @param cause Throwable object
+     */
+
+    JwtAuthenticationException(final String message, final Throwable cause) {
         super(message, cause);
     }
 

@@ -101,8 +101,8 @@ public class DatabaseTask implements Task {
 
     @Override
     public String toString() {
-        return String.format("Task {\n id: %s\ntext: %s\nstatus %s\ncreatedAt %s\nupdatedAt %s\n", id,text,
-                status.toString(),createdAt,updatedAt);
+        return String.format("Task {\n id: %s\ntext: %s\nstatus %s\ncreatedAt %s\nupdatedAt %s\n", id, text,
+                status.toString(), createdAt, updatedAt);
         /*
         StringBuilder sb = new StringBuilder();
         sb.append("Task {\n id: ");

@@ -67,7 +67,10 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
     /**
      *Get List of Tasks from repository with pagination
      * @param status which status task need to be in list
-     * @return List of Task Objects
+     * @param order in which order tasks will be sorted
+     * @param page which page to get
+     * @param size how many objects in one page
+     * @return List of Task objects of current page
      */
 
     public List<Task> getTaskList(final String status, final String order, final Integer page,

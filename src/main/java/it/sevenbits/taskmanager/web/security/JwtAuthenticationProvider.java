@@ -15,12 +15,17 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     private final JwtTokenService tokenService;
 
+    /**
+     * Default constructor
+     * @param tokenService service to work with Jwt tokens
+     */
+
     public JwtAuthenticationProvider(final JwtTokenService tokenService) {
         this.tokenService = tokenService;
     }
 
     @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    public Authentication authenticate(final Authentication authentication) throws AuthenticationException {
         String token = String.valueOf(authentication.getCredentials());
         logger.debug("Authenticating {}", token);
 
@@ -32,7 +37,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    public boolean supports(Class<?> authentication) {
+    public boolean supports(final Class<?> authentication) {
         return (JwtToken.class.isAssignableFrom(authentication));
     }
 

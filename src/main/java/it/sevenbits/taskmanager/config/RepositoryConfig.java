@@ -39,7 +39,8 @@ public class RepositoryConfig {
 
     /**
      * Bean to get UsersRepository Object
-     * @param jdbcOperations JDBC object to interact with database
+     * @param jdbcOperations JDBC to interact with database
+     * @param passwordEncoder PasswordEncoder to work with passwords
      * @return UsersRepository Object
      */
 

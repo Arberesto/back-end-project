@@ -12,7 +12,7 @@ public class PatchTaskRequest {
     private String status;
 
     /**
-     * Default constructor for deserialisation
+     * Default constructor for deserialization
      */
 
     public PatchTaskRequest(){}

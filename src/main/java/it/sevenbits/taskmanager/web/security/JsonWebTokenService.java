@@ -27,14 +27,19 @@ public class JsonWebTokenService implements JwtTokenService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final JwtSettings settings;
-    private final String AUTHORITIES = "authorities";
+    private static final String AUTHORITIES = "authorities";
+
+    /**
+     * Default constructor
+     * @param settings JwtSettings about Jwt tokens
+     */
 
     public JsonWebTokenService(final JwtSettings settings) {
         this.settings = settings;
     }
 
     @Override
-    public String createToken(User user) {
+    public String createToken(final User user) {
         logger.debug("Generating token for {}", user.getUsername());
 
         Instant now = Instant.now();
@@ -43,7 +48,7 @@ public class JsonWebTokenService implements JwtTokenService {
                 .setIssuer(settings.getTokenIssuer())
                 .setIssuedAt(Date.from(now))
                 .setSubject(user.getUsername())
-                .setExpiration(Date.from(now.plus(settings.getTokenExpiredIn())));
+                .setExpiration(Date.from(now.plus(Duration.ofMinutes(settings.getTokenExpiredIn()))));
         claims.put(AUTHORITIES, user.getAuthorities());
 
         return Jwts.builder()
@@ -53,12 +58,12 @@ public class JsonWebTokenService implements JwtTokenService {
     }
 
     @Override
-    public Duration getTokenExpiredIn() {
+    public int getTokenExpiredIn() {
         return settings.getTokenExpiredIn();
     }
 
     @Override
-    public Authentication parseToken(String token) {
+    public Authentication parseToken(final String token) {
         Jws<Claims> claims = Jwts.parser().setSigningKey(settings.getTokenSigningKey()).parseClaimsJws(token);
 
         String subject = claims.getBody().getSubject();

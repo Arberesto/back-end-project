@@ -19,14 +19,26 @@ public class UsersRepository {
     private JdbcOperations jdbcOperations;
     private final PasswordEncoder passwordEncoder;
 
-    private final String AUTHORITY = "authority";
-    //private final String USERNAME = "username";
-    //private final String PASSWORD = "password";
+    private static final String AUTHORITY = "authority";
+    private static final String USERNAME = "username";
+    private static final  String PASSWORD = "password";
+
+    /**
+     * Repository to store User objects
+     * @param jdbcOperations JDBC object to interact with database
+     * @param passwordEncoder PasswordEncoder to encode passwords
+     */
 
     public UsersRepository(final JdbcOperations jdbcOperations, final PasswordEncoder passwordEncoder) {
         this.jdbcOperations = jdbcOperations;
         this.passwordEncoder = passwordEncoder;
     }
+
+    /**
+     * Find user
+     * @param username username of user to find
+     * @return User if exist or null
+     */
 
     public User findByUserName(final String username) {
         Map<String, Object> rawUser;
@@ -56,6 +68,11 @@ public class UsersRepository {
         return new User(username, password, authorities);
     }
 
+    /**
+     * Find all active users in repository
+     * @return List of User objects
+     */
+
     public List<User> findAll() {
         HashMap<String, User> users = new HashMap<>();
 
@@ -65,7 +82,7 @@ public class UsersRepository {
                         " (SELECT * FROM users u WHERE" +
                         " u.username = a.username AND u.enabled = true)")) {
 
-            String username = String.valueOf(row.get("username"));
+            String username = String.valueOf(row.get(USERNAME));
             String newRole = String.valueOf(row.get(AUTHORITY));
             User user = users.computeIfAbsent(username, name -> new User(name, new ArrayList<>()));
             List<String> roles = user.getAuthorities();
@@ -74,6 +91,14 @@ public class UsersRepository {
         }
         return new ArrayList<>(users.values());
     }
+
+    /**
+     * Create new user
+     * @param username username of new user
+     * @param password password of new user
+     * @param authorities authorities of new user
+     * @return created User; null if error occurred
+     */
 
     public User create(final String username, final String password, final List<String> authorities) {
         User result = new User(username, password, authorities);

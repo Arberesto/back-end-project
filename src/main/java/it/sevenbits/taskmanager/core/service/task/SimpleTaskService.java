@@ -40,8 +40,8 @@ public class SimpleTaskService implements TaskService {
         try {
             if (request.getText() != null ||
                     (TaskStatus.resolveString(request.getStatus()) != null)) {
-                return factory.getNewTask(task.getId(), notNullOrDefault(request.getText(),task.getText()),
-                        notNullOrDefault(TaskStatus.resolveString(request.getStatus()),task.getStatus()), task.getCreatedAt());
+                return factory.getNewTask(task.getId(), notNullOrDefault(request.getText(), task.getText()),
+                        notNullOrDefault(TaskStatus.resolveString(request.getStatus()), task.getStatus()), task.getCreatedAt());
             }
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -49,7 +49,7 @@ public class SimpleTaskService implements TaskService {
         return null;
     }
 
-    private <T> T notNullOrDefault(final T isNull,final T ifNull) {
+    private <T> T notNullOrDefault(final T isNull, final T ifNull) {
         if (isNull == null) {
             return ifNull;
         }

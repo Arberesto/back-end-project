@@ -15,6 +15,11 @@ public class UserService {
 
     private final UsersRepository usersRepository;
 
+    /**
+     * Default constructor
+     * @param usersRepository UsersRepository that store users
+     */
+
     public UserService(final UsersRepository usersRepository) {
         this.usersRepository = usersRepository;
     }

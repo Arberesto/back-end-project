@@ -6,6 +6,15 @@ import java.util.List;
 
 public interface PaginationTaskRepository extends TaskRepository {
 
-    List<Task> getTaskList(final String status, final String order, final Integer page,
-                           final Integer size);
+    /**
+     * Get task list with page distribution
+     * @param status which status task need to be in list
+     * @param order in which order tasks will be sorted
+     * @param page which page to get
+     * @param size how many objects in one page
+     * @return List of Task objects of current page
+     */
+
+    List<Task> getTaskList(String status, String order, Integer page,
+                           Integer size);
 }
