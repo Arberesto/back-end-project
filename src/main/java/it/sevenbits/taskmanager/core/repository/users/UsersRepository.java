@@ -1,6 +1,8 @@
 package it.sevenbits.taskmanager.core.repository.users;
 
 import it.sevenbits.taskmanager.core.model.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +20,7 @@ public class UsersRepository {
 
     private JdbcOperations jdbcOperations;
     private final PasswordEncoder passwordEncoder;
+    private final Logger logger;
 
     private static final String AUTHORITY = "authority";
     private static final String USERNAME = "username";
@@ -32,6 +35,7 @@ public class UsersRepository {
     public UsersRepository(final JdbcOperations jdbcOperations, final PasswordEncoder passwordEncoder) {
         this.jdbcOperations = jdbcOperations;
         this.passwordEncoder = passwordEncoder;
+        this.logger = LoggerFactory.getLogger(this.getClass());
     }
 
     /**
@@ -104,14 +108,14 @@ public class UsersRepository {
         User result = new User(username, password, authorities);
         try {
             int rows = jdbcOperations.update(
-                    "INSERT INTO users (username, password, boolean) VALUES (?, ?, ?)",
+                    "INSERT INTO users (username, password, enabled) VALUES (?, ?, ?)",
                     username, passwordEncoder.encode(password), true
             );
             if (rows <= 0) {
                 return null;
             }
         } catch (Exception e) {
-            //logger.error(e.getMessage());
+            logger.error(e.getMessage());
             return null;
         }
         for (String authority : authorities) {
@@ -122,7 +126,7 @@ public class UsersRepository {
                 );
                 if (rows <= 0) {
                     User deletedUser = jdbcOperations.queryForObject(
-                            "DELETE FROM users WHERE username = ? RETURNING username, password, boolean",
+                            "DELETE FROM users WHERE username = ? RETURNING username, password, enabled",
                             (resultSet, i) -> {
                                 String rowName = resultSet.getString("username");
                                 String rowPassword = resultSet.getString("password");
@@ -132,7 +136,7 @@ public class UsersRepository {
                     return null;
                 }
             } catch (Exception e) {
-                //logger.error(e.getMessage());
+                logger.error(e.getMessage());
                 return null;
             }
         }

@@ -1,9 +1,6 @@
 package it.sevenbits.taskmanager.web.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import it.sevenbits.taskmanager.core.model.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +28,7 @@ public class JsonWebTokenService implements JwtTokenService {
 
     /**
      * Default constructor
+     *
      * @param settings JwtSettings about Jwt tokens
      */
 
@@ -41,20 +39,28 @@ public class JsonWebTokenService implements JwtTokenService {
     @Override
     public String createToken(final User user) {
         logger.debug("Generating token for {}", user.getUsername());
-
+        String result = "";
         Instant now = Instant.now();
-
         Claims claims = Jwts.claims()
                 .setIssuer(settings.getTokenIssuer())
                 .setIssuedAt(Date.from(now))
                 .setSubject(user.getUsername())
                 .setExpiration(Date.from(now.plus(Duration.ofMinutes(settings.getTokenExpiredIn()))));
         claims.put(AUTHORITIES, user.getAuthorities());
-
-        return Jwts.builder()
-                .setClaims(claims)
-                .signWith(SignatureAlgorithm.HS512, settings.getTokenSigningKey())
-                .compact();
+        logger.debug("Claims authorities is also fine");
+        JwtBuilder builder = Jwts.builder();
+        builder = builder.setClaims(claims);
+        builder = builder.signWith(SignatureAlgorithm.HS512, settings.getTokenSigningKey());
+        logger.debug("Nothing wrong with signing keys");
+        try {
+            result = builder.compact();
+            logger.debug(result);
+        } catch (Exception e) {
+            logger.error("Something wrong with builder.compact()");
+        }
+        logger.debug("Nothing wrong with compact");
+        logger.debug("Returning token with no problem");
+        return result;
     }
 
     @Override

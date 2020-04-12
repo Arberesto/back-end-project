@@ -27,16 +27,4 @@ public class ServiceConfig {
     public TaskService taskService(@Qualifier("taskFactory") final TaskFactory factory) {
         return new SimpleTaskService(factory);
     }
-
-    /**
-     * Bean to get UserService
-     * @param usersRepository usersRepository Object
-     * @return new UserService Object
-     */
-
-    @Bean
-    @Qualifier("userService")
-    public UserService userService(@Qualifier("usersRepository") final UsersRepository usersRepository) {
-        return new UserService(usersRepository);
-    }
 }

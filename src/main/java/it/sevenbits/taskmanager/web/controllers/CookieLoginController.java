@@ -10,6 +10,8 @@ import it.sevenbits.taskmanager.web.model.requests.SignUpRequest;
 import it.sevenbits.taskmanager.web.security.JwtTokenService;
 import it.sevenbits.taskmanager.web.security.Token;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 public class CookieLoginController implements LoginController {
     private final LoginService loginService;
     private final JwtTokenService tokenService;
+    private final Logger logger;
 
     /**
      * Controller default constructor
@@ -42,6 +45,7 @@ public class CookieLoginController implements LoginController {
                                  @Qualifier("jwtTokenService") final JwtTokenService tokenService) {
         this.loginService = loginService;
         this.tokenService = tokenService;
+        this.logger = LoggerFactory.getLogger(this.getClass());
     }
 
     /**
@@ -58,14 +62,16 @@ public class CookieLoginController implements LoginController {
         try {
             User user = loginService.signin(request);
             Token token = new Token(tokenService.createToken(user));
+            logger.debug("Token was generated");
             Cookie cookie = new Cookie("accessToken", token.getToken());
             cookie.setHttpOnly(true);
             cookie.setMaxAge(tokenService.getTokenExpiredIn());
             response.addCookie(cookie);
-
+            logger.debug("Ready to response to signin");
             return ResponseEntity.ok(new SignInResponse(token));
         } catch (LoginFailedException e) {
-            throw new LoginFailedException("Invalid login or password");
+            logger.error("Invalid login or password");
+            return ResponseEntity.ok(new SignInResponse(null));
         }
 
     }
@@ -81,9 +87,7 @@ public class CookieLoginController implements LoginController {
     public ResponseEntity signup(@RequestBody final SignUpRequest request) {
         try {
             loginService.signup(request);
-            return ResponseEntity
-                    .status(HttpStatus.NO_CONTENT)
-                    .build();
+            return ResponseEntity.noContent().build();
         } catch (UserAlreadyExistsException e) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)

@@ -58,8 +58,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http
                 .authorizeRequests()
-                //.antMatchers("/signup", "/signin").permitAll()
-                .antMatchers("/signin/**", "/signup/**").hasAuthority("ANONYMOUS")
+                .antMatchers("/signup", "/signin").permitAll()
+                //.antMatchers("/signin/**", "/signup/**").hasAuthority("ANONYMOUS")
                 .antMatchers("/users/**").hasAuthority("ADMIN")
                 .antMatchers("/whoami/**", "/tasks/**").hasAuthority("USER")
                 .anyRequest().authenticated();

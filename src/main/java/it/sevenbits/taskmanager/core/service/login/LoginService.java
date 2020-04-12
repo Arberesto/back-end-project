@@ -8,6 +8,8 @@ import it.sevenbits.taskmanager.core.service.user.UserService;
 
 import it.sevenbits.taskmanager.web.model.requests.SignInRequest;
 import it.sevenbits.taskmanager.web.model.requests.SignUpRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,7 @@ public class LoginService {
     private final UsersRepository users;
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
+    private final Logger logger;
 
     /**
      * Default constructor
@@ -30,6 +33,7 @@ public class LoginService {
         this.users = users;
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
+        this.logger = LoggerFactory.getLogger(this.getClass());
     }
 
     /**
@@ -59,7 +63,11 @@ public class LoginService {
     public User signup(final SignUpRequest request) {
             User user = users.findByUserName(request.getUsername());
             if (user == null) {
-                return userService.createNewUser(request.getUsername(), request.getPassword());
+                user = userService.createNewUser(request.getUsername(), request.getPassword());
+                if (user == null) {
+                    logger.warn("Warning: user wasn't created");
+                }
+                return user;
             }
             throw new UserAlreadyExistsException("User with that name already exists");
     }

@@ -11,11 +11,10 @@ spring:
 
 jwt:
   issuer: 'devilprime5@gmail.com'
-  signingKey: 'talspoc120nxjsapqke1d77'
-  aTokenDuration: 30
+  signingKey: '10414d3bf71b47bbf7566f4d59baae929c0b869a01079cb5dd72d6a3aae5dc6924dd049564f1f9989e2eed5ba92d30cde2216b2e5f9982538c831c81d77511fc'
+  aTokenDuration: 5
 
 logging:
   level:
-    root: INFO
-    org.springframework.web: INFO
+    root: DEBUG
     it.sevenbits.taskmanager.web.security.JsonWebTokenService: DEBUG
