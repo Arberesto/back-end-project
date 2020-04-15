@@ -8,3 +8,7 @@ spring:
       username: someuser
       password: somepassword
       driver-class-name: org.postgresql.Driver
+logging:
+  level:
+    root: INFO
+    it.sevenbits.taskmanager: DEBUG

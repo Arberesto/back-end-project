@@ -6,6 +6,7 @@ import it.sevenbits.taskmanager.core.repository.PaginationSort;
 import it.sevenbits.taskmanager.core.repository.PaginationTaskRepository;
 import it.sevenbits.taskmanager.core.service.TaskService;
 import it.sevenbits.taskmanager.web.model.AddTaskRequest;
+import it.sevenbits.taskmanager.web.model.GetTasksResponse;
 import it.sevenbits.taskmanager.web.model.PatchTaskRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,7 @@ public class TasksController {
 
     @RequestMapping(path = "/tasks", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<Collection<Task>> getTaskList(
+    public ResponseEntity<GetTasksResponse> getTaskList(
             @RequestParam(name = "status", required = false,
                     defaultValue = "inbox") final String status,
             @RequestParam(name = "order", required = false,
@@ -77,14 +78,13 @@ public class TasksController {
             @Min(10) @Max(50) @RequestParam(name = "size", required = false,
                     defaultValue = "25") final Integer size) {
         try {
-            List<Task> result;
 
             if (TaskStatus.resolveString(status) != null &&
                     PaginationSort.resolveString(order) != null) {
 
                 String statusToGet = TaskStatus.resolveString(status).toString();
                 String orderToGet = PaginationSort.resolveString(order).toString();
-                result = taskRepository.getTaskList(statusToGet, orderToGet, page, size);
+                GetTasksResponse result = taskRepository.getTaskList(statusToGet, orderToGet, page, size);
                 if (result != null) {
                     return ResponseEntity
                             .status(HttpStatus.OK)

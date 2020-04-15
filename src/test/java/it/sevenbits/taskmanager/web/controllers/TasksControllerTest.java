@@ -6,6 +6,7 @@ import it.sevenbits.taskmanager.core.model.Task.TaskStatus;
 import it.sevenbits.taskmanager.core.repository.PaginationTaskRepository;
 import it.sevenbits.taskmanager.core.service.SimpleTaskService;
 import it.sevenbits.taskmanager.web.model.AddTaskRequest;
+import it.sevenbits.taskmanager.web.model.GetTasksResponse;
 import it.sevenbits.taskmanager.web.model.PatchTaskRequest;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,17 +47,19 @@ public class TasksControllerTest {
         Task newTask2 = factory.getNewTask(id1, "firstTask1",TaskStatus.inbox);
         inboxList.add(newTask1);
         inboxList.add(newTask2);
+        GetTasksResponse response = new GetTasksResponse(inboxList,"inbox",
+                "desc",1,25,100);
         repository = mock(PaginationTaskRepository.class);
 
         when(repository.getTaskList(anyString(), anyString(), anyInt(), anyInt())).
-                thenReturn(inboxList);
+                thenReturn(response);
 
         tasksController = new TasksController(repository,null);
 
-        ResponseEntity<Collection<Task>> responseOkInbox = ResponseEntity
+        ResponseEntity<GetTasksResponse> responseOkInbox = ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .body(inboxList);
+                .body(response);
 
         assertEquals(responseOkInbox,
                 tasksController.getTaskList("inbox","desc",1,25));
@@ -73,16 +76,17 @@ public class TasksControllerTest {
         doneList.add(newTask1);
         doneList.add(newTask2);
         repository = mock(PaginationTaskRepository.class);
-
+        GetTasksResponse response = new GetTasksResponse(doneList,"inbox",
+                "desc",1,25,100);
         when(repository.getTaskList(anyString(), anyString(), anyInt(), anyInt())).
-                thenReturn(doneList);
+                thenReturn(response);
 
         tasksController = new TasksController(repository,null);
 
-        ResponseEntity<Collection<Task>> responseOkDone = ResponseEntity
+        ResponseEntity<GetTasksResponse> responseOkDone = ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .body(doneList);
+                .body(response);
 
         assertEquals(responseOkDone,
                 tasksController.getTaskList("done","desc",1,25));
@@ -91,19 +95,21 @@ public class TasksControllerTest {
     @Test
     public void getTaskList_EmptyList() {
         String id = UUID.randomUUID().toString();
-        List<Task> emptyList = new ArrayList<>();
 
         repository = mock(PaginationTaskRepository.class);
 
+        GetTasksResponse response = new GetTasksResponse(new ArrayList<>(),"inbox",
+                "desc",1,25,100);
+
         when(repository.getTaskList(anyString(), anyString(), anyInt(), anyInt())).
-                thenReturn(emptyList);
+                thenReturn(response);
 
         tasksController = new TasksController(repository,null);
 
-        ResponseEntity<Collection<Task>> responseOkEmpty = ResponseEntity
+        ResponseEntity<GetTasksResponse> responseOkEmpty = ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .body(emptyList);
+                .body(response);
         assertEquals(responseOkEmpty,
                 tasksController.getTaskList("inbox","desc",1,25));
     }
@@ -117,7 +123,7 @@ public class TasksControllerTest {
 
         tasksController = new TasksController(repository,null);
 
-        ResponseEntity<Collection<Task>> responseBadRequest = ResponseEntity
+        ResponseEntity<GetTasksResponse> responseBadRequest = ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .build();

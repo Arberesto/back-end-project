@@ -1,7 +1,9 @@
 package it.sevenbits.taskmanager.core.model.Task;
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneOffset;
 
 /**
  * Simple task in taskmanager
@@ -27,8 +29,11 @@ public class DatabaseTask implements Task {
         this.text = newText;
         this.id = newId;
         this.status = status;
-        this.createdAt = simpleDateFormat.format(new Date());
-        this.updatedAt = simpleDateFormat.format(new Date());
+        //this.createdAt = simpleDateFormat.format(new Date());
+        //this.createdAt = Timestamp.from(Instant.now()).toLocaleString();
+        this.createdAt = Timestamp.from(Instant.now()).toString();
+        this.updatedAt = Timestamp.from(Instant.now()).toString();
+        //this.updatedAt = simpleDateFormat.format(new Date());
     }
 
     /**
@@ -44,7 +49,8 @@ public class DatabaseTask implements Task {
         this.id = newId;
         this.status = status;
         this.createdAt = createdAt;
-        this.updatedAt = simpleDateFormat.format(new Date());
+        this.updatedAt = Timestamp.from(Instant.now()).toString();
+        //this.updatedAt = simpleDateFormat.format(new Date());
     }
 
     /**

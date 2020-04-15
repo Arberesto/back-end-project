@@ -3,10 +3,13 @@ package it.sevenbits.taskmanager.core.repository;
 import it.sevenbits.taskmanager.core.model.Task.Task;
 import it.sevenbits.taskmanager.core.model.Task.TaskFactory;
 import it.sevenbits.taskmanager.core.model.Task.TaskStatus;
+import it.sevenbits.taskmanager.web.model.GetTasksResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
@@ -66,14 +69,20 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
 
     /**
      *Get List of Tasks from repository with pagination
-     * @param status which status task need to be in list
+     * @param status which status task needs to be in list
+     * @param order order of sorting resulting list
+     * @param page number of page to return
+     * @param size how much elements will be on page
      * @return List of Task Objects
      */
 
-    public List<Task> getTaskList(final String status, final String order, final Integer page,
+    public GetTasksResponse getTaskList(final String status, final String order, final Integer page,
                                   final Integer size) {
         try {
-            return jdbcOperations.query(
+            int totalSize = getResultSize(status);
+            logger.debug("Total size of taskList without pagination- {}", totalSize);
+            return new GetTasksResponse(
+                    jdbcOperations.query(
                     "SELECT id, name, status, createdAt, updatedAt " +
                             "FROM task WHERE status = ? ORDER by createdAt DESC LIMIT ? OFFSET ?",
                     (resultSet, i) -> {
@@ -86,7 +95,9 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
                                 resultId, resultName, TaskStatus.resolveString(resultStatus),
                                         resultCreatedAt, resultUpdatedAt);
                     },
-                    status, size, size * (page - 1));
+                    status, size, size * (page - 1)
+                    ),
+                    status, order, page, size, totalSize);
         } catch (Exception e) {
             logger.error(e.getMessage());
             return null;
@@ -110,7 +121,8 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
         try {
             int rows = jdbcOperations.update(
                     "INSERT INTO task (id, name, status, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)",
-                    id, text, status.toString(), result.getCreatedAt(), result.getUpdatedAt()
+                    id, text, status.toString(), Timestamp.valueOf(result.getCreatedAt()),
+                    Timestamp.valueOf(result.getUpdatedAt())
             );
             if (rows > 0) {
                 return result;
@@ -202,8 +214,8 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
                         "INSERT INTO task (id, name, status, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?) " +
                                 "ON CONFLICT(id) DO UPDATE SET name = ?, status = ?, updatedAt = ?",
                         updatedTask.getId(), updatedTask.getText(), updatedTask.getStatus().toString(),
-                        updatedTask.getCreatedAt(), updatedTask.getUpdatedAt(), updatedTask.getText(),
-                        updatedTask.getStatus().toString(), updatedTask.getUpdatedAt()
+                        Timestamp.valueOf(updatedTask.getCreatedAt()), Timestamp.valueOf(updatedTask.getUpdatedAt()), updatedTask.getText(),
+                        updatedTask.getStatus().toString(), Timestamp.valueOf(updatedTask.getUpdatedAt())
                 );
                 if (rowsInsert > 0) {
                     return updatedTask;
@@ -214,6 +226,21 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
             }
         }
         return null;
+    }
+
+    private Integer getResultSize(final String status) {
+        try {
+            return jdbcOperations.queryForObject("SELECT count(*)" +
+                            "FROM task WHERE status = ?",
+                    (resultSet, i) -> {
+                        int totalSize = Integer.valueOf(resultSet.getString(1)); //resultSet.getInt("count(*)");
+                        return totalSize;
+                    },
+                    status);
+        } catch (DataAccessException e) {
+            logger.error(e.getMessage());
+            return -1;
+        }
     }
 
 }
