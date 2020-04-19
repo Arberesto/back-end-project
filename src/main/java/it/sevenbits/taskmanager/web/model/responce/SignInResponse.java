@@ -1,4 +1,4 @@
-package it.sevenbits.taskmanager.web.model.requests;
+package it.sevenbits.taskmanager.web.model.responce;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.sevenbits.taskmanager.web.security.Token;

@@ -8,6 +8,7 @@ import it.sevenbits.taskmanager.core.service.task.TaskService;
 import it.sevenbits.taskmanager.web.model.requests.AddTaskRequest;
 import it.sevenbits.taskmanager.web.model.requests.PatchTaskRequest;
 
+import it.sevenbits.taskmanager.web.model.responce.GetTasksResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -69,7 +70,7 @@ public class TasksController {
     @GetMapping(produces = "application/json")
     //@RequestMapping(path = "/tasks", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<Collection<Task>> getTaskList(
+    public ResponseEntity<GetTasksResponse> getTaskList(
             @RequestParam(name = "status", required = false,
                     defaultValue = "inbox") final String status,
             @RequestParam(name = "order", required = false,
@@ -79,14 +80,12 @@ public class TasksController {
             @Min(10) @Max(50) @RequestParam(name = "size", required = false,
                     defaultValue = "25") final Integer size) {
         try {
-            List<Task> result;
-
             if (TaskStatus.resolveString(status) != null &&
                     PaginationSort.resolveString(order) != null) {
 
                 String statusToGet = TaskStatus.resolveString(status).toString();
                 String orderToGet = PaginationSort.resolveString(order).toString();
-                result = taskRepository.getTaskList(statusToGet, orderToGet, page, size);
+                GetTasksResponse result = taskRepository.getTaskList(statusToGet, orderToGet, page, size);
                 if (result != null) {
                     return ResponseEntity
                             .status(HttpStatus.OK)

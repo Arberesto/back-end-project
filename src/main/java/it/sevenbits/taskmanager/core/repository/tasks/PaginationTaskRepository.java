@@ -1,8 +1,6 @@
 package it.sevenbits.taskmanager.core.repository.tasks;
 
-import it.sevenbits.taskmanager.core.model.task.Task;
-
-import java.util.List;
+import it.sevenbits.taskmanager.web.model.responce.GetTasksResponse;
 
 public interface PaginationTaskRepository extends TaskRepository {
 
@@ -15,6 +13,6 @@ public interface PaginationTaskRepository extends TaskRepository {
      * @return List of Task objects of current page
      */
 
-    List<Task> getTaskList(String status, String order, Integer page,
-                           Integer size);
+    GetTasksResponse getTaskList(String status, String order, Integer page,
+                                 Integer size);
 }

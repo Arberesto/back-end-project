@@ -111,6 +111,8 @@ public class UsersRepository {
                     "INSERT INTO users (username, password, enabled) VALUES (?, ?, ?)",
                     username, passwordEncoder.encode(password), true
             );
+            //TODO: remove
+            logger.debug(String.format("Password %s encoded as", password, passwordEncoder.encode(password)));
             if (rows <= 0) {
                 return null;
             }

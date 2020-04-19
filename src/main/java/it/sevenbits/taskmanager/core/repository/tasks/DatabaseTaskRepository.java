@@ -3,10 +3,13 @@ package it.sevenbits.taskmanager.core.repository.tasks;
 import it.sevenbits.taskmanager.core.model.task.Task;
 import it.sevenbits.taskmanager.core.model.task.TaskFactory;
 import it.sevenbits.taskmanager.core.model.task.TaskStatus;
+import it.sevenbits.taskmanager.web.model.responce.GetTasksResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,7 +27,7 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
     private final String taskText = "name";
     private final String taskStatus = "status";
     private final String taskCreatedAt = "createdAt";
-    private final String taskUpdatedAt = "changedAt";
+    private final String taskUpdatedAt = "updatedAt";
 
     /**
      * Constructor for class
@@ -41,13 +44,13 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
     /**
      *Get List of Tasks from repository
      * @param status which status task need to be in list
-     * @return List of Task Objects
+     * @return GetTasksResponse Object
      */
 
     public List<Task> getTaskList(final String status) {
         try {
             return jdbcOperations.query(
-                    "SELECT id, name, status, createdAt, changedAt FROM task WHERE status = ?",
+                    "SELECT id, name, status, createdAt, updatedAt FROM task WHERE status = ?",
                     (resultSet, i) -> {
                         String resultId = resultSet.getString(taskId);
                         String resultName = resultSet.getString(taskText);
@@ -66,18 +69,20 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
 
     /**
      *Get List of Tasks from repository with pagination
-     * @param status which status task need to be in list
-     * @param order in which order tasks will be sorted
-     * @param page which page to get
-     * @param size how many objects in one page
+     * @param status which status task needs to be in list
+     * @param order order of sorting resulting list
+     * @param page number of page to return
+     * @param size how much elements will be on page
      * @return List of Task objects of current page
      */
 
-    public List<Task> getTaskList(final String status, final String order, final Integer page,
+    public GetTasksResponse getTaskList(final String status, final String order, final Integer page,
                                   final Integer size) {
+        int totalSize = getResultSize(status);
+        logger.debug("Total size of taskList without pagination- {}", totalSize);
         try {
-            return jdbcOperations.query(
-                    "SELECT id, name, status, createdAt, changedAt " +
+            return new GetTasksResponse(jdbcOperations.query(
+                    "SELECT id, name, status, createdAt, updatedAt " +
                             "FROM task WHERE status = ? ORDER by createdAt DESC LIMIT ? OFFSET ?",
                     (resultSet, i) -> {
                         String resultId = resultSet.getString(taskId);
@@ -89,7 +94,8 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
                                 resultId, resultName, TaskStatus.resolveString(resultStatus),
                                         resultCreatedAt, resultUpdatedAt);
                     },
-                    status, size, size * (page - 1));
+                    status, size, size * (page - 1)),
+                    status, order, page, size, totalSize);
         } catch (Exception e) {
             logger.error(e.getMessage());
             return null;
@@ -112,8 +118,9 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
         Task result = taskFactory.getNewTask(id, text, status);
         try {
             int rows = jdbcOperations.update(
-                    "INSERT INTO task (id, name, status, createdAt, changedAt) VALUES (?, ?, ?, ?, ?)",
-                    id, text, status.toString(), result.getCreatedAt(), result.getUpdatedAt()
+                    "INSERT INTO task (id, name, status, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)",
+                    id, text, status.toString(), Timestamp.valueOf(result.getCreatedAt()),
+                    Timestamp.valueOf(result.getUpdatedAt())
             );
             if (rows > 0) {
                 return result;
@@ -143,7 +150,7 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
     public Task getTask(final String id) {
         try {
             return jdbcOperations.queryForObject(
-                    "SELECT id, name, status, createdAt, changedAt FROM task WHERE id = ?",
+                    "SELECT id, name, status, createdAt, updatedAt FROM task WHERE id = ?",
                     (resultSet, i) -> {
                         String rowId = resultSet.getString(taskId);
                         String rowName = resultSet.getString(taskText);
@@ -172,7 +179,7 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
     public Task deleteTask(final String id) {
         try {
             Task deletedTask = jdbcOperations.queryForObject(
-                    "DELETE FROM task WHERE id = ? RETURNING id, name, status, createdAt, changedAt",
+                    "DELETE FROM task WHERE id = ? RETURNING id, name, status, createdAt, updatedAt",
                     (resultSet, i) -> {
                         TaskStatus rowStatus = TaskStatus.resolveString(resultSet.getString(taskStatus));
                         String rowId = resultSet.getString(taskId);
@@ -202,11 +209,12 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
         if (changedTask != null) {
             try {
                 int rowsInsert = jdbcOperations.update(
-                        "INSERT INTO task (id, name, status, createdAt, changedAt) VALUES (?, ?, ?, ?, ?) " +
-                                "ON CONFLICT(id) DO UPDATE SET name = ?, status = ?, changedAt = ?",
+                        "INSERT INTO task (id, name, status, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?) " +
+                                "ON CONFLICT(id) DO UPDATE SET name = ?, status = ?, updatedAt = ?",
                         changedTask.getId(), changedTask.getText(), changedTask.getStatus().toString(),
-                        changedTask.getCreatedAt(), changedTask.getUpdatedAt(), changedTask.getText(),
-                        changedTask.getStatus().toString(), changedTask.getUpdatedAt()
+                        Timestamp.valueOf(changedTask.getCreatedAt()), Timestamp.valueOf(changedTask.getUpdatedAt()),
+                        changedTask.getText(), changedTask.getStatus().toString(),
+                        Timestamp.valueOf(changedTask.getUpdatedAt())
                 );
                 if (rowsInsert > 0) {
                     return changedTask;
@@ -217,6 +225,21 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
             }
         }
         return null;
+    }
+
+    private Integer getResultSize(final String status) {
+        try {
+            return jdbcOperations.queryForObject("SELECT count(*)" +
+                            "FROM task WHERE status = ?",
+                    (resultSet, i) -> {
+                        int totalSize = Integer.valueOf(resultSet.getString(1));
+                        return totalSize;
+                    },
+                    status);
+        } catch (DataAccessException e) {
+            logger.error(e.getMessage());
+            return -1;
+        }
     }
 
 }

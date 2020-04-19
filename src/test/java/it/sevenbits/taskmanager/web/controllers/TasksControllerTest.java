@@ -7,6 +7,7 @@ import it.sevenbits.taskmanager.core.repository.tasks.PaginationTaskRepository;
 import it.sevenbits.taskmanager.core.service.task.SimpleTaskService;
 import it.sevenbits.taskmanager.web.model.requests.AddTaskRequest;
 import it.sevenbits.taskmanager.web.model.requests.PatchTaskRequest;
+import it.sevenbits.taskmanager.web.model.responce.GetTasksResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -15,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,17 +46,19 @@ public class TasksControllerTest {
         Task newTask2 = factory.getNewTask(id1, "firstTask1",TaskStatus.inbox);
         inboxList.add(newTask1);
         inboxList.add(newTask2);
+        GetTasksResponse response = new GetTasksResponse(inboxList,"inbox",
+                "desc",1,25,2);
         repository = mock(PaginationTaskRepository.class);
 
         when(repository.getTaskList(anyString(), anyString(), anyInt(), anyInt())).
-                thenReturn(inboxList);
+                thenReturn(response);
 
         tasksController = new TasksController(repository,null);
 
-        ResponseEntity<Collection<Task>> responseOkInbox = ResponseEntity
+        ResponseEntity<GetTasksResponse> responseOkInbox = ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .body(inboxList);
+                .body(response);
 
         assertEquals(responseOkInbox,
                 tasksController.getTaskList("inbox","desc",1,25));
@@ -72,17 +74,19 @@ public class TasksControllerTest {
         Task newTask2 = factory.getNewTask(id1, "thirdTask",TaskStatus.done);
         doneList.add(newTask1);
         doneList.add(newTask2);
+        GetTasksResponse response = new GetTasksResponse(doneList,"inbox",
+                "desc",1,25,2);
         repository = mock(PaginationTaskRepository.class);
 
         when(repository.getTaskList(anyString(), anyString(), anyInt(), anyInt())).
-                thenReturn(doneList);
+                thenReturn(response);
 
         tasksController = new TasksController(repository,null);
 
-        ResponseEntity<Collection<Task>> responseOkDone = ResponseEntity
+        ResponseEntity<GetTasksResponse> responseOkDone = ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .body(doneList);
+                .body(response);
 
         assertEquals(responseOkDone,
                 tasksController.getTaskList("done","desc",1,25));
@@ -90,20 +94,20 @@ public class TasksControllerTest {
 
     @Test
     public void getTaskList_EmptyList() {
-        String id = UUID.randomUUID().toString();
-        List<Task> emptyList = new ArrayList<>();
 
         repository = mock(PaginationTaskRepository.class);
 
+        GetTasksResponse response = new GetTasksResponse(new ArrayList<>(),"inbox",
+                "desc",1,25,100);
         when(repository.getTaskList(anyString(), anyString(), anyInt(), anyInt())).
-                thenReturn(emptyList);
+                thenReturn(response);
 
         tasksController = new TasksController(repository,null);
 
-        ResponseEntity<Collection<Task>> responseOkEmpty = ResponseEntity
+        ResponseEntity<GetTasksResponse> responseOkEmpty = ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .body(emptyList);
+                .body(response);
         assertEquals(responseOkEmpty,
                 tasksController.getTaskList("inbox","desc",1,25));
     }
@@ -117,7 +121,7 @@ public class TasksControllerTest {
 
         tasksController = new TasksController(repository,null);
 
-        ResponseEntity<Collection<Task>> responseBadRequest = ResponseEntity
+        ResponseEntity<GetTasksResponse> responseBadRequest = ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .build();

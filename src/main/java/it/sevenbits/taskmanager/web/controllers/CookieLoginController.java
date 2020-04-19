@@ -5,7 +5,7 @@ import it.sevenbits.taskmanager.core.service.login.exceptions.LoginFailedExcepti
 import it.sevenbits.taskmanager.core.service.login.LoginService;
 import it.sevenbits.taskmanager.core.service.login.exceptions.UserAlreadyExistsException;
 import it.sevenbits.taskmanager.web.model.requests.SignInRequest;
-import it.sevenbits.taskmanager.web.model.requests.SignInResponse;
+import it.sevenbits.taskmanager.web.model.responce.SignInResponse;
 import it.sevenbits.taskmanager.web.model.requests.SignUpRequest;
 import it.sevenbits.taskmanager.web.security.JwtTokenService;
 import it.sevenbits.taskmanager.web.security.Token;

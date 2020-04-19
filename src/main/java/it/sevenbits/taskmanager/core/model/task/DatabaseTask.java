@@ -1,7 +1,6 @@
 package it.sevenbits.taskmanager.core.model.task;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Instant;
+import java.sql.Timestamp;
 
 /**
  * Simple task in taskmanager
@@ -14,7 +13,6 @@ public class DatabaseTask implements Task {
     private TaskStatus status;
     private String createdAt;
     private String updatedAt;
-    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
 
     /**
      *Contructor for creating new Task(createdAt and updatedAt will be created automatically)
@@ -27,8 +25,8 @@ public class DatabaseTask implements Task {
         this.text = newText;
         this.id = newId;
         this.status = status;
-        this.createdAt = simpleDateFormat.format(new Date());
-        this.updatedAt = simpleDateFormat.format(new Date());
+        this.createdAt = Timestamp.from(Instant.now()).toString();
+        this.updatedAt = Timestamp.from(Instant.now()).toString();
     }
 
     /**
@@ -44,7 +42,7 @@ public class DatabaseTask implements Task {
         this.id = newId;
         this.status = status;
         this.createdAt = createdAt;
-        this.updatedAt = simpleDateFormat.format(new Date());
+        this.updatedAt = Timestamp.from(Instant.now()).toString();
     }
 
     /**
@@ -73,15 +71,12 @@ public class DatabaseTask implements Task {
         return this.text;
     }
 
-
     public TaskStatus getStatus() {
         return this.status;
     }
 
-
     /**
      * Get date of creation
-     *
      * @return String with date
      */
 
@@ -103,25 +98,6 @@ public class DatabaseTask implements Task {
     public String toString() {
         return String.format("Task {\n id: %s\ntext: %s\nstatus %s\ncreatedAt %s\nupdatedAt %s\n", id, text,
                 status.toString(), createdAt, updatedAt);
-        /*
-        StringBuilder sb = new StringBuilder();
-        sb.append("Task {\n id: ");
-        sb.append(id);
-        sb.append("\n");
-        sb.append("text: ");
-        sb.append(text);
-        sb.append("\n");
-        sb.append("status: ");
-        sb.append(status.toString());
-        sb.append("\n");
-        sb.append("createdAt: ");
-        sb.append(createdAt);
-        sb.append("\n}");
-        sb.append("updatedAt: ");
-        sb.append(updatedAt);
-        sb.append("\n}");
-        return sb.toString();
-         */
     }
 
     @Override
