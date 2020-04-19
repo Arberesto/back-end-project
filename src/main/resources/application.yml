@@ -16,5 +16,5 @@ jwt:
 
 logging:
   level:
-    root: DEBUG
+    root: INFO
     it.sevenbits.taskmanager.web.security.JsonWebTokenService: DEBUG
