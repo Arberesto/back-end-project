@@ -10,14 +10,22 @@ import org.springframework.security.core.Authentication;
 public interface JwtTokenService {
     /**
      * Getter for token duration
-     * @return token duration
+     * @return token duration (in seconds)
      */
-    int getTokenExpiredIn();
+    int getTokenExpiredInSeconds();
+
+    /**
+     * Getter for token duration
+     * @return token duration (in minutes)
+     */
+    int getTokenExpiredInMinutes();
     /**
      * Parses the token
      * @param token the token string to parse
      * @return authenticated data
      */
+
+
     Authentication parseToken(String token);
 
     /**

@@ -1,6 +1,10 @@
 package it.sevenbits.taskmanager.web.security;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.SignatureAlgorithm;
 import it.sevenbits.taskmanager.core.model.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +49,7 @@ public class JsonWebTokenService implements JwtTokenService {
                 .setIssuer(settings.getTokenIssuer())
                 .setIssuedAt(Date.from(now))
                 .setSubject(user.getUsername())
-                .setExpiration(Date.from(now.plus(Duration.ofMinutes(settings.getTokenExpiredIn()))));
+                .setExpiration(Date.from(now.plus(Duration.ofMinutes(getTokenExpiredInMinutes()))));
         claims.put(AUTHORITIES, user.getAuthorities());
         logger.debug("Claims authorities is also fine");
         JwtBuilder builder = Jwts.builder();
@@ -64,7 +68,12 @@ public class JsonWebTokenService implements JwtTokenService {
     }
 
     @Override
-    public int getTokenExpiredIn() {
+    public int getTokenExpiredInSeconds() {
+        return settings.getTokenExpiredIn() * 60; // store in minutes, but need seconds
+    }
+
+    @Override
+    public int getTokenExpiredInMinutes() {
         return settings.getTokenExpiredIn();
     }
 

@@ -21,12 +21,13 @@ public class GetTasksResponse {
     private PaginationInfo metaInfo;
 
     /**
-     * Default constructor
-     * @param tasks
-     * @param page
-     * @param size
-     * @param status
-     * @param totalSize
+     * Default constructor (uses params other than 'tasks' to create meta info)
+     * @param tasks list of tasks to store
+     * @param page number of page for pagination
+     * @param size amount of tasks on one page
+     * @param order order of sorting tasks in list
+     * @param status status of tasks
+     * @param totalSize total size of elements
      */
 
     public GetTasksResponse(final List<Task> tasks, final String status, final String order, final Integer page, final Integer size,

@@ -112,7 +112,7 @@ public class UsersRepository {
                     username, passwordEncoder.encode(password), true
             );
             //TODO: remove
-            logger.debug(String.format("Password %s encoded as", password, passwordEncoder.encode(password)));
+            logger.debug(String.format("Password %s encoded as %s", password, passwordEncoder.encode(password)));
             if (rows <= 0) {
                 return null;
             }

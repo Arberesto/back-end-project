@@ -1,10 +1,8 @@
 package it.sevenbits.taskmanager.config;
 
 import it.sevenbits.taskmanager.core.model.task.TaskFactory;
-import it.sevenbits.taskmanager.core.repository.users.UsersRepository;
 import it.sevenbits.taskmanager.core.service.task.SimpleTaskService;
 import it.sevenbits.taskmanager.core.service.task.TaskService;
-import it.sevenbits.taskmanager.core.service.user.UserService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

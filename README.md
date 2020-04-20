@@ -56,6 +56,15 @@ sudo apt-get install postgresql-9.6
 If you need to interact with database in console, 
 use command "psql -h localhost taskmanagertasks someuser" to connect to it on your machine.
 
+Security:
+
+By default sql migrations, you get two users:
+
+user - with password "hooray" and with role USER
+admin - with password "51thsong" and with role ADMINs
+
+You can easily change default password hashes and users themselfs in migrations.
+
 Start working:
 
 1. Open terminal in project root folder(where this README lies) and type "mvn package"

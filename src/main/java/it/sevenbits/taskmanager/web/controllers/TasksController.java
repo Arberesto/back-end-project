@@ -28,8 +28,6 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import java.net.URI;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Controller for creating tasks and get list of current tasks

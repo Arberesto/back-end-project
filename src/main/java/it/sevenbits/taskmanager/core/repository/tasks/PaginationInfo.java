@@ -38,10 +38,12 @@ public class PaginationInfo {
 
     /**
      * Default constructor
-     * @param page
-     * @param size
-     * @param status
-     * @param totalSize
+     * @param path path of result page
+     * @param page number of page for pagination
+     * @param size amount of tasks on one page
+     * @param order order of sorting tasks in list
+     * @param status status of tasks
+     * @param totalSize total size of elements
      */
 
     public PaginationInfo(final String path, final String status, final String order, final int page, final int size, final int totalSize) {

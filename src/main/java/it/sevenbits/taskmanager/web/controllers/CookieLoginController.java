@@ -65,7 +65,7 @@ public class CookieLoginController implements LoginController {
             logger.debug("Token was generated");
             Cookie cookie = new Cookie("accessToken", token.getToken());
             cookie.setHttpOnly(true);
-            cookie.setMaxAge(tokenService.getTokenExpiredIn());
+            cookie.setMaxAge(tokenService.getTokenExpiredInSeconds());
             response.addCookie(cookie);
             logger.debug("Ready to response to signin");
             return ResponseEntity.ok(new SignInResponse(token));
