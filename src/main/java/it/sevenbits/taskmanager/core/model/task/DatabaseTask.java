@@ -1,4 +1,6 @@
 package it.sevenbits.taskmanager.core.model.task;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.Instant;
 import java.sql.Timestamp;
 
@@ -13,6 +15,8 @@ public class DatabaseTask implements Task {
     private TaskStatus status;
     private String createdAt;
     private String updatedAt;
+    @JsonIgnore
+    private String owner;
 
     /**
      *Contructor for creating new Task(createdAt and updatedAt will be created automatically)
@@ -21,12 +25,13 @@ public class DatabaseTask implements Task {
      * @param status TaskStatus of Task
      */
 
-    DatabaseTask(final String newId, final String newText, final TaskStatus status) {
+    DatabaseTask(final String newId, final String newText, final TaskStatus status, final String owner) {
         this.text = newText;
         this.id = newId;
         this.status = status;
         this.createdAt = Timestamp.from(Instant.now()).toString();
         this.updatedAt = Timestamp.from(Instant.now()).toString();
+        this.owner = owner;
     }
 
     /**
@@ -37,12 +42,14 @@ public class DatabaseTask implements Task {
      * @param createdAt Date of creating this Object
      */
 
-    DatabaseTask(final String newId, final String newText, final TaskStatus status, final String createdAt) {
+    DatabaseTask(final String newId, final String newText, final TaskStatus status,
+                 final String createdAt, final String owner) {
         this.text = newText;
         this.id = newId;
         this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = Timestamp.from(Instant.now()).toString();
+        this.owner = owner;
     }
 
     /**
@@ -55,12 +62,13 @@ public class DatabaseTask implements Task {
      */
 
     DatabaseTask(final String newId, final String newText, final TaskStatus status,
-                 final String createdAt, final String updatedAt) {
+                 final String createdAt, final String updatedAt, final String owner) {
         this.text = newText;
         this.id = newId;
         this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.owner = owner;
     }
 
     public String getId() {
@@ -93,6 +101,15 @@ public class DatabaseTask implements Task {
         return updatedAt;
     }
 
+
+    /**
+     * Get owner of task
+     * @return String with uuid of User
+     */
+
+    public String getOwner() {
+        return this.owner;
+    }
 
     @Override
     public String toString() {

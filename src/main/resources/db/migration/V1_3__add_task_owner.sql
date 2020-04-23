@@ -1,0 +1,2 @@
+ALTER TABLE task
+    ADD COLUMN owner varchar NOT NULL DEFAULT 'f67f5506-9fb7-4536-a932-5c409cbe9151';

@@ -1,7 +1,8 @@
 create table users (
-  username VARCHAR(256) PRIMARY KEY,
-  password VARCHAR(256),
-  enabled boolean
+    id text PRIMARY KEY,
+    username VARCHAR(256),
+    password VARCHAR(256),
+    enabled boolean
 );
 
 create table authorities (

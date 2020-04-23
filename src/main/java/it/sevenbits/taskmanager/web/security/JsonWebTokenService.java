@@ -46,6 +46,7 @@ public class JsonWebTokenService implements JwtTokenService {
         String result = "";
         Instant now = Instant.now();
         Claims claims = Jwts.claims()
+                .setId(user.getId())
                 .setIssuer(settings.getTokenIssuer())
                 .setIssuedAt(Date.from(now))
                 .setSubject(user.getUsername())
@@ -80,14 +81,14 @@ public class JsonWebTokenService implements JwtTokenService {
     @Override
     public Authentication parseToken(final String token) {
         Jws<Claims> claims = Jwts.parser().setSigningKey(settings.getTokenSigningKey()).parseClaimsJws(token);
-
+        String id = claims.getBody().getId();
         String subject = claims.getBody().getSubject();
         List<String> tokenAuthorities = claims.getBody().get(AUTHORITIES, List.class);
         List<GrantedAuthority> authorities = tokenAuthorities.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
-        return new AuthenticatedJwtToken(subject, authorities);
+        return new AuthenticatedJwtToken(subject, authorities, id);
     }
 
 }
