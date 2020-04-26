@@ -2,6 +2,7 @@ package it.sevenbits.taskmanager.config;
 
 
 import it.sevenbits.taskmanager.core.model.task.TaskFactory;
+import it.sevenbits.taskmanager.core.model.user.UserFactory;
 import it.sevenbits.taskmanager.core.repository.tasks.DatabaseTaskRepository;
 import it.sevenbits.taskmanager.core.repository.tasks.PaginationTaskRepository;
 
@@ -48,7 +49,8 @@ public class RepositoryConfig {
     @Qualifier("UsersRepository")
     public UsersRepository usersRepository(
             @Qualifier("tasksJdbcOperations") final JdbcOperations jdbcOperations,
-            final PasswordEncoder passwordEncoder) {
-        return new UsersRepository(jdbcOperations, passwordEncoder);
+            @Qualifier("passwordEncoder") final PasswordEncoder passwordEncoder,
+            @Qualifier("userFactory") final UserFactory userFactory) {
+        return new UsersRepository(jdbcOperations, passwordEncoder, userFactory);
     }
 }

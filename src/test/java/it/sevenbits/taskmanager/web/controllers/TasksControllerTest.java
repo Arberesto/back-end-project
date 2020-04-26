@@ -55,7 +55,7 @@ public class TasksControllerTest {
         when(repository.getTaskList(anyString(), anyString(), anyInt(), anyInt(), anyString())).
                 thenReturn(response);
         userService = mock(UserService.class);
-        when(userService.getCurrentUser()).thenReturn(new User(owner,"","", null));
+        when(userService.getCurrentUser()).thenReturn(new User(owner,"","", null, true));
 
         tasksController = new TasksController(repository,null, userService);
 
@@ -86,7 +86,7 @@ public class TasksControllerTest {
         when(repository.getTaskList(anyString(), anyString(), anyInt(), anyInt(), anyString())).
                 thenReturn(response);
         userService = mock(UserService.class);
-        when(userService.getCurrentUser()).thenReturn(new User(owner,"","", null));
+        when(userService.getCurrentUser()).thenReturn(new User(owner,"","", null, true));
 
         tasksController = new TasksController(repository,null, userService);
 
@@ -110,7 +110,7 @@ public class TasksControllerTest {
         when(repository.getTaskList(anyString(), anyString(), anyInt(), anyInt(), anyString())).
                 thenReturn(response);
         userService = mock(UserService.class);
-        when(userService.getCurrentUser()).thenReturn(new User(owner,"","", null));
+        when(userService.getCurrentUser()).thenReturn(new User(owner,"","", null, true));
         tasksController = new TasksController(repository,null, userService);
 
         ResponseEntity<GetTasksResponse> responseOkEmpty = ResponseEntity
@@ -145,8 +145,8 @@ public class TasksControllerTest {
                 thenReturn(response2);
 
         userService = mock(UserService.class);
-        when(userService.getCurrentUser()).thenReturn(new User(owner1,"","", null),
-                new User(owner2,"","", null));
+        when(userService.getCurrentUser()).thenReturn(new User(owner1,"","", null, true),
+                new User(owner2,"","", null, true));
 
         tasksController = new TasksController(repository,null, userService);
 
@@ -195,7 +195,7 @@ public class TasksControllerTest {
         repository = mock(PaginationTaskRepository.class);
         when(repository.createTask(anyString(), anyString())).thenReturn(newTask);
         userService = mock(UserService.class);
-        when(userService.getCurrentUser()).thenReturn(new User(owner,"","", null));
+        when(userService.getCurrentUser()).thenReturn(new User(owner,"","", null, true));
 
         tasksController = new TasksController(repository, null, userService);
 
@@ -247,7 +247,7 @@ public class TasksControllerTest {
         when(repository.getTask(anyString())).thenReturn(newTask);
 
         userService = mock(UserService.class);
-        when(userService.getCurrentUser()).thenReturn(new User(owner,"","", null));
+        when(userService.getCurrentUser()).thenReturn(new User(owner,"","", null, true));
 
         tasksController = new TasksController(repository, null, userService);
 
@@ -300,7 +300,7 @@ public class TasksControllerTest {
         repository = mock(PaginationTaskRepository.class);
         when(repository.getTask(anyString())).thenReturn(newTask);
         userService = mock(UserService.class);
-        when(userService.getCurrentUser()).thenReturn(new User(owner2,"","", null));
+        when(userService.getCurrentUser()).thenReturn(new User(owner2,"","", null, true));
         tasksController = new TasksController(repository, null, userService);
 
         ResponseEntity<Task> responseForbidden = ResponseEntity
@@ -322,7 +322,7 @@ public class TasksControllerTest {
         PatchTaskRequest request = new PatchTaskRequest("updatedTask","done");
 
         userService = mock(UserService.class);
-        when(userService.getCurrentUser()).thenReturn(new User(owner,"","", null));
+        when(userService.getCurrentUser()).thenReturn(new User(owner,"","", null, true));
         repository = mock(PaginationTaskRepository.class);
         when(repository.getTask(anyString())).thenReturn(startTask);
         when(repository.updateTask(anyString(),any(Task.class))).thenReturn(updatedTask);
@@ -388,7 +388,7 @@ public class TasksControllerTest {
         PatchTaskRequest requestBad = new PatchTaskRequest("updatedTask","dnoe");
 
         userService = mock(UserService.class);
-        when(userService.getCurrentUser()).thenReturn(new User(owner,"","", null));
+        when(userService.getCurrentUser()).thenReturn(new User(owner,"","", null, true));
         repository = mock(PaginationTaskRepository.class);
         SimpleTaskService service = mock(SimpleTaskService.class);
 
@@ -415,7 +415,7 @@ public class TasksControllerTest {
         PatchTaskRequest requestBad = new PatchTaskRequest("updatedTask","done");
 
         userService = mock(UserService.class);
-        when(userService.getCurrentUser()).thenReturn(new User(owner2,"","", null));
+        when(userService.getCurrentUser()).thenReturn(new User(owner2,"","", null, true));
         repository = mock(PaginationTaskRepository.class);
         when(repository.getTask(anyString())).thenReturn(startTask);
         when(repository.updateTask(anyString(),any(Task.class))).thenReturn(null);
@@ -439,7 +439,7 @@ public class TasksControllerTest {
         Task deletedTask = factory.getNewTask(id, text, TaskStatus.inbox, owner);
 
         userService = mock(UserService.class);
-        when(userService.getCurrentUser()).thenReturn(new User(owner,"","", null));
+        when(userService.getCurrentUser()).thenReturn(new User(owner,"","", null, true));
         repository = mock(PaginationTaskRepository.class);
         when(repository.getTask(anyString())).thenReturn(deletedTask);
         when(repository.deleteTask(anyString())).thenReturn(deletedTask);
@@ -484,7 +484,7 @@ public class TasksControllerTest {
         Task deletedTask = factory.getNewTask(id, text, TaskStatus.inbox, owner1);
 
         userService = mock(UserService.class);
-        when(userService.getCurrentUser()).thenReturn(new User(owner2,"","", null));
+        when(userService.getCurrentUser()).thenReturn(new User(owner2,"","", null, true));
         repository = mock(PaginationTaskRepository.class);
         when(repository.getTask(anyString())).thenReturn(deletedTask);
         when(repository.deleteTask(anyString())).thenReturn(deletedTask);

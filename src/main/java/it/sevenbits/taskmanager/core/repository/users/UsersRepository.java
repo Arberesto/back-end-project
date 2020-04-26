@@ -2,14 +2,18 @@ package it.sevenbits.taskmanager.core.repository.users;
 
 import it.sevenbits.taskmanager.core.model.user.User;
 import it.sevenbits.taskmanager.core.model.user.UserFactory;
-import it.sevenbits.taskmanager.web.model.requests.PatchUserRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.*;
+import java.util.UUID;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 /**
  * Class for interacting with user database
@@ -32,13 +36,14 @@ public class UsersRepository {
      * Repository to store User objects
      * @param jdbcOperations JDBC object to interact with database
      * @param passwordEncoder PasswordEncoder to encode passwords
+     * @param userFactory userFactory to get User objects
      */
 
     public UsersRepository(final JdbcOperations jdbcOperations, final PasswordEncoder passwordEncoder,
-                           final UserFactory factory) {
+                           final UserFactory userFactory) {
         this.jdbcOperations = jdbcOperations;
         this.passwordEncoder = passwordEncoder;
-        this.factory = factory;
+        this.factory = userFactory;
         this.logger = LoggerFactory.getLogger(this.getClass());
     }
 
