@@ -201,7 +201,7 @@ public class UsersRepository {
     public User updateUser(final String id, final User changedUser) {
         if (changedUser != null) {
             try {
-                //Should use BEGIN to create transaction
+                //TODO:Should use BEGIN to create transaction
 
                 int rowsInsert = jdbcOperations.update(
                         "INSERT INTO users(id, username, password, enabled) VALUES (?, ?, ?, ?) " +
