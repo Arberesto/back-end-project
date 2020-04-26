@@ -41,5 +41,10 @@ public interface Task {
 
     String getUpdatedAt();
 
+    /**
+     * Get owner of task
+     * @return String with uuid of User
+     */
 
+    String getOwner();
 }

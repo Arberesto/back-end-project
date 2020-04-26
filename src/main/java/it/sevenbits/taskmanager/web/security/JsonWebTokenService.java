@@ -29,6 +29,7 @@ public class JsonWebTokenService implements JwtTokenService {
 
     private final JwtSettings settings;
     private static final String AUTHORITIES = "authorities";
+    private static final String ENABLED = "enabled";
 
     /**
      * Default constructor
@@ -52,6 +53,7 @@ public class JsonWebTokenService implements JwtTokenService {
                 .setSubject(user.getUsername())
                 .setExpiration(Date.from(now.plus(Duration.ofMinutes(getTokenExpiredInMinutes()))));
         claims.put(AUTHORITIES, user.getAuthorities());
+        claims.put(ENABLED, user.getEnabled());
         logger.debug("Claims authorities is also fine");
         JwtBuilder builder = Jwts.builder();
         builder = builder.setClaims(claims);
@@ -59,11 +61,9 @@ public class JsonWebTokenService implements JwtTokenService {
         logger.debug("Nothing wrong with signing keys");
         try {
             result = builder.compact();
-            logger.debug(result);
         } catch (Exception e) {
             logger.error("Something wrong with builder.compact()");
         }
-        logger.debug("Nothing wrong with compact");
         logger.debug("Returning token with no problem");
         return result;
     }
@@ -81,14 +81,16 @@ public class JsonWebTokenService implements JwtTokenService {
     @Override
     public Authentication parseToken(final String token) {
         Jws<Claims> claims = Jwts.parser().setSigningKey(settings.getTokenSigningKey()).parseClaimsJws(token);
+        logger.debug(String.format("id from claims when parse token - %s", claims.getBody().getId()));
         String id = claims.getBody().getId();
         String subject = claims.getBody().getSubject();
+        boolean enabled = Boolean.parseBoolean(claims.getBody().get("enabled").toString());
         List<String> tokenAuthorities = claims.getBody().get(AUTHORITIES, List.class);
         List<GrantedAuthority> authorities = tokenAuthorities.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
-        return new AuthenticatedJwtToken(subject, authorities, id);
+        return new AuthenticatedJwtToken(subject, authorities, id, enabled);
     }
 
 }

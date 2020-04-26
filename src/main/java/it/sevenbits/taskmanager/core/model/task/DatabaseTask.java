@@ -40,6 +40,7 @@ public class DatabaseTask implements Task {
      * @param newText text of Task
      * @param status TaskStatus of Task
      * @param createdAt Date of creating this Object
+     * @param owner id of owner of task
      */
 
     DatabaseTask(final String newId, final String newText, final TaskStatus status,
@@ -59,6 +60,7 @@ public class DatabaseTask implements Task {
      * @param status TaskStatus of Task
      * @param createdAt Date of creating this Object
      * @param updatedAt Date of last changing this Object
+     * @param owner id of owner of task
      */
 
     DatabaseTask(final String newId, final String newText, final TaskStatus status,

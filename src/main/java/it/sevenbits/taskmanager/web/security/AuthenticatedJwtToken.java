@@ -11,17 +11,22 @@ public class AuthenticatedJwtToken extends AbstractAuthenticationToken {
 
     private final String subject;
     private final String id;
+    private final Boolean enabled;
 
     /**
      * Default constructor
      * @param subject name of authenticated user
      * @param authorities authorities of subject
+     * @param id id of user
+     * @param enabled status of user
      */
 
-    AuthenticatedJwtToken(final String subject, final Collection<GrantedAuthority> authorities, final String id) {
+    AuthenticatedJwtToken(final String subject, final Collection<GrantedAuthority> authorities,
+                          final String id, final boolean enabled) {
         super(authorities);
         this.subject = subject;
         this.id = id;
+        this.enabled = enabled;
         setAuthenticated(true);
     }
 
@@ -29,17 +34,18 @@ public class AuthenticatedJwtToken extends AbstractAuthenticationToken {
     public Object getCredentials() {
         return null;
     }
+
     /*
     @Override
     public Object getPrincipal() {return subject;}
     */
 
-
      @Override
     public Object getPrincipal() {
-        Map<String,String> result = new HashMap<>();
+        Map<String, String> result = new HashMap<>();
         result.put("subject", subject);
         result.put("id", id);
+        result.put("enabled", enabled.toString());
         return result;
     }
 

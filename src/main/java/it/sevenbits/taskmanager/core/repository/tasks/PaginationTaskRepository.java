@@ -10,9 +10,10 @@ public interface PaginationTaskRepository extends TaskRepository {
      * @param order in which order tasks will be sorted
      * @param page which page to get
      * @param size how many objects in one page
+     * @param owner owner of tasks
      * @return List of Task objects of current page
      */
 
     GetTasksResponse getTaskList(String status, String order, Integer page,
-                                 Integer size);
+                                 Integer size, String owner);
 }

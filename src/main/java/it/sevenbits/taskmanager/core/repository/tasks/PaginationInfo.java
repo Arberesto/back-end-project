@@ -51,7 +51,7 @@ public class PaginationInfo {
         this.page = page;
         this.size = size;
         String link = "%s?status=%s&order=%s&page=%d&size=%d";
-        int lastPage = (int) Math.ceil(totalSize / (float) (size));
+        int lastPage = Math.max((int) Math.ceil(totalSize / (float) (size)) , 1);
         this.first = String.format(link, path, status.toLowerCase(), order, 1, size);
         this.last = String.format(link, path, status.toLowerCase(), order, lastPage, size);
         if (page < lastPage) {

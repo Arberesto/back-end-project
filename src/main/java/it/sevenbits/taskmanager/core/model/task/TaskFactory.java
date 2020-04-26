@@ -12,10 +12,11 @@ public class TaskFactory {
      * @param newId     Id of task
      * @param newText   Text of task
      * @param newStatus Status of task
+     * @param owner id of owner of task
      * @return Task Object
      */
-    public Task getNewTask(final String newId, final String newText, final TaskStatus newStatus) {
-        return new DatabaseTask(newId, newText, newStatus);
+    public Task getNewTask(final String newId, final String newText, final TaskStatus newStatus, final String owner) {
+        return new DatabaseTask(newId, newText, newStatus, owner);
     }
 
     /**
@@ -25,11 +26,12 @@ public class TaskFactory {
      * @param newText   Text of task
      * @param newStatus Status of task
      * @param createdAt Date of creating task
+     * @param owner id of owner of task
      * @return Task Object
      */
     public Task getNewTask(final String newId, final String newText,
-                           final TaskStatus newStatus, final String createdAt) {
-        return new DatabaseTask(newId, newText, newStatus, createdAt);
+                           final TaskStatus newStatus, final String createdAt, final String owner) {
+        return new DatabaseTask(newId, newText, newStatus, createdAt, owner);
     }
 
 
@@ -41,10 +43,11 @@ public class TaskFactory {
      * @param newStatus Status of task
      * @param createdAt Date of creating task
      * @param updatedAt Last date of creating task
+     * @param owner id of owner of task
      * @return Task Object
      */
     public Task getNewTask(final String newId, final String newText, final TaskStatus newStatus,
-                           final String createdAt, final String updatedAt) {
-        return new DatabaseTask(newId, newText, newStatus, createdAt, updatedAt);
+                           final String createdAt, final String updatedAt, final String owner) {
+        return new DatabaseTask(newId, newText, newStatus, createdAt, updatedAt, owner);
     }
 }

@@ -5,6 +5,7 @@ import it.sevenbits.taskmanager.core.model.task.TaskStatus;
 import it.sevenbits.taskmanager.core.repository.tasks.PaginationSort;
 import it.sevenbits.taskmanager.core.repository.tasks.PaginationTaskRepository;
 import it.sevenbits.taskmanager.core.service.task.TaskService;
+import it.sevenbits.taskmanager.core.service.user.UserService;
 import it.sevenbits.taskmanager.web.model.requests.AddTaskRequest;
 import it.sevenbits.taskmanager.web.model.requests.PatchTaskRequest;
 
@@ -40,18 +41,22 @@ public class TasksController {
     private PaginationTaskRepository taskRepository;
     private Logger logger;
     private TaskService taskService;
+    private UserService userService;
     private final String idValidationPattern = "^[\\da-fA-F]{8}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{12}$";
 
     /**
      * Public constructor
      *
      * @param taskRepository repository for tasks to use
-     * @param taskService    service that work with Task Objects
+     * @param taskService service that work with Task Objects
+     * @param userService service that work with User Objects
      */
 
-    public TasksController(final PaginationTaskRepository taskRepository, final TaskService taskService) {
+    public TasksController(final PaginationTaskRepository taskRepository, final TaskService taskService,
+                           final UserService userService) {
         this.taskRepository = taskRepository;
         this.taskService = taskService;
+        this.userService = userService;
         logger = LoggerFactory.getLogger(this.getClass());
     }
 
@@ -66,7 +71,6 @@ public class TasksController {
      */
 
     @GetMapping(produces = "application/json")
-    //@RequestMapping(path = "/tasks", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public ResponseEntity<GetTasksResponse> getTaskList(
             @RequestParam(name = "status", required = false,
@@ -83,7 +87,8 @@ public class TasksController {
 
                 String statusToGet = TaskStatus.resolveString(status).toString();
                 String orderToGet = PaginationSort.resolveString(order).toString();
-                GetTasksResponse result = taskRepository.getTaskList(statusToGet, orderToGet, page, size);
+                String owner = userService.getCurrentUser().getId();
+                GetTasksResponse result = taskRepository.getTaskList(statusToGet, orderToGet, page, size, owner);
                 if (result != null) {
                     return ResponseEntity
                             .status(HttpStatus.OK)
@@ -113,11 +118,11 @@ public class TasksController {
      */
 
     @PostMapping(produces = "application/json", consumes = "application/json")
-    //@RequestMapping(path = "/tasks", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     @ResponseBody
     public ResponseEntity<Task> createTask(@RequestBody final AddTaskRequest request) {
         try {
-            Task createdTask = taskRepository.createTask(request.getText());
+            String owner = userService.getCurrentUser().getId();
+            Task createdTask = taskRepository.createTask(request.getText(), owner);
             if (createdTask != null) {
                 return ResponseEntity
                         .status(HttpStatus.CREATED)
@@ -134,24 +139,31 @@ public class TasksController {
     }
 
     /**
-     * Get current task
+     * Get task by id
      *
      * @param id id of task to get
      * @return JSON with asked task (or with empty task if error within);
-     * HttpStatus: OK if success, NOT_FOUND if there is no task with chosen id
+     * HttpStatus: OK if success, NOT_FOUND if there is no task with chosen id, FORBIDDEN if trying to get not your task
      */
 
-    //@RequestMapping(path = "/tasks/{id}", method = RequestMethod.GET, produces = "application/json")
     @RequestMapping(path = "/{id}", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public ResponseEntity<Task> getTask(@Valid @Pattern(
             regexp = idValidationPattern) @PathVariable final String id) {
         Task task = taskRepository.getTask(id);
         if (task != null) {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .body(task);
+            String owner = userService.getCurrentUser().getId();
+            if (task.getOwner().equals(owner)) {
+                return ResponseEntity
+                        .status(HttpStatus.OK)
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .body(task);
+            } else {
+                return ResponseEntity
+                        .status(HttpStatus.FORBIDDEN)
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .build();
+            }
         }
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
@@ -162,13 +174,12 @@ public class TasksController {
     /**
      * Patch some fields of task
      *
-     * @param id      id of task to patch
+     * @param id id of task to patch
      * @param request body Object that contain JSON with fields to update
      * @return JSON with updated task (or with empty task if some errors within);
      * HttpStatus: NO_CONTENT if success, BAD_REQUEST if bad body,
      * NOT_FOUND if there is no current task with chosen id
      */
-    //@RequestMapping(path = "/tasks/{id}", method = RequestMethod.PATCH, produces = "application/json", consumes = "application/json")
     @RequestMapping(path = "/{id}", method = RequestMethod.PATCH, produces = "application/json", consumes = "application/json")
     @ResponseBody
     public ResponseEntity<Task> patchTask(@Valid @Pattern(
@@ -176,17 +187,26 @@ public class TasksController {
                                           @RequestBody final PatchTaskRequest request) {
         Task task = taskRepository.getTask(id);
         if (task != null) {
-            Task result = taskRepository.updateTask(id, taskService.update(task, request));
-            if (result != null) {
-                return ResponseEntity
-                        .status(HttpStatus.NO_CONTENT)
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
-                        .body(result);
-            }
+            String owner = userService.getCurrentUser().getId();
+            if (task.getOwner().equals(owner)) {
+                Task result = taskRepository.updateTask(id, taskService.update(task, request));
+                if (result != null) {
+                    return ResponseEntity
+                            .status(HttpStatus.NO_CONTENT)
+                            .contentType(MediaType.APPLICATION_JSON_UTF8)
+                            .body(result);
+                } else {
+                    return ResponseEntity
+                            .status(HttpStatus.BAD_REQUEST)
+                            .contentType(MediaType.APPLICATION_JSON_UTF8)
+                            .build();
+                }
+            } else {
             return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
+                    .status(HttpStatus.FORBIDDEN)
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
                     .build();
+            }
         }
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
@@ -201,22 +221,30 @@ public class TasksController {
      * @return JSON with deleted object if deleted correctly (or with empty task if some errors within);
      * HttpStatus: OK if success, NOT_FOUND if no current task with that id
      */
-    //@RequestMapping(path = "/tasks/{id}", method = RequestMethod.DELETE, produces = "application/json")
     @RequestMapping(path = "/{id}", method = RequestMethod.DELETE, produces = "application/json")
     @ResponseBody
     public ResponseEntity<Task> deleteTask(@Valid @Pattern(
             regexp = idValidationPattern) @PathVariable final String id) {
-        Task result = taskRepository.deleteTask(id);
-        if (result != null) {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .body(result);
+        Task task = taskRepository.getTask(id);
+        if (task != null) {
+            String owner = userService.getCurrentUser().getId();
+            if (!task.getOwner().equals(owner)) {
+                return ResponseEntity
+                        .status(HttpStatus.FORBIDDEN)
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .build();
+            }
+            Task result = taskRepository.deleteTask(id);
+            if (result != null) {
+                return ResponseEntity
+                        .status(HttpStatus.OK)
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .body(result);
+            }
         }
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .build();
     }
-
 }

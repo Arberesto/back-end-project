@@ -9,16 +9,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class PatchTaskRequest {
     @JsonProperty
     private String text;
+    @JsonProperty
     private String status;
 
     /**
-     * Default constructor for deserialization
+     * Constructor for deserialization
      */
 
     public PatchTaskRequest(){}
 
     /**
-     *
+     *Default constructor
      * @param text new text for Task
      * @param status new status for Task
      */

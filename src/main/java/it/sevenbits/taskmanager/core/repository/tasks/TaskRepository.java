@@ -16,7 +16,7 @@ public interface TaskRepository {
      * @return Task Object if created or empty task
      */
 
-    Task createTask(String text);
+    Task createTask(String text, String owner);
 
     /**
      * Get list of currens tasks with some status

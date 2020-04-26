@@ -38,11 +38,12 @@ public class TaskRepositoryTest {
     public void getTaskList_Normal() {
 
         List<Task> result2 = new ArrayList<>();
-        result2.add(factory.getNewTask(UUID.randomUUID().toString(),"firstTask", TaskStatus.done));
-        result2.add(factory.getNewTask(UUID.randomUUID().toString(),"secondTask", TaskStatus.done));
+        String owner = "somebody";
+        result2.add(factory.getNewTask(UUID.randomUUID().toString(),"firstTask", TaskStatus.done, owner));
+        result2.add(factory.getNewTask(UUID.randomUUID().toString(),"secondTask", TaskStatus.done, owner ));
 
         List<Task> result3 = new ArrayList<>();
-        result3.add(factory.getNewTask(UUID.randomUUID().toString(),"thirdTask", TaskStatus.inbox));
+        result3.add(factory.getNewTask(UUID.randomUUID().toString(),"thirdTask", TaskStatus.inbox, owner));
 
         JdbcOperations jdbcOperations = mock(JdbcOperations.class);
         when(jdbcOperations.query(anyString(), any(RowMapper.class), any())).
@@ -87,19 +88,19 @@ public class TaskRepositoryTest {
     @Test
     public void createTask_Normal() {
         JdbcOperations jdbcOperations = mock(JdbcOperations.class);
-        when(jdbcOperations.update(anyString(),any(Object.class))).thenReturn(1);
+        when(jdbcOperations.update(anyString(), any(Object.class))).thenReturn(1);
 
         String text = "Hello";
-
-
+        String owner = "somebody";
         taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
 
-        Task resultReal = taskRepository.createTask(text);
+        Task resultReal = taskRepository.createTask(text, owner);
 
-        // id generated in repository,so i need them to be equal, obviously
+        // id generated in repository,so i need them to be equal, obviously,
+        // as well as a time of creation and time of last update
 
         Task resultExpected = factory.getNewTask(resultReal.getId(),
-                text,TaskStatus.inbox, resultReal.getCreatedAt(),resultReal.getUpdatedAt());
+                text, TaskStatus.inbox, resultReal.getCreatedAt(),resultReal.getUpdatedAt(), owner);
 
         assertEquals(resultExpected, resultReal);
     }
@@ -110,11 +111,11 @@ public class TaskRepositoryTest {
         when(jdbcOperations.update(anyString(),any(Object.class))).thenReturn(0);
 
         String text = "Hello";
-
+        String owner = "somebody";
 
         taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
 
-        Task resultReal = taskRepository.createTask(text);
+        Task resultReal = taskRepository.createTask(text, owner);
         assertNull(resultReal);
     }
 
@@ -122,10 +123,10 @@ public class TaskRepositoryTest {
     public void createTask_FromEmptyString() {
         JdbcOperations jdbcOperations = mock(JdbcOperations.class);
         when(jdbcOperations.update(anyString(),any(Object.class))).thenReturn(1, 0);
-
+        String owner = "somebody";
         taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
 
-        Task resultReal = taskRepository.createTask("   ");
+        Task resultReal = taskRepository.createTask("   ", owner);
         assertNull(resultReal);
     }
 
@@ -137,10 +138,10 @@ public class TaskRepositoryTest {
                 thenThrow(new RecoverableDataAccessException("Expected error!There is no 'dummy' row"));
 
         String text = "Hello";
-
+        String owner = "somebody";
         taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
 
-        Task resultReal = taskRepository.createTask(text);
+        Task resultReal = taskRepository.createTask(text, owner);
 
         assertNull(resultReal);
     }
@@ -151,9 +152,9 @@ public class TaskRepositoryTest {
         String id2 = UUID.randomUUID().toString();
         String text1 = "Hello";
         String text2 = "Hello 2";
-
-        Task resultExpected1 = factory.getNewTask(id1, text1, TaskStatus.inbox);
-        Task resultExpected2 = factory.getNewTask(id2, text2, TaskStatus.done);
+        String owner = "somebody";
+        Task resultExpected1 = factory.getNewTask(id1, text1, TaskStatus.inbox, owner);
+        Task resultExpected2 = factory.getNewTask(id2, text2, TaskStatus.done, owner);
 
         JdbcOperations jdbcOperations = mock(JdbcOperations.class);
         when(jdbcOperations.queryForObject(anyString(), any(RowMapper.class), any())).
@@ -165,11 +166,38 @@ public class TaskRepositoryTest {
 
         Task resultReal2 = taskRepository.getTask(id2);
 
+        /*
+
         resultExpected1 = factory.getNewTask(id1, text1, TaskStatus.inbox,
-                resultExpected1.getCreatedAt(), resultReal1.getUpdatedAt());
+                resultExpected1.getCreatedAt(), resultReal1.getUpdatedAt(), owner);
 
         resultExpected2 = factory.getNewTask(id2, text2, TaskStatus.done,
-                resultExpected2.getCreatedAt(), resultReal2.getUpdatedAt());
+                resultExpected2.getCreatedAt(), resultReal2.getUpdatedAt(), owner);
+        */
+        assertEquals(resultExpected1,resultReal1);
+        assertEquals(resultExpected2,resultReal2);
+    }
+
+    @Test
+    public void getTask_DifferentOwners() {
+        String id1 = UUID.randomUUID().toString();
+        String id2 = UUID.randomUUID().toString();
+        String text1 = "Hello";
+        String text2 = "Hello 2";
+        String owner1 = "somebody";
+        String owner2 = "somebody1";
+        Task resultExpected1 = factory.getNewTask(id1, text1, TaskStatus.inbox, owner1);
+        Task resultExpected2 = factory.getNewTask(id2, text2, TaskStatus.done, owner2);
+
+        JdbcOperations jdbcOperations = mock(JdbcOperations.class);
+        when(jdbcOperations.queryForObject(anyString(), any(RowMapper.class), any())).
+                thenReturn(resultExpected1, resultExpected2);
+
+        taskRepository = new DatabaseTaskRepository(jdbcOperations,factory);
+
+        Task resultReal1 = taskRepository.getTask(id1);
+
+        Task resultReal2 = taskRepository.getTask(id2);
 
         assertEquals(resultExpected1,resultReal1);
         assertEquals(resultExpected2,resultReal2);
@@ -195,9 +223,9 @@ public class TaskRepositoryTest {
         String id2 = UUID.randomUUID().toString();
         String text1 = "Hello";
         String text2 = "Hello 2";
-
-        Task resultExpected1 = factory.getNewTask(id1, text1, TaskStatus.inbox);
-        Task resultExpected2 = factory.getNewTask(id2, text2, TaskStatus.done);
+        String owner = "somebody";
+        Task resultExpected1 = factory.getNewTask(id1, text1, TaskStatus.inbox, owner);
+        Task resultExpected2 = factory.getNewTask(id2, text2, TaskStatus.done, owner);
 
         JdbcOperations jdbcOperations = mock(JdbcOperations.class);
         when(jdbcOperations.queryForObject(anyString(), any(RowMapper.class), any())).
@@ -208,10 +236,10 @@ public class TaskRepositoryTest {
         Task resultReal2 = taskRepository.deleteTask(id2);
 
         resultExpected1 = factory.getNewTask(id1, text1, TaskStatus.inbox,
-                resultExpected1.getCreatedAt(), resultReal1.getUpdatedAt());
+                resultExpected1.getCreatedAt(), resultReal1.getUpdatedAt(), owner);
 
         resultExpected2 = factory.getNewTask(id2, text2, TaskStatus.done,
-                resultExpected2.getCreatedAt(), resultReal2.getUpdatedAt());
+                resultExpected2.getCreatedAt(), resultReal2.getUpdatedAt(), owner);
 
         assertEquals(resultExpected1, resultReal1);
         assertEquals(resultExpected2, resultReal2);
@@ -224,10 +252,10 @@ public class TaskRepositoryTest {
 
         String text = "Hello";
         String text1 = "Hello, world!";
-
+        String owner = "somebody";
         taskRepository = new DatabaseTaskRepository(jdbcOperations, factory);
 
-        Task originalTask = taskRepository.createTask(text);
+        Task originalTask = taskRepository.createTask(text, owner);
 
         assertNotEquals(null, originalTask);
 
@@ -249,8 +277,8 @@ public class TaskRepositoryTest {
 
         String id = UUID.randomUUID().toString();
         String text = "someTask";
-
-        Task resultExpected = factory.getNewTask(id, text, TaskStatus.done);
+        String owner = "somebody";
+        Task resultExpected = factory.getNewTask(id, text, TaskStatus.done, owner);
         taskRepository = new DatabaseTaskRepository(jdbcOperations,  factory);
         assertNull(taskRepository.updateTask(id,resultExpected));
     }
