@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class SignInRequest {
     @JsonProperty
     private String username;
+    @JsonProperty
     private String password;
 
     /**
@@ -17,7 +18,7 @@ public class SignInRequest {
      * @param password password of user
      */
 
-    public SignInRequest(@JsonProperty("username") final String username, @JsonProperty("password") final String password) {
+    public SignInRequest(final String username, final String password) {
         this.username = username;
         this.password = password;
     }
@@ -28,5 +29,10 @@ public class SignInRequest {
 
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("{\n 'username':'%s',\n 'password':'%s'\n}", username, password);
     }
 }

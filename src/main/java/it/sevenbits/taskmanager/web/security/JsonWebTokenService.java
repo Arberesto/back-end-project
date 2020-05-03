@@ -54,6 +54,7 @@ public class JsonWebTokenService implements JwtTokenService {
                 .setExpiration(Date.from(now.plus(Duration.ofMinutes(getTokenExpiredInMinutes()))));
         claims.put(AUTHORITIES, user.getAuthorities());
         claims.put(ENABLED, user.getEnabled());
+        logger.debug(String.format("In createToken enabled is - %s", claims.get("enabled").toString()));
         logger.debug("Claims authorities is also fine");
         JwtBuilder builder = Jwts.builder();
         builder = builder.setClaims(claims);
@@ -84,7 +85,8 @@ public class JsonWebTokenService implements JwtTokenService {
         logger.debug(String.format("id from claims when parse token - %s", claims.getBody().getId()));
         String id = claims.getBody().getId();
         String subject = claims.getBody().getSubject();
-        boolean enabled = Boolean.parseBoolean(claims.getBody().get("enabled").toString());
+        logger.debug(String.format("In parseToken enabled is - %s", claims.getBody().get(ENABLED).toString()));
+        boolean enabled = Boolean.parseBoolean(claims.getBody().get(ENABLED).toString());
         List<String> tokenAuthorities = claims.getBody().get(AUTHORITIES, List.class);
         List<GrantedAuthority> authorities = tokenAuthorities.stream()
                 .map(SimpleGrantedAuthority::new)

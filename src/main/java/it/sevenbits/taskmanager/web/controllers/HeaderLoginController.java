@@ -2,6 +2,7 @@ package it.sevenbits.taskmanager.web.controllers;
 
 import it.sevenbits.taskmanager.core.model.user.User;
 import it.sevenbits.taskmanager.core.service.login.LoginService;
+import it.sevenbits.taskmanager.core.service.login.exceptions.InvalidBodyException;
 import it.sevenbits.taskmanager.core.service.login.exceptions.LoginFailedException;
 import it.sevenbits.taskmanager.core.service.login.exceptions.UserAlreadyExistsException;
 import it.sevenbits.taskmanager.web.model.requests.SignInRequest;
@@ -56,15 +57,22 @@ public class HeaderLoginController implements LoginController {
     public ResponseEntity<SignInResponse> signin(@RequestBody final SignInRequest request) {
         try {
             User user = loginService.signin(request);
-            Token token = new Token(tokenService.createToken(user));
-            logger.debug("Token was generated");
+            Token token = new Token("");
+            if (user != null) {
+                token = new Token(tokenService.createToken(user));
+                logger.debug("Token was generated");
+
+            }
             logger.debug("Ready to response to signin");
             return ResponseEntity.ok(new SignInResponse(token));
         } catch (LoginFailedException e) {
             logger.error("Invalid login or password");
-            return ResponseEntity.ok(new SignInResponse(null));
+            //return ResponseEntity.ok(new SignInResponse(new Token("")));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (InvalidBodyException e1) {
+            logger.error("Invalid body");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
     }
 
     /**
@@ -83,6 +91,10 @@ public class HeaderLoginController implements LoginController {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
                     .build();
+        } catch (InvalidBodyException e) {
+            logger.error("Invalid input");
+            //return ResponseEntity.ok(new SignInResponse(new Token("")));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
 

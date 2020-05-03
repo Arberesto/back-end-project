@@ -4,7 +4,7 @@ import it.sevenbits.taskmanager.core.model.user.User;
 import it.sevenbits.taskmanager.core.model.user.UserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -61,7 +61,7 @@ public class UsersRepository {
                             " WHERE u.enabled = true AND u.username = ?",
                     username
             );
-        } catch (IncorrectResultSizeDataAccessException e) {
+        } catch (DataAccessException e) {
             return null;
         }
 
@@ -96,7 +96,7 @@ public class UsersRepository {
                             " WHERE u.enabled = true AND u.id = ?",
                     id
             );
-        } catch (IncorrectResultSizeDataAccessException e) {
+        } catch (DataAccessException e) {
             return null;
         }
 
@@ -124,21 +124,25 @@ public class UsersRepository {
 
     public List<User> findAll() {
         HashMap<String, User> users = new HashMap<>();
+        try {
 
-        for (Map<String, Object> row : jdbcOperations.queryForList(
-                "SELECT users.id, users.username, authorities.authority FROM users" +
-                        " INNER JOIN authorities ON users.username = authorities.username" +
-                        " WHERE users.enabled = true")) {
+            for (Map<String, Object> row : jdbcOperations.queryForList(
+                    "SELECT users.id, users.username, authorities.authority FROM users" +
+                            " INNER JOIN authorities ON users.username = authorities.username" +
+                            " WHERE users.enabled = true")) {
 
-            String id = String.valueOf(row.get(ID));
-            boolean enabled = Boolean.parseBoolean(row.get(ENABLED).toString());
-            String username = String.valueOf(row.get(USERNAME));
-            String newRole = String.valueOf(row.get(AUTHORITY));
-            User user = users.computeIfAbsent(username, name -> factory.getNewUser(id, name, null,
-                    new ArrayList<>(), enabled));
-            List<String> roles = user.getAuthorities();
-            roles.add(newRole);
+                String id = String.valueOf(row.get(ID));
+                boolean enabled = Boolean.parseBoolean(row.get(ENABLED).toString());
+                String username = String.valueOf(row.get(USERNAME));
+                String newRole = String.valueOf(row.get(AUTHORITY));
+                User user = users.computeIfAbsent(username, name -> factory.getNewUser(id, name, null,
+                        new ArrayList<>(), enabled));
+                List<String> roles = user.getAuthorities();
+                roles.add(newRole);
 
+            }
+        } catch (Exception e) {
+            logger.error(String.format("ERROR: in findAll method: %s", e.getMessage()));
         }
         return new ArrayList<>(users.values());
     }

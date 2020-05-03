@@ -23,6 +23,7 @@ public class DatabaseTask implements Task {
      * @param newId id of Task
      * @param newText text of Task
      * @param status TaskStatus of Task
+     * @param owner id of owner of Task
      */
 
     DatabaseTask(final String newId, final String newText, final TaskStatus status, final String owner) {

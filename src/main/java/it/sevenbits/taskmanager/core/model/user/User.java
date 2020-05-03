@@ -106,7 +106,7 @@ public class User {
             logger.debug("User: get Map in Principal here");
             id = ((Map) principal).get("id").toString();
             username = ((Map) principal).get("subject").toString();
-            enabled = Boolean.parseBoolean(((Map) principal).get("subject").toString());
+            enabled = Boolean.parseBoolean(((Map) principal).get("enabled").toString());
 
         } else {
             logger.debug("User: Just our string in Principal here");

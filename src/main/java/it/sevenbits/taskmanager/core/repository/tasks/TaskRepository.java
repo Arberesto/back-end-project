@@ -13,6 +13,7 @@ public interface TaskRepository {
     /**
      * Create new Task
      * @param text text of new Task
+     * @param owner owner of new Task
      * @return Task Object if created or empty task
      */
 

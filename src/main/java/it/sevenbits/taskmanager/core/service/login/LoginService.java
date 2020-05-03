@@ -3,6 +3,7 @@ package it.sevenbits.taskmanager.core.service.login;
 import it.sevenbits.taskmanager.core.model.user.User;
 import it.sevenbits.taskmanager.core.model.user.UserFactory;
 import it.sevenbits.taskmanager.core.repository.users.UsersRepository;
+import it.sevenbits.taskmanager.core.service.login.exceptions.InvalidBodyException;
 import it.sevenbits.taskmanager.core.service.login.exceptions.LoginFailedException;
 import it.sevenbits.taskmanager.core.service.login.exceptions.UserAlreadyExistsException;
 import it.sevenbits.taskmanager.core.service.user.UserService;
@@ -49,18 +50,23 @@ public class LoginService {
      */
 
     public User signin(final SignInRequest request) {
-        User user = users.findByUserName(request.getUsername());
-        if (user != null) {
-            if (user.getEnabled()) {
-                if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-                    throw new LoginFailedException("Wrong password");
+        logger.debug(request.toString());
+        try {
+            User user = users.findByUserName(request.getUsername());
+            if (user != null) {
+                if (user.getEnabled()) {
+                    if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                        throw new LoginFailedException("Wrong password");
+                    }
+                    return userFactory.getNewUser(user.getId(), user.getUsername(), null, user.getAuthorities(),
+                            user.getEnabled());
                 }
-                return userFactory.getNewUser(user.getId(), user.getUsername(), null, user.getAuthorities(),
-                        user.getEnabled());
             }
+            throw new LoginFailedException("User '" + request.getUsername() + "' not found");
+        } catch (Exception e) {
+            logger.error(String.format("Error in signin: %s", e.getMessage()));
+            throw new InvalidBodyException("Invalid signin request");
         }
-        throw new LoginFailedException("User '" + request.getUsername() + "' not found");
-
     }
 
     /**
@@ -71,15 +77,20 @@ public class LoginService {
      */
 
     public User signup(final SignUpRequest request) {
-        User user = users.findByUserName(request.getUsername());
-        if (user == null) {
-            user = userService.createNewUser(request.getUsername(), request.getPassword());
+        try {
+            User user = users.findByUserName(request.getUsername());
             if (user == null) {
-                logger.warn("Warning: user wasn't created");
+                user = userService.createNewUser(request.getUsername(), request.getPassword());
+                if (user == null) {
+                    logger.warn("Warning: user wasn't created");
+                }
+                return user;
             }
-            return user;
+            throw new UserAlreadyExistsException("User with that name already exists");
+        } catch (Exception e) {
+            logger.error(String.format("Error in signup: %s", e.getMessage()));
+            throw new InvalidBodyException("Invalid signup request");
         }
-        throw new UserAlreadyExistsException("User with that name already exists");
     }
 
 }
