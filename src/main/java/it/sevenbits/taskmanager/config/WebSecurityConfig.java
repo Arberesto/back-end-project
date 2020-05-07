@@ -55,7 +55,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         JwtAuthFilter authFilter = new HeaderJwtAuthFilter(notLoginPageMatcher);
         //JwtAuthFilter authFilter = new CookieJwtAuthFilter(notLoginPageMatcher);
         http.addFilterBefore(authFilter, FilterSecurityInterceptor.class);
-
         http
                 .authorizeRequests()
                 .antMatchers("/signup", "/signin").permitAll()
