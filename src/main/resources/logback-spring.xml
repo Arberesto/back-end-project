@@ -2,7 +2,7 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <property name="LOG_FILENAME" value="taskmanager"/>
-    <property name="LOG_PATH" value="/var/logs/nginx/taskmanager.io/"/>
+    <property name="LOG_PATH" value="./tmplogs"/>
     <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH}/${LOG_FILENAME}.log}"/>
 
     <appender name="ROLLING-FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">

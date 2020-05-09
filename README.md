@@ -25,8 +25,8 @@ server {
 	root /var/www/taskmanager/frontend;
 	index index.html;
 
-	access_log /var/logs/nginx/taskmanager.dev/access.log;
-	error_log /var/logs/nginx/taskmanager.dev/error.log;
+	access_log /var/logs/nginx/taskmanager.io/access.log;
+	error_log /var/logs/nginx/taskmanager.io/error.log;
 
 	 location /todo {
     		try_files $uri $uri/ /index.html;
@@ -80,7 +80,7 @@ server {
 	}
 }
 
-//create link for config file
+//create link for server config file
 sudo ln -s /etc/nginx/sites-available/taskmanager.io /etc/nginx/sites-enabled/taskmanager.io
 
 
