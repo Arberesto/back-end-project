@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <property name="LOG_FILENAME" value="taskmanager"/>
+    <property name="LOG_PATH" value="/var/logs/nginx/taskmanager.io/"/>
+    <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH}/${LOG_FILENAME}.log}"/>
+
+    <appender name="ROLLING-FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>
+                %d{dd-MM-yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg %n
+            </Pattern>
+        </encoder>
+        <file>${LOG_FILE}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>
+                ${LOG_PATH}/archived/${LOG_FILENAME}_%d{yyyy_MM_dd_HH}.log.gz
+            </fileNamePattern>
+            <maxHistory>24</maxHistory>
+            <totalSizeCap>100MB</totalSizeCap>
+        </rollingPolicy>
+
+    </appender>
+
+
+    <springProfile name="console-and-file-logging">
+        <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ROLLING-FILE"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="file-only-logging">
+        <root level="WARN">
+            <appender-ref ref="ROLLING-FILE"/>
+        </root>
+    </springProfile>
+
+</configuration>

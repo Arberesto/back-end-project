@@ -9,10 +9,14 @@ spring:
       password: somepassword
       driver-class-name: org.postgresql.Driver
 
+  profiles:
+    active: console-and-file-logging
+
+
 jwt:
   issuer: 'devilprime5@gmail.com'
   signingKey: '10414d3bf71b47bbf7566f4d59baae929c0b869a01079cb5dd72d6a3aae5dc6924dd049564f1f9989e2eed5ba92d30cde2216b2e5f9982538c831c81d77511fc'
-  aTokenDuration: 5
+  aTokenDuration: 10
 
 logging:
   level:
