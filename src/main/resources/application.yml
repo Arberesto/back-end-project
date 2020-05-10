@@ -19,7 +19,6 @@ jwt:
   aTokenDuration: 10
 
 logging:
-  path: logs
   level:
     root: INFO
     it.sevenbits.taskmanager: DEBUG

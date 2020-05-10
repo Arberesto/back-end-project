@@ -3,6 +3,7 @@ package it.sevenbits.taskmanager.core.repository.tasks;
 import it.sevenbits.taskmanager.core.model.task.Task;
 import it.sevenbits.taskmanager.core.model.task.TaskFactory;
 import it.sevenbits.taskmanager.core.model.task.TaskStatus;
+import it.sevenbits.taskmanager.core.service.user.UserService;
 import it.sevenbits.taskmanager.web.model.responce.GetTasksResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
 
     private JdbcOperations jdbcOperations;
     private TaskFactory taskFactory;
+    private UserService userService;
     private final Logger logger;
 
     private final String taskId = "id";
@@ -33,12 +35,12 @@ public class DatabaseTaskRepository implements PaginationTaskRepository {
     /**
      * Constructor for class
      * @param jdbcOperations JDBC object to interact with database
-     * @param factory Taskfactory to create new Task objects
+     * @param taskFactory Taskfactory to create new Task objects
      */
 
-    public DatabaseTaskRepository(final JdbcOperations jdbcOperations, final TaskFactory factory) {
+    public DatabaseTaskRepository(final JdbcOperations jdbcOperations, final TaskFactory taskFactory) {
         this.jdbcOperations = jdbcOperations;
-        taskFactory = factory;
+        this.taskFactory = taskFactory;
         logger = LoggerFactory.getLogger(DatabaseTaskRepository.class);
     }
 
