@@ -7,6 +7,10 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Filter that check JWT in header for authentication
+ */
+
 public class HeaderJwtAuthFilter extends JwtAuthFilter  {
     //"Bearer{your token}"
     private static final Pattern BEARER_AUTH_PATTERN = Pattern.compile("^Bearer\\s+(.*)$");

@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+/**
+ * Controller for letting active user get info about itself
+ */
+
 @Controller
 @RequestMapping("/whoami")
 public class WhoamiController {

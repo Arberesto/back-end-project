@@ -15,6 +15,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service to provide sign in and sign up operations
+ */
+
 @Service
 public class LoginService {
 

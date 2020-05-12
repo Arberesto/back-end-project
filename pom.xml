@@ -73,6 +73,8 @@
         <java.version>1.8</java.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <!-- The main class to start by executing "java -jar" -->
+        <start-class>com.baeldung.DemoApplication</start-class>
     </properties>
 
     <build>
@@ -81,6 +83,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <mainClass>it.sevenbits.taskmanager.Application</mainClass>
                     <executable>true</executable>
                 </configuration>
             </plugin>

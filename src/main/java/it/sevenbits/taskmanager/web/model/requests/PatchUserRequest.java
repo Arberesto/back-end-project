@@ -5,6 +5,10 @@ import it.sevenbits.taskmanager.web.security.AuthoritiesList;
 
 import java.util.List;
 
+/**
+ * Model for PATCH method in UsersController
+ */
+
 public class PatchUserRequest {
 
     //ADMIN can change only account status and user authorities.

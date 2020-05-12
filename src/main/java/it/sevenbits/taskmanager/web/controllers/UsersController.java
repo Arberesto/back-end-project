@@ -55,7 +55,7 @@ public class UsersController {
 
     @GetMapping(value = "/{userId}")
     @ResponseBody
-    public ResponseEntity<User> getUserInfo(final @PathVariable("userId") String userId) {
+    public ResponseEntity<User> getUserInfo(@PathVariable("userId") final String userId) {
         return Optional
                 .ofNullable(usersRepository.findActiveUser(userId))
                 .map(user -> ResponseEntity.ok().body(user))
@@ -71,8 +71,8 @@ public class UsersController {
 
     @RequestMapping(path = "/{userId}", method = RequestMethod.PATCH, produces = "application/json", consumes = "application/json")
     @ResponseBody
-    public ResponseEntity patchUser(final @PathVariable("userId") String userId,
-                                    final @RequestBody PatchUserRequest patchUserRequest) {
+    public ResponseEntity patchUser(@PathVariable("userId") final String userId,
+                                    @RequestBody final PatchUserRequest patchUserRequest) {
         User user = usersRepository.findActiveUser(userId);
         if (patchUserRequest.validate()) {
             return Optional

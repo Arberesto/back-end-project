@@ -11,6 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Factory to create User objects
+ */
+
 public class UserFactory {
 
 

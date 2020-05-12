@@ -6,6 +6,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Token that app used as representation of authenticated User
+ */
 
 public class AuthenticatedJwtToken extends AbstractAuthenticationToken {
 

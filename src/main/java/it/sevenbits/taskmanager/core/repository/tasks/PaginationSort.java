@@ -1,15 +1,19 @@
 package it.sevenbits.taskmanager.core.repository.tasks;
 
+/**
+ * Enum for all variants of sorting elements in getTaskList method
+ */
+
 public enum PaginationSort {
 
     /**
-     *
+     *Descend alphabetical order
      */
 
     DESC,
 
     /**
-     *
+     *Ascend alphabetical order
      */
 
     ASC;

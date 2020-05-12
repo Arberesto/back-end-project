@@ -2,6 +2,10 @@ package it.sevenbits.taskmanager.core.repository.tasks;
 
 import it.sevenbits.taskmanager.web.model.responce.GetTasksResponse;
 
+/**
+ * Task Repository that have getTaskList with pagination
+ */
+
 public interface PaginationTaskRepository extends TaskRepository {
 
     /**
