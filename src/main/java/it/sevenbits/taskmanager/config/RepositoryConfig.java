@@ -7,7 +7,6 @@ import it.sevenbits.taskmanager.core.repository.tasks.DatabaseTaskRepository;
 import it.sevenbits.taskmanager.core.repository.tasks.PaginationTaskRepository;
 
 import it.sevenbits.taskmanager.core.repository.users.UsersRepository;
-import it.sevenbits.taskmanager.core.service.user.UserService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
