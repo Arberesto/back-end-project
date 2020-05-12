@@ -22,12 +22,12 @@ public class TaskFactory {
      * @param newId Id of task
      * @param newText Text of task
      * @param newStatus Status of task
-     * @param createdAt Date of creating task
+     * @param updatedAt Date of creating task
      * @return Task Object
      */
     public Task getNewTask(final String newId, final String newText,
-                           final TaskStatus newStatus, final String createdAt) {
-        return new SimpleTask(newId, newText, newStatus, createdAt);
+                           final TaskStatus newStatus, final String updatedAt) {
+        return new SimpleTask(newId, newText, newStatus, updatedAt);
     }
 
 
@@ -37,11 +37,11 @@ public class TaskFactory {
      * @param newText Text of task
      * @param newStatus Status of task
      * @param createdAt Date of creating task
-     * @param changedAt Last date of creating task
+     * @param updatedAt Last date of creating task
      * @return Task Object
      */
     public Task getNewTask(final String newId, final String newText, final TaskStatus newStatus,
-                           final String createdAt, final String changedAt) {
-        return new SimpleTask(newId, newText, newStatus, createdAt, changedAt);
+                           final String createdAt, final String updatedAt) {
+        return new SimpleTask(newId, newText, newStatus, createdAt, updatedAt);
     }
 }

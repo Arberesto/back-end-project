@@ -28,7 +28,7 @@ public class TaskTest {
 
         assertTrue(task.update(node));
 
-        expectedTask.setChangedAt(task.getChangedAt());
+        expectedTask.setUpdatedAt(task.getUpdatedAt());
         assertEquals(expectedTask,task);
     }
 }

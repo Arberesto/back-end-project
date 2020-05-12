@@ -25,7 +25,7 @@ public class DatabaseTaskRepository implements TaskRepository {
     private static final int TASK_TEXT = 2;
     private static final int TASK_STATUS = 3;
     private static final int TASK_CREATED_AT = 4;
-    private static final int TASK_CHANGED_AT = 5;
+    private static final int TASK_UPDATED_AT = 5;
 
     /**
      * Constructor for class
@@ -48,15 +48,15 @@ public class DatabaseTaskRepository implements TaskRepository {
     public List<Task> getTaskList(final String status) {
         try {
             return jdbcOperations.query(
-                    "SELECT id, name, status, createdAt, changedAt FROM task WHERE status = ?",
+                    "SELECT id, name, status, createdAt, updatedAt FROM task WHERE status = ?",
                     (resultSet, i) -> {
                         String resultId = resultSet.getString(TASK_ID);
                         String resultName = resultSet.getString(TASK_TEXT);
                         String resultStatus = resultSet.getString(TASK_STATUS);
                         String resultCreatedAt = resultSet.getString(TASK_CREATED_AT);
-                        String resultChangedAt = resultSet.getString(TASK_CHANGED_AT);
+                        String resultUpdatedAt = resultSet.getString(TASK_UPDATED_AT);
                         return taskFactory.getNewTask(resultId, resultName, TaskStatus.resolveString(resultStatus),
-                                resultCreatedAt, resultChangedAt);
+                                resultCreatedAt, resultUpdatedAt);
                     },
                     status);
         } catch (Exception e) {
@@ -80,8 +80,8 @@ public class DatabaseTaskRepository implements TaskRepository {
         Task result = taskFactory.getNewTask(id, text, status);
         try {
             int rows = jdbcOperations.update(
-                    "INSERT INTO task (id, name, status, createdAt, changedAt) VALUES (?, ?, ?, ?, ?)",
-                    id, text, status.toString(), result.getCreatedAt(), result.getChangedAt()
+                    "INSERT INTO task (id, name, status, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)",
+                    id, text, status.toString(), result.getCreatedAt(), result.getUpdatedAt()
             );
             if (rows > 0) {
                 return result;
@@ -111,18 +111,18 @@ public class DatabaseTaskRepository implements TaskRepository {
     public Task getTask(final String id) {
         try {
             return jdbcOperations.queryForObject(
-                    "SELECT id, name, status, createdAt, changedAt FROM task WHERE id = ?",
+                    "SELECT id, name, status, createdAt, updatedAt FROM task WHERE id = ?",
                     (resultSet, i) -> {
                         String rowId = resultSet.getString(TASK_ID);
                         String rowName = resultSet.getString(TASK_TEXT);
                         TaskStatus rowStatus = TaskStatus.resolveString(resultSet.getString(TASK_STATUS));
                         String rowCreatedAt = resultSet.getString(TASK_CREATED_AT);
-                        String rowChangedAt = resultSet.getString(TASK_CHANGED_AT);
+                        String rowUpdatedAt = resultSet.getString(TASK_UPDATED_AT);
                         if (rowStatus.is(TaskStatus.empty)) {
                             return emptyTask;
                         }
                         return taskFactory.getNewTask(rowId, rowName, rowStatus,
-                                rowCreatedAt, rowChangedAt);
+                                rowCreatedAt, rowUpdatedAt);
                     },
                     id);
         } catch (Exception e) {
@@ -140,14 +140,14 @@ public class DatabaseTaskRepository implements TaskRepository {
     public Task deleteTask(final String id) {
         try {
             Task deletedTask1 = jdbcOperations.queryForObject(
-                    "DELETE FROM task WHERE id = ? RETURNING id, name, status, createdAt, changedAt",
+                    "DELETE FROM task WHERE id = ? RETURNING id, name, status, createdAt, updatedAt",
                     (resultSet, i) -> {
                         TaskStatus rowStatus = TaskStatus.resolveString(resultSet.getString(TASK_STATUS));
                         String rowId = resultSet.getString(TASK_ID);
                         String rowName = resultSet.getString(TASK_TEXT);
                         String rowCreatedAt = resultSet.getString(TASK_CREATED_AT);
-                        String rowChangedAt = resultSet.getString(TASK_CHANGED_AT);
-                        return taskFactory.getNewTask(rowId, rowName, rowStatus, rowCreatedAt, rowChangedAt);
+                        String rowUpdatedAt = resultSet.getString(TASK_UPDATED_AT);
+                        return taskFactory.getNewTask(rowId, rowName, rowStatus, rowCreatedAt, rowUpdatedAt);
                     },
                     id);
             if (!deletedTask1.getStatus().is(TaskStatus.empty)) {
@@ -169,11 +169,11 @@ public class DatabaseTaskRepository implements TaskRepository {
         if (!changedTask.getStatus().is(TaskStatus.empty)) {
             try {
                 int rowsInsert = jdbcOperations.update(
-                        "INSERT INTO task (id, name, status, createdAt, changedAt) VALUES (?, ?, ?, ?, ?) " +
+                        "INSERT INTO task (id, name, status, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?) " +
                                 "ON CONFLICT(id) DO UPDATE SET name = ?, status = ?, changedAt = ?",
                         changedTask.getId(), changedTask.getText(), changedTask.getStatus().toString(),
-                        changedTask.getCreatedAt(), changedTask.getChangedAt(), changedTask.getText(),
-                        changedTask.getStatus().toString(), changedTask.getChangedAt()
+                        changedTask.getCreatedAt(), changedTask.getUpdatedAt(), changedTask.getText(),
+                        changedTask.getStatus().toString(), changedTask.getUpdatedAt()
                 );
                 if (rowsInsert > 0) {
                     return changedTask;

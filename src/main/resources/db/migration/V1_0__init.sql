@@ -3,5 +3,5 @@ CREATE TABLE task (
   name varchar NOT NULL,
   status varchar NOT NULL,
   createdAt varchar NOT NULL,
-  changedAt varchar NOT NULL
+  updatedAt varchar NOT NULL
 );

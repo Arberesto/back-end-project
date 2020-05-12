@@ -21,7 +21,7 @@ public class SimpleTask implements Task {
     private String text;
     private TaskStatus status;
     private String createdAt;
-    private String changedAt;
+    private String updatedAt;
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
 
     /**
@@ -37,7 +37,7 @@ public class SimpleTask implements Task {
         this.id = newId;
         this.status = TaskStatus.inbox;
         this.createdAt = simpleDateFormat.format(new Date());
-        this.changedAt = simpleDateFormat.format(new Date());
+        this.updatedAt = simpleDateFormat.format(new Date());
     }
 
     /**
@@ -52,7 +52,7 @@ public class SimpleTask implements Task {
         this.id = newId;
         this.status = status;
         this.createdAt = simpleDateFormat.format(new Date());
-        this.changedAt = simpleDateFormat.format(new Date());
+        this.updatedAt = simpleDateFormat.format(new Date());
     }
 
     /**
@@ -68,7 +68,7 @@ public class SimpleTask implements Task {
         this.id = newId;
         this.status = status;
         this.createdAt = createdAt;
-        this.changedAt = simpleDateFormat.format(new Date());
+        this.updatedAt = simpleDateFormat.format(new Date());
     }
 
     /**
@@ -77,16 +77,16 @@ public class SimpleTask implements Task {
      * @param newText text of Task
      * @param status TaskStatus of Task
      * @param createdAt Date of creating this Object
-     * @param changedAt Date of last changing this Object
+     * @param updatedAt Date of last changing this Object
      */
 
     SimpleTask(final String newId, final String newText, final TaskStatus status,
-               final String createdAt, final String changedAt) {
+               final String createdAt, final String updatedAt) {
         this.text = newText;
         this.id = newId;
         this.status = status;
         this.createdAt = createdAt;
-        this.changedAt = changedAt;
+        this.updatedAt = updatedAt;
     }
 
     public String getId() {
@@ -149,7 +149,7 @@ public class SimpleTask implements Task {
                         return false;
                 }
             }
-            setChangedAt(simpleDateFormat.format(new Date()));
+            setUpdatedAt(simpleDateFormat.format(new Date()));
         } catch (Exception e) {
             return false;
         }
@@ -180,17 +180,17 @@ public class SimpleTask implements Task {
      * @return String with date
      */
 
-    public String getChangedAt() {
-        return changedAt;
+    public String getUpdatedAt() {
+        return updatedAt;
     }
 
     /**
      * Set time and date of last change
-     * @param changedAt new date of last change
+     * @param updatedAt new date of last change
      */
 
-    public void setChangedAt(final String changedAt) {
-        this.changedAt = changedAt;
+    public void setUpdatedAt(final String updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     @Override
@@ -209,7 +209,7 @@ public class SimpleTask implements Task {
         sb.append(createdAt);
         sb.append("\n}");
         sb.append("changedAt: ");
-        sb.append(changedAt);
+        sb.append(updatedAt);
         sb.append("\n}");
         return sb.toString();
     }
@@ -219,7 +219,7 @@ public class SimpleTask implements Task {
         if (o.getClass().getSimpleName().equals("SimpleTask")) {
             SimpleTask task = ((SimpleTask) o);
             return ((this.id.equals(task.id)) & (this.text.equals(task.text)) & (this.status.is(task.status))
-                    & (this.createdAt.equals(task.createdAt)) & (this.changedAt.equals(task.changedAt)));
+                    & (this.createdAt.equals(task.createdAt)) & (this.updatedAt.equals(task.updatedAt)));
         }
         return false;
     }

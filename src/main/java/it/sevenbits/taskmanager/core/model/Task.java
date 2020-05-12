@@ -62,14 +62,14 @@ public interface Task {
      * @return String with date
      */
 
-    String getChangedAt();
+    String getUpdatedAt();
 
     /**
      * Set date of last change
-     * @param changedAt Date String
+     * @param updatedAt Date String
      */
 
-    void setChangedAt(String changedAt);
+    void setUpdatedAt(String updatedAt);
 
     /**
      * Update this task

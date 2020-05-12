@@ -87,19 +87,19 @@ public class TaskRepositoryTest {
 
         Task resultReal = taskRepository.createTask("   ");
         emptyTask.setCreatedAt(resultReal.getCreatedAt());
-        emptyTask.setChangedAt(resultReal.getChangedAt());
+        emptyTask.setUpdatedAt(resultReal.getUpdatedAt());
         assertEquals(emptyTask, resultReal);
 
 
         resultReal = taskRepository.createTask(text);
         resultExpected.setId(resultReal.getId()); // id generated in repository,so i need them to be equal, obviously
         resultExpected.setCreatedAt(resultReal.getCreatedAt());
-        resultExpected.setChangedAt(resultReal.getChangedAt());
+        resultExpected.setUpdatedAt(resultReal.getUpdatedAt());
         assertEquals(resultExpected, resultReal);
 
         resultReal = taskRepository.createTask(text);
         emptyTask.setCreatedAt(resultReal.getCreatedAt());
-        emptyTask.setChangedAt(resultReal.getChangedAt());
+        emptyTask.setUpdatedAt(resultReal.getUpdatedAt());
         assertEquals(emptyTask, resultReal);
     }
 
@@ -120,7 +120,7 @@ public class TaskRepositoryTest {
         Task resultReal = taskRepository.createTask(text);
 
         emptyTask.setCreatedAt(resultReal.getCreatedAt());
-        emptyTask.setChangedAt(resultReal.getChangedAt());
+        emptyTask.setUpdatedAt(resultReal.getUpdatedAt());
 
         assertEquals(emptyTask,resultReal);
     }
@@ -143,11 +143,11 @@ public class TaskRepositoryTest {
 
         Task resultReal1 = taskRepository.getTask(id1);
         resultExpected1.setCreatedAt(resultReal1.getCreatedAt());
-        resultExpected1.setChangedAt(resultReal1.getChangedAt());
+        resultExpected1.setUpdatedAt(resultReal1.getUpdatedAt());
 
         Task resultReal2 = taskRepository.getTask(id2);
         resultExpected2.setCreatedAt(resultReal1.getCreatedAt());
-        resultExpected2.setChangedAt(resultReal1.getChangedAt());
+        resultExpected2.setUpdatedAt(resultReal1.getUpdatedAt());
 
         assertEquals(resultExpected1,resultReal1);
         assertEquals(resultExpected2,resultReal2);
@@ -165,7 +165,7 @@ public class TaskRepositoryTest {
         Task resultReal = taskRepository.getTask(id);
 
         emptyTask.setCreatedAt(resultReal.getCreatedAt());
-        emptyTask.setChangedAt(resultReal.getChangedAt());
+        emptyTask.setUpdatedAt(resultReal.getUpdatedAt());
         assertEquals(emptyTask, resultReal);
     }
 
@@ -188,9 +188,9 @@ public class TaskRepositoryTest {
         Task resultReal2 = taskRepository.deleteTask(id2);
 
         resultExpected1.setCreatedAt(resultReal1.getCreatedAt());
-        resultExpected1.setChangedAt(resultReal1.getChangedAt());
+        resultExpected1.setUpdatedAt(resultReal1.getUpdatedAt());
         resultExpected2.setCreatedAt(resultReal1.getCreatedAt());
-        resultExpected2.setChangedAt(resultReal1.getChangedAt());
+        resultExpected2.setUpdatedAt(resultReal1.getUpdatedAt());
 
         assertEquals(resultExpected1,resultReal1);
         assertEquals(resultExpected2,resultReal2);
@@ -212,7 +212,7 @@ public class TaskRepositoryTest {
 
         resultExpected.setId(resultReal.getId());
         resultExpected.setCreatedAt(resultReal.getCreatedAt());
-        resultExpected.setChangedAt(resultReal.getChangedAt());
+        resultExpected.setUpdatedAt(resultReal.getUpdatedAt());
 
         assertEquals(resultExpected,resultReal);
     }
@@ -234,7 +234,7 @@ public class TaskRepositoryTest {
         TaskRepository taskRepository = new DatabaseTaskRepository(jdbcOperations);
         Task resultReal = taskRepository.updateTask(id,resultExpected);
         emptyTask.setCreatedAt(resultReal.getCreatedAt());
-        emptyTask.setChangedAt(resultReal.getChangedAt());
+        emptyTask.setUpdatedAt(resultReal.getUpdatedAt());
         assertEquals(emptyTask, resultReal);
     }
 }
